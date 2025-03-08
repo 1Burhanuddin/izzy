@@ -1,18 +1,23 @@
 
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { toast } from "sonner";
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Login = () => {
-  const navigate = useNavigate();
+  const { signIn, user, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // If user is already logged in, redirect to home
+  if (user && !isLoading) {
+    return <Navigate to="/" />;
+  }
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,35 +31,13 @@ const Login = () => {
       return;
     }
     
-    // Simulate authentication API call
-    setTimeout(() => {
-      // For demo purposes, we'll just check for admin credentials
-      if (email === 'admin@example.com' && password === 'admin123') {
-        // Store token in localStorage (in a real app, this would be a JWT)
-        localStorage.setItem('userRole', 'admin');
-        localStorage.setItem('isAuthenticated', 'true');
-        
-        // Show success toast
-        toast.success('Welcome back, Admin!');
-        
-        // Redirect to admin dashboard
-        navigate('/admin/dashboard');
-      } else if (email === 'user@example.com' && password === 'user123') {
-        // Store customer token
-        localStorage.setItem('userRole', 'customer');
-        localStorage.setItem('isAuthenticated', 'true');
-        
-        // Show success toast
-        toast.success('Successfully logged in!');
-        
-        // Redirect to home
-        navigate('/');
-      } else {
-        setError('Invalid email or password');
-      }
-      
+    try {
+      await signIn(email, password);
+    } catch (err: any) {
+      setError(err.message || 'An error occurred during sign in');
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
   
   return (

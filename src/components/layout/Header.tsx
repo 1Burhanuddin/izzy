@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingCart, User, Menu, X } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingCart, User, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Header: React.FC = () => {
+  const { user, isAdmin, signOut } = useAuth();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false); // Replace with actual auth state
+  const navigate = useNavigate();
 
   // Change header style on scroll
   useEffect(() => {
@@ -80,12 +82,25 @@ const Header: React.FC = () => {
             </Button>
           </Link>
           
-          {isAuthenticated ? (
-            <Link to="/account">
-              <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
-                <User className="h-5 w-5" />
+          {user ? (
+            <div className="flex items-center">
+              {isAdmin && (
+                <Link to="/admin" className="mr-2">
+                  <Button variant="ghost" className="rounded-full hover:bg-gray-100">
+                    Admin
+                  </Button>
+                </Link>
+              )}
+              
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full hover:bg-gray-100"
+                onClick={() => signOut()}
+              >
+                <LogOut className="h-5 w-5" />
               </Button>
-            </Link>
+            </div>
           ) : (
             <Link to="/login">
               <Button 
@@ -146,6 +161,17 @@ const Header: React.FC = () => {
           >
             Hardware
           </Link>
+          
+          {isAdmin && (
+            <Link 
+              to="/admin" 
+              className="text-lg font-medium py-2 hover:text-gray-600 smooth-transition"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Admin Dashboard
+            </Link>
+          )}
+          
           <div className="flex justify-between pt-4 border-t">
             <Link 
               to="/cart" 
@@ -155,15 +181,18 @@ const Header: React.FC = () => {
               <ShoppingCart className="h-5 w-5" />
               <span>Cart</span>
             </Link>
-            {isAuthenticated ? (
-              <Link 
-                to="/account" 
-                className="flex items-center space-x-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+            
+            {user ? (
+              <button 
+                className="flex items-center space-x-2 text-red-500"
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  signOut();
+                }}
               >
-                <User className="h-5 w-5" />
-                <span>Account</span>
-              </Link>
+                <LogOut className="h-5 w-5" />
+                <span>Sign Out</span>
+              </button>
             ) : (
               <Link 
                 to="/login" 
