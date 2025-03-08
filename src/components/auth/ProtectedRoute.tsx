@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -14,6 +14,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   redirectPath = '/login',
 }) => {
   const { user, isAdmin, isLoading } = useAuth();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Check for admin access on each location change for protected routes
+    if (!isLoading && requireAdmin && user && !isAdmin) {
+      toast.error('Admin access required for this page');
+    }
+  }, [location.pathname, isLoading, requireAdmin, user, isAdmin]);
 
   if (isLoading) {
     return (
@@ -29,7 +37,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (requireAdmin && !isAdmin) {
-    toast.error('Admin access required for this page');
     return <Navigate to="/" replace />;
   }
 

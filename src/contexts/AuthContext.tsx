@@ -18,7 +18,7 @@ interface AuthContextProps {
   isAdmin: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, isAdmin?: boolean, adminCode?: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -90,7 +90,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
       
       toast.success('Signed in successfully');
-      navigate('/');
+      
+      // Fetch user profile to check for admin status
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', userData.user.id)
+          .single();
+        
+        if (profileData?.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      } else {
+        navigate('/');
+      }
     } catch (error: any) {
       toast.error(error.message || 'Error signing in');
       throw error;
@@ -98,13 +115,43 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   // Sign up with email and password
-  const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string, isAdmin = false, adminCode = '') => {
     try {
-      const { error } = await supabase.auth.signUp({ email, password });
+      // Validate admin code if trying to register as admin
+      const ADMIN_CODE = 'admin123';
+      if (isAdmin && adminCode !== ADMIN_CODE) {
+        toast.error('Invalid admin code');
+        throw new Error('Invalid admin code');
+      }
+
+      const { data, error } = await supabase.auth.signUp({ 
+        email, 
+        password,
+        options: {
+          data: {
+            role: isAdmin ? 'admin' : 'customer'
+          }
+        }
+      });
       
       if (error) throw error;
       
-      toast.success('Registration successful! Please check your email for verification.');
+      // If admin code was provided and is valid, update the user's role in the profiles table
+      if (isAdmin && data?.user) {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ role: 'admin' })
+          .eq('id', data.user.id);
+          
+        if (updateError) {
+          console.error('Error updating role:', updateError);
+          toast.error('Account created but admin role assignment failed');
+        } else {
+          toast.success('Admin account created successfully!');
+        }
+      } else {
+        toast.success('Registration successful! Please check your email for verification.');
+      }
     } catch (error: any) {
       toast.error(error.message || 'Error signing up');
       throw error;

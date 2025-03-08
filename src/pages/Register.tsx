@@ -5,7 +5,6 @@ import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const Register = () => {
@@ -19,9 +18,6 @@ const Register = () => {
   const [success, setSuccess] = useState(false);
   const [adminCode, setAdminCode] = useState('');
   const [showAdminField, setShowAdminField] = useState(false);
-  
-  // The admin code - in a real app, this would be stored securely
-  const ADMIN_CODE = 'admin123';
   
   // If user is already logged in, redirect to home
   if (user && !isLoading) {
@@ -53,50 +49,10 @@ const Register = () => {
     }
     
     try {
-      // Check if this is an admin registration
-      const isAdmin = showAdminField && adminCode === ADMIN_CODE;
-      
-      // If using admin code, validate it
-      if (showAdminField && adminCode !== ADMIN_CODE) {
-        setError('Invalid admin code');
-        setLoading(false);
-        return;
-      }
-
-      // Register the user
-      const { data, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: {
-            role: isAdmin ? 'admin' : 'customer'
-          }
-        }
-      });
-      
-      if (signUpError) throw signUpError;
-      
-      // If admin code was provided and is valid, update the user's role in the profiles table
-      if (isAdmin && data?.user) {
-        // The trigger will automatically create a profile, but we need to update the role
-        const { error: updateError } = await supabase
-          .from('profiles')
-          .update({ role: 'admin' })
-          .eq('id', data.user.id);
-          
-        if (updateError) {
-          console.error('Error updating role:', updateError);
-          toast.error('Account created but admin role assignment failed');
-        } else if (isAdmin) {
-          toast.success('Admin account created successfully!');
-        }
-      }
-      
+      await signUp(email, password, showAdminField, adminCode);
       setSuccess(true);
-      toast.success(isAdmin ? 'Admin registration successful!' : 'Registration successful! Please check your email for verification.');
     } catch (err: any) {
       setError(err.message || 'An error occurred during registration');
-      toast.error(err.message || 'An error occurred during registration');
     } finally {
       setLoading(false);
     }
