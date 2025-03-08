@@ -2,6 +2,7 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 type ProtectedRouteProps = {
   requireAdmin?: boolean;
@@ -23,10 +24,12 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   if (!user) {
+    toast.error('Please sign in to access this page');
     return <Navigate to={redirectPath} replace />;
   }
 
   if (requireAdmin && !isAdmin) {
+    toast.error('Admin access required for this page');
     return <Navigate to="/" replace />;
   }
 
