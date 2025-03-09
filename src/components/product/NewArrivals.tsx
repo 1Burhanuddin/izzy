@@ -29,7 +29,18 @@ const NewArrivals: React.FC = () => {
           .limit(6);
 
         if (error) throw error;
-        setNewProducts(data || []);
+        
+        // Convert the data to ensure availability is of the correct type
+        const typedProducts = data?.map(product => ({
+          ...product,
+          availability: (product.availability === 'in_stock' || 
+                         product.availability === 'low_stock' || 
+                         product.availability === 'out_of_stock') 
+                         ? product.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
+                         : 'in_stock' // Default to in_stock if value is unexpected
+        })) || [];
+        
+        setNewProducts(typedProducts);
       } catch (error) {
         console.error('Error fetching new products:', error);
       } finally {
