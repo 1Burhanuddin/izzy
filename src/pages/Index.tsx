@@ -1,10 +1,12 @@
-
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProductGrid from '@/components/product/ProductGrid';
+import NewArrivals from '@/components/product/NewArrivals';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 
 // Sample featured products
 const featuredProducts = [
@@ -39,6 +41,9 @@ const Index = () => {
   const heroRef = useRef<HTMLDivElement>(null);
   const categoriesRef = useRef<HTMLDivElement>(null);
   const featuredRef = useRef<HTMLDivElement>(null);
+  
+  const { user } = useAuth();
+  const { addToCart } = useCart();
 
   // Observer for scroll animations
   useEffect(() => {
@@ -66,6 +71,10 @@ const Index = () => {
     };
   }, []);
 
+  const handleAddToCart = (productId: string) => {
+    addToCart(productId, 1);
+  };
+
   return (
     <Layout>
       {/* Hero Section */}
@@ -90,14 +99,16 @@ const Index = () => {
             <div className="flex flex-wrap gap-4 pt-4">
               <Button 
                 className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-lg"
+                asChild
               >
-                Shop Now
+                <Link to="/products/glass">Shop Now</Link>
               </Button>
               <Button 
                 variant="outline" 
                 className="text-white border-white hover:bg-white hover:text-black rounded-full px-8 py-6 text-lg"
+                asChild
               >
-                Learn More
+                <Link to="/products">Learn More</Link>
               </Button>
             </div>
           </div>
@@ -202,6 +213,9 @@ const Index = () => {
         </div>
       </section>
 
+      {/* New Arrivals Section */}
+      <NewArrivals />
+
       {/* Featured Products Section */}
       <section ref={featuredRef} className="py-20 opacity-0">
         <div className="container mx-auto px-4">
@@ -219,7 +233,11 @@ const Index = () => {
             </Link>
           </div>
           
-          <ProductGrid products={featuredProducts} columns={3} />
+          <ProductGrid 
+            products={featuredProducts} 
+            columns={3} 
+            onAddToCart={user ? handleAddToCart : undefined}
+          />
         </div>
       </section>
 
@@ -232,8 +250,9 @@ const Index = () => {
           </p>
           <Button 
             className="bg-white text-black hover:bg-white/90 rounded-full px-8 py-6 text-lg"
+            asChild
           >
-            Get Started
+            <Link to="/products">Get Started</Link>
           </Button>
         </div>
       </section>
