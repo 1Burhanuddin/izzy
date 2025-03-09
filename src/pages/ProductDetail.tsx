@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ArrowLeft } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Star } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -36,7 +36,45 @@ const ProductDetail: React.FC = () => {
         if (!id) return;
 
         console.log("Fetching product with ID:", id);
+        
+        // For hardcoded demo products on the homepage
+        if (id === '10' || id === '11' || id === '12') {
+          const demoProducts = {
+            '10': {
+              id: '10',
+              name: 'Elegant Glass Vase',
+              price: 79.99,
+              image: 'https://images.unsplash.com/photo-1584433789858-3e5f051c5f7f?q=80&w=1000',
+              category: 'Decor',
+              availability: 'in_stock' as const,
+              description: 'A beautiful hand-crafted glass vase perfect for modern home decor.'
+            },
+            '11': {
+              id: '11',
+              name: 'Modern Aluminum Frame',
+              price: 49.99,
+              image: 'https://images.unsplash.com/photo-1621905244241-996e9156297c?q=80&w=1000',
+              category: 'Frames',
+              availability: 'in_stock' as const,
+              description: 'Sleek aluminum picture frame with minimalist design for contemporary spaces.'
+            },
+            '12': {
+              id: '12',
+              name: 'Designer Wall Mirror',
+              price: 199.99,
+              image: 'https://images.unsplash.com/photo-1619855544858-e05c0dbf92b5?q=80&w=1000',
+              category: 'Mirrors',
+              availability: 'in_stock' as const,
+              description: 'Premium wall mirror with elegant design to enhance your living space.'
+            }
+          };
+          
+          setProduct(demoProducts[id as keyof typeof demoProducts]);
+          setLoading(false);
+          return;
+        }
 
+        // Regular database fetch for other products
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -157,7 +195,7 @@ const ProductDetail: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Product Image */}
-          <div className="rounded-lg overflow-hidden bg-gray-100">
+          <div className="rounded-lg overflow-hidden bg-gray-100 shadow-md hover:shadow-lg transition-all duration-300">
             {product.image ? (
               <img 
                 src={product.image} 
@@ -172,7 +210,7 @@ const ProductDetail: React.FC = () => {
           </div>
 
           {/* Product Details */}
-          <div>
+          <div className="bg-white p-6 rounded-lg shadow-sm">
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <div className="flex items-center gap-2 mb-4">
               <Badge variant={getBadgeVariant(product.availability) as any}>
@@ -181,10 +219,19 @@ const ProductDetail: React.FC = () => {
               <span className="text-gray-600">{product.category}</span>
             </div>
             
+            <div className="flex items-center mb-4">
+              <div className="flex mr-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star key={star} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
+                ))}
+              </div>
+              <span className="text-sm text-gray-600">(25 reviews)</span>
+            </div>
+            
             <p className="text-2xl font-bold mb-4">₹{product.price.toFixed(2)}</p>
             
             {product.description && (
-              <div className="mb-6">
+              <div className="mb-6 bg-gray-50 p-4 rounded-lg">
                 <h3 className="text-lg font-medium mb-2">Description</h3>
                 <p className="text-gray-700">{product.description}</p>
               </div>
@@ -195,7 +242,7 @@ const ProductDetail: React.FC = () => {
               <div className="flex items-center">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="px-3 py-1 border border-gray-300 rounded-l-md"
+                  className="px-3 py-1 border border-gray-300 rounded-l-md bg-gray-50 hover:bg-gray-100 transition-colors"
                   disabled={quantity <= 1}
                 >
                   -
@@ -209,7 +256,7 @@ const ProductDetail: React.FC = () => {
                 />
                 <button 
                   onClick={() => setQuantity(quantity + 1)}
-                  className="px-3 py-1 border border-gray-300 rounded-r-md"
+                  className="px-3 py-1 border border-gray-300 rounded-r-md bg-gray-50 hover:bg-gray-100 transition-colors"
                 >
                   +
                 </button>
@@ -220,7 +267,7 @@ const ProductDetail: React.FC = () => {
               <Button 
                 onClick={handleAddToCart} 
                 disabled={product.availability === 'out_of_stock'}
-                className="w-full"
+                className="w-full bg-black hover:bg-gray-800"
                 size="lg"
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />

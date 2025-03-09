@@ -90,7 +90,7 @@ const Header: React.FC = () => {
           </Link>
           
           {user ? (
-            <div className="flex items-center">
+            <div className="flex items-center space-x-2">
               {isAdmin && (
                 <Link to="/admin" className="mr-2">
                   <Button variant="ghost" className="rounded-full hover:bg-gray-100">
@@ -98,6 +98,16 @@ const Header: React.FC = () => {
                   </Button>
                 </Link>
               )}
+              
+              <Link to="/profile">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full hover:bg-gray-100"
+                >
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
               
               <Button 
                 variant="ghost" 
@@ -168,6 +178,16 @@ const Header: React.FC = () => {
           >
             Hardware
           </Link>
+          
+          {user && (
+            <Link 
+              to="/profile" 
+              className="text-lg font-medium py-2 hover:text-gray-600 smooth-transition"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              My Profile
+            </Link>
+          )}
           
           {isAdmin && (
             <Link 
