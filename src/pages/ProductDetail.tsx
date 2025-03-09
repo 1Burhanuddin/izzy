@@ -4,9 +4,10 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 interface Product {
@@ -26,12 +27,15 @@ const ProductDetail: React.FC = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
         setLoading(true);
         if (!id) return;
+
+        console.log("Fetching product with ID:", id);
 
         const { data, error } = await supabase
           .from('products')
@@ -42,7 +46,7 @@ const ProductDetail: React.FC = () => {
         if (error) {
           console.error('Error fetching product:', error);
           toast.error('Error loading product details');
-          navigate('/products');
+          navigate('/products/glass');
           return;
         }
 
@@ -50,12 +54,13 @@ const ProductDetail: React.FC = () => {
         const formattedProduct = {
           ...data,
           availability: (data.availability === 'in_stock' || 
-                         data.availability === 'low_stock' || 
-                         data.availability === 'out_of_stock') 
-                         ? data.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
-                         : 'in_stock' // Default to in_stock if value is unexpected
+                        data.availability === 'low_stock' || 
+                        data.availability === 'out_of_stock') 
+                        ? data.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
+                        : 'in_stock' // Default to in_stock if value is unexpected
         };
 
+        console.log("Product data loaded:", formattedProduct);
         setProduct(formattedProduct);
       } catch (error) {
         console.error('Error:', error);
@@ -71,6 +76,12 @@ const ProductDetail: React.FC = () => {
   const handleAddToCart = async () => {
     if (!product) return;
     
+    if (!user) {
+      toast.error('Please sign in to add items to your cart');
+      navigate('/login');
+      return;
+    }
+    
     try {
       await addToCart(product.id, quantity);
       toast.success(`${product.name} added to cart`);
@@ -78,6 +89,10 @@ const ProductDetail: React.FC = () => {
       console.error('Error adding to cart:', error);
       toast.error('Failed to add item to cart');
     }
+  };
+
+  const goBack = () => {
+    navigate(-1);
   };
 
   const getBadgeVariant = (availability: string) => {
@@ -120,7 +135,7 @@ const ProductDetail: React.FC = () => {
         <div className="container mx-auto px-4 py-8 text-center">
           <h2 className="text-2xl font-bold mb-4">Product Not Found</h2>
           <p className="mb-4">The product you're looking for doesn't exist or has been removed.</p>
-          <Button onClick={() => navigate('/products')}>
+          <Button onClick={() => navigate('/products/glass')}>
             Browse Products
           </Button>
         </div>
@@ -131,6 +146,15 @@ const ProductDetail: React.FC = () => {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
+        <Button 
+          variant="ghost" 
+          className="mb-6 flex items-center"
+          onClick={goBack}
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Product Image */}
           <div className="rounded-lg overflow-hidden bg-gray-100">
@@ -206,6 +230,12 @@ const ProductDetail: React.FC = () => {
               {product.availability === 'out_of_stock' && (
                 <p className="text-red-500 text-sm">
                   This product is currently out of stock
+                </p>
+              )}
+              
+              {!user && (
+                <p className="text-gray-500 text-sm">
+                  Please sign in to add items to your cart
                 </p>
               )}
             </div>

@@ -1,9 +1,11 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 interface ProductCardProps {
   product: {
@@ -19,6 +21,8 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const { id, name, price, image, category, availability } = product;
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const getBadgeVariant = (availability: string) => {
     switch (availability) {
@@ -45,6 +49,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    if (!user) {
+      toast.error('Please sign in to add items to your cart');
+      navigate('/login');
+      return;
+    }
+    
     if (onAddToCart) {
       onAddToCart(id);
     }

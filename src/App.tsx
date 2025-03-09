@@ -18,6 +18,7 @@ import ProductManagement from "./pages/admin/ProductManagement";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +33,7 @@ const App = () => (
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />
+              <Route path="/products" element={<ProductsPage />} />
               <Route path="/products/:category" element={<ProductsPage />} />
               <Route path="/product/:id" element={<ProductDetail />} />
               <Route path="/login" element={<Login />} />
@@ -39,7 +41,8 @@ const App = () => (
               
               {/* Protected Routes for all authenticated users */}
               <Route element={<ProtectedRoute />}>
-                <Route path="/account" element={<div>Account Page</div>} />
+                <Route path="/profile" element={<UserProfile />} />
+                <Route path="/account" element={<UserProfile />} />
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-confirmation" element={<OrderConfirmation />} />
