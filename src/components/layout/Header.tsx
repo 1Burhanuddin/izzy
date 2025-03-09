@@ -4,9 +4,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Menu, X, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCart } from '@/contexts/CartContext';
 
 const Header: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
+  const { cartCount } = useCart();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -43,7 +45,7 @@ const Header: React.FC = () => {
           to="/" 
           className="text-2xl font-bold tracking-tighter smooth-transition"
         >
-          SleekGlass
+          Izzy
         </Link>
         
         {/* Desktop Navigation */}
@@ -76,9 +78,14 @@ const Header: React.FC = () => {
         
         {/* Action Buttons */}
         <div className="hidden md:flex items-center space-x-4">
-          <Link to="/cart">
+          <Link to="/cart" className="relative">
             <Button variant="ghost" size="icon" className="rounded-full hover:bg-gray-100">
               <ShoppingCart className="h-5 w-5" />
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </Button>
           </Link>
           
@@ -179,7 +186,7 @@ const Header: React.FC = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               <ShoppingCart className="h-5 w-5" />
-              <span>Cart</span>
+              <span>Cart {cartCount > 0 && `(${cartCount})`}</span>
             </Link>
             
             {user ? (

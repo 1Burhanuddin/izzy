@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -47,6 +48,11 @@ const Index = () => {
 
   // Observer for scroll animations
   useEffect(() => {
+    // Initial animation state - set to visible immediately to prevent disappearing
+    if (heroRef.current) heroRef.current.classList.add('animate-fade-up');
+    if (categoriesRef.current) categoriesRef.current.classList.add('animate-fade-up');
+    if (featuredRef.current) featuredRef.current.classList.add('animate-fade-up');
+    
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -100px 0px'
@@ -56,29 +62,27 @@ const Index = () => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('animate-fade-up');
-          observer.unobserve(entry.target);
         }
       });
     }, observerOptions);
-
-    // Observe elements
-    if (heroRef.current) observer.observe(heroRef.current);
-    if (categoriesRef.current) observer.observe(categoriesRef.current);
-    if (featuredRef.current) observer.observe(featuredRef.current);
 
     return () => {
       observer.disconnect();
     };
   }, []);
 
-  const handleAddToCart = (productId: string) => {
-    addToCart(productId, 1);
+  const handleAddToCart = async (productId: string) => {
+    try {
+      await addToCart(productId, 1);
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    }
   };
 
   return (
     <Layout>
       {/* Hero Section */}
-      <section ref={heroRef} className="relative h-[85vh] flex items-center opacity-0">
+      <section ref={heroRef} className="relative h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img 
             src="https://images.unsplash.com/photo-1496307653780-42ee777d4833" 
@@ -116,7 +120,7 @@ const Index = () => {
       </section>
 
       {/* Categories Section */}
-      <section ref={categoriesRef} className="py-20 bg-gray-50 opacity-0">
+      <section ref={categoriesRef} className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">Shop by Category</h2>
@@ -217,7 +221,7 @@ const Index = () => {
       <NewArrivals />
 
       {/* Featured Products Section */}
-      <section ref={featuredRef} className="py-20 opacity-0">
+      <section ref={featuredRef} className="py-20">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap items-center justify-between mb-12">
             <div>
