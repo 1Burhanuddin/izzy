@@ -5,12 +5,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 type ProtectedRouteProps = {
-  adminOnly?: boolean;
+  requireAdmin?: boolean;
   redirectPath?: string;
 };
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  adminOnly = false,
+  requireAdmin = false,
   redirectPath = '/login',
 }) => {
   const { user, isAdmin, isLoading } = useAuth();
@@ -18,10 +18,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   useEffect(() => {
     // Check for admin access on each location change for protected routes
-    if (!isLoading && adminOnly && user && !isAdmin) {
+    if (!isLoading && requireAdmin && user && !isAdmin) {
       toast.error('Admin access required for this page');
     }
-  }, [location.pathname, isLoading, adminOnly, user, isAdmin]);
+  }, [location.pathname, isLoading, requireAdmin, user, isAdmin]);
 
   if (isLoading) {
     return (
@@ -36,7 +36,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to={redirectPath} replace />;
   }
 
-  if (adminOnly && !isAdmin) {
+  if (requireAdmin && !isAdmin) {
     return <Navigate to="/" replace />;
   }
 

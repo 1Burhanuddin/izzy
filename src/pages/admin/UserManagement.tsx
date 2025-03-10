@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,8 +59,8 @@ const UserManagement = () => {
       // Get order counts for each user
       const { data: orderCountsData, error: orderCountsError } = await supabase
         .from('orders')
-        .select('user_id, count(*)', { count: 'exact' })
-        .groupBy('user_id');
+        .select('user_id, count')
+        .group('user_id');
 
       if (orderCountsError) throw orderCountsError;
 
@@ -323,7 +324,7 @@ const UserManagement = () => {
                           <td className="px-4 py-3 whitespace-nowrap text-sm">
                             <Badge 
                               variant={
-                                order.status === 'delivered' ? 'default' : 
+                                order.status === 'delivered' ? 'success' : 
                                 order.status === 'shipped' ? 'default' :
                                 order.status === 'processing' ? 'outline' :
                                 order.status === 'cancelled' ? 'destructive' : 'secondary'
@@ -335,7 +336,7 @@ const UserManagement = () => {
                           <td className="px-4 py-3 whitespace-nowrap text-sm">
                             <Badge 
                               variant={
-                                order.payment_status === 'completed' ? 'default' : 
+                                order.payment_status === 'completed' ? 'success' : 
                                 order.payment_status === 'pending' ? 'secondary' : 'destructive'
                               }
                             >
