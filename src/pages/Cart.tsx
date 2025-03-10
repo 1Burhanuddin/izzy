@@ -83,9 +83,9 @@ const Cart = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="ml-4 overflow-hidden">
-                              <h3 className="text-sm font-medium truncate">{item.product.name}</h3>
-                              <p className="text-xs text-gray-500 mt-1 truncate">{item.product.category}</p>
+                            <div className="ml-4">
+                              <h3 className="text-sm font-medium">{item.product.name}</h3>
+                              <p className="text-xs text-gray-500 mt-1">{item.product.category}</p>
                             </div>
                           </div>
                         </div>
@@ -97,7 +97,6 @@ const Cart = () => {
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
                               className="p-1 border rounded-l-md bg-gray-100 hover:bg-gray-200"
-                              aria-label="Decrease quantity"
                             >
                               <Minus className="h-4 w-4" />
                             </button>
@@ -105,7 +104,6 @@ const Cart = () => {
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1)}
                               className="p-1 border rounded-r-md bg-gray-100 hover:bg-gray-200"
-                              aria-label="Increase quantity"
                             >
                               <Plus className="h-4 w-4" />
                             </button>
@@ -118,7 +116,6 @@ const Cart = () => {
                           <button
                             onClick={() => removeFromCart(item.id)}
                             className="text-red-500 hover:text-red-700"
-                            aria-label="Remove item"
                           >
                             <Trash2 className="h-4 w-4" />
                           </button>
