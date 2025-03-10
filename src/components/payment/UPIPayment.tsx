@@ -1,8 +1,10 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { QrCode } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { QrCode, Copy, CheckCircle2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface UPIPaymentProps {
   upiId: string;
@@ -10,16 +12,43 @@ interface UPIPaymentProps {
 }
 
 const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
+  const [copied, setCopied] = useState(false);
+  const merchantUpiId = "111burhanuddin@okicici";
+  
   const validateUpiId = (id: string) => {
     // Basic UPI ID validation (username@provider)
     const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
     return upiRegex.test(id);
   };
 
+  useEffect(() => {
+    // Set a timeout to reset the copied state after 2 seconds
+    if (copied) {
+      const timeout = setTimeout(() => {
+        setCopied(false);
+      }, 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [copied]);
+
+  const copyUpiId = () => {
+    navigator.clipboard.writeText(merchantUpiId);
+    setCopied(true);
+    toast.success('UPI ID copied to clipboard');
+  };
+
+  const openGooglePay = () => {
+    const googlePayDeepLink = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=Merchant&cu=INR`;
+    window.location.href = googlePayDeepLink;
+    
+    // Fallback for desktop
+    toast.info('Redirecting to Google Pay, or use the UPI ID to manually pay');
+  };
+
   return (
     <div>
       <div className="mb-4">
-        <Label htmlFor="upi-id">UPI ID</Label>
+        <Label htmlFor="upi-id">Your UPI ID (Optional)</Label>
         <div className="flex mt-1">
           <Input
             id="upi-id"
@@ -36,13 +65,32 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
         )}
       </div>
 
-      <div className="flex items-center justify-center mt-6 border rounded-lg p-6 bg-gray-50">
+      <div className="flex flex-col items-center justify-center mt-6 border rounded-lg p-6 bg-gray-50">
         <div className="text-center">
           <div className="bg-white p-3 rounded-lg inline-block mb-3">
             <QrCode className="h-24 w-24 text-gray-800" />
           </div>
+          <p className="font-semibold text-gray-800 mb-2">Pay to: {merchantUpiId}</p>
+          <div className="flex justify-center mb-4">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={copyUpiId}
+            >
+              {copied ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+              {copied ? 'Copied!' : 'Copy UPI ID'}
+            </Button>
+          </div>
+          <Button 
+            className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2 mb-3"
+            onClick={openGooglePay}
+          >
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Google_Pay_Logo.svg/1200px-Google_Pay_Logo.svg.png" alt="Google Pay" className="h-5" />
+            Pay with Google Pay
+          </Button>
           <p className="text-sm text-gray-600">
-            Scan the QR code with your UPI app or enter your UPI ID above
+            Click the button above to pay with Google Pay or scan the QR code with any UPI app
           </p>
         </div>
       </div>
