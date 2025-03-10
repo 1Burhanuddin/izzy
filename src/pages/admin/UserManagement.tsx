@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -56,10 +55,9 @@ const UserManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get order counts for each user by counting the orders for each user_id
+      // Get order counts for each user
       const { data: orderCountsData, error: orderCountsError } = await supabase
         .from('orders')
-        .select('user_id, count')
         .select('user_id, count(*)', { count: 'exact' })
         .groupBy('user_id');
 
