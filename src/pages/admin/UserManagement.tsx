@@ -56,11 +56,12 @@ const UserManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get order counts for each user
+      // Get order counts for each user by counting the orders for each user_id
       const { data: orderCountsData, error: orderCountsError } = await supabase
         .from('orders')
         .select('user_id, count')
-        .group('user_id');
+        .select('user_id, count(*)', { count: 'exact' })
+        .groupBy('user_id');
 
       if (orderCountsError) throw orderCountsError;
 
@@ -324,7 +325,7 @@ const UserManagement = () => {
                           <td className="px-4 py-3 whitespace-nowrap text-sm">
                             <Badge 
                               variant={
-                                order.status === 'delivered' ? 'success' : 
+                                order.status === 'delivered' ? 'default' : 
                                 order.status === 'shipped' ? 'default' :
                                 order.status === 'processing' ? 'outline' :
                                 order.status === 'cancelled' ? 'destructive' : 'secondary'
@@ -336,7 +337,7 @@ const UserManagement = () => {
                           <td className="px-4 py-3 whitespace-nowrap text-sm">
                             <Badge 
                               variant={
-                                order.payment_status === 'completed' ? 'success' : 
+                                order.payment_status === 'completed' ? 'default' : 
                                 order.payment_status === 'pending' ? 'secondary' : 'destructive'
                               }
                             >
