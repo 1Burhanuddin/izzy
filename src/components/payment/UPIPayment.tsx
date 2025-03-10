@@ -9,11 +9,9 @@ import { toast } from 'sonner';
 interface UPIPaymentProps {
   upiId: string;
   setUpiId: (value: string) => void;
-  amount: number;
-  onPaymentComplete: () => void;
 }
 
-const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount, onPaymentComplete }) => {
+const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
   const [copied, setCopied] = useState(false);
   const merchantUpiId = "111burhanuddin@okicici";
   
@@ -40,30 +38,11 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount, onPaym
   };
 
   const openGooglePay = () => {
-    // Format amount with 2 decimal places
-    const formattedAmount = amount.toFixed(2);
-    
-    // Create Google Pay deep link with amount
-    const googlePayDeepLink = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=Merchant&am=${formattedAmount}&cu=INR`;
+    const googlePayDeepLink = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=Merchant&cu=INR`;
     window.location.href = googlePayDeepLink;
-    
-    // Set timeout to simulate payment completion (in real app, you'd use webhook)
-    setTimeout(() => {
-      handlePaymentComplete();
-    }, 5000);
     
     // Fallback for desktop
     toast.info('Redirecting to Google Pay, or use the UPI ID to manually pay');
-  };
-  
-  const handlePaymentComplete = () => {
-    toast.success('Payment completed successfully!');
-    onPaymentComplete();
-  };
-
-  const handleManualConfirm = () => {
-    toast.success('Payment confirmed manually');
-    onPaymentComplete();
   };
 
   return (
@@ -92,7 +71,6 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount, onPaym
             <QrCode className="h-24 w-24 text-gray-800" />
           </div>
           <p className="font-semibold text-gray-800 mb-2">Pay to: {merchantUpiId}</p>
-          <p className="font-medium text-gray-800 mb-3">Amount: ₹{amount.toFixed(2)}</p>
           <div className="flex justify-center mb-4">
             <Button
               variant="outline"
@@ -111,15 +89,8 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount, onPaym
             <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Google_Pay_Logo.svg/1200px-Google_Pay_Logo.svg.png" alt="Google Pay" className="h-5" />
             Pay with Google Pay
           </Button>
-          <Button 
-            variant="outline"
-            className="w-full mb-3"
-            onClick={handleManualConfirm}
-          >
-            I've Completed the Payment
-          </Button>
           <p className="text-sm text-gray-600">
-            Pay using Google Pay or scan the QR code with any UPI app
+            Click the button above to pay with Google Pay or scan the QR code with any UPI app
           </p>
         </div>
       </div>

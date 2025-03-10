@@ -65,10 +65,11 @@ const Checkout = () => {
       return;
     }
 
-    // UPI validation is now optional
-  };
+    if (paymentMethod === 'upi' && !upiId) {
+      toast.error('Please enter a valid UPI ID');
+      return;
+    }
 
-  const handlePaymentComplete = async () => {
     try {
       setLoading(true);
 
@@ -87,12 +88,11 @@ const Checkout = () => {
       const { data: order, error: orderError } = await supabase
         .from('orders')
         .insert({
-          user_id: user?.id,
+          user_id: user.id,
           total_amount: cartTotal,
           payment_method: paymentMethod,
-          payment_status: 'completed',
           shipping_address: shippingAddress,
-          transaction_id: `UPI_${Date.now()}`
+          transaction_id: paymentMethod === 'upi' ? `UPI_${Date.now()}` : null
         })
         .select()
         .single();
@@ -263,12 +263,7 @@ const Checkout = () => {
 
                 {paymentMethod === 'upi' && (
                   <div className="mt-4">
-                    <UPIPayment 
-                      upiId={upiId} 
-                      setUpiId={setUpiId} 
-                      amount={cartTotal} 
-                      onPaymentComplete={handlePaymentComplete}
-                    />
+                    <UPIPayment upiId={upiId} setUpiId={setUpiId} />
                   </div>
                 )}
 
@@ -279,15 +274,13 @@ const Checkout = () => {
                 )}
               </div>
 
-              {paymentMethod !== 'upi' && (
-                <Button
-                  type="submit"
-                  className="w-full"
-                  disabled={loading}
-                >
-                  {loading ? 'Processing...' : 'Place Order'}
-                </Button>
-              )}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={loading}
+              >
+                {loading ? 'Processing...' : 'Place Order'}
+              </Button>
             </form>
           </div>
 
