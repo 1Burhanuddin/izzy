@@ -54,7 +54,7 @@ const OrderManagement: React.FC = () => {
     try {
       let query = supabase
         .from('orders')
-        .select('*, profiles(email:username)')
+        .select(`*, profiles:user_id(username)`)
         .order('created_at', { ascending: false })
         .range((page - 1) * ordersPerPage, page * ordersPerPage - 1);
 
@@ -62,7 +62,7 @@ const OrderManagement: React.FC = () => {
         query = query.eq('status', selectedStatus);
       }
 
-      const { data: ordersData, error, count } = await query;
+      const { data: ordersData, error } = await query;
 
       if (error) throw error;
 
@@ -79,7 +79,7 @@ const OrderManagement: React.FC = () => {
       // Format the order data
       const formattedOrders = ordersData.map((order: any) => ({
         ...order,
-        customer_email: order.profiles?.email || 'N/A',
+        customer_email: order.profiles?.username || 'N/A',
       }));
 
       setOrders(formattedOrders);
@@ -95,7 +95,7 @@ const OrderManagement: React.FC = () => {
     try {
       const { data: items, error } = await supabase
         .from('order_items')
-        .select('*, products(name, image)')
+        .select('*, products(*)')
         .eq('order_id', orderId);
 
       if (error) throw error;

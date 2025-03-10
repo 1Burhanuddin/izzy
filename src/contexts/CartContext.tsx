@@ -99,7 +99,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (existingItem) {
         // Update quantity if product already in cart
         await updateQuantity(existingItem.id, existingItem.quantity + quantity);
-        toast.success('Cart updated');
+        toast.success('Item added to cart');
       } else {
         // Add new item to cart
         const { data, error } = await supabase
@@ -183,7 +183,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         )
       );
       
-      toast.success('Cart updated');
+      // Remove the toast notification for quantity updates to reduce excessive toasts
     } catch (error: any) {
       console.error('Error updating cart item:', error);
       toast.error('Failed to update cart');

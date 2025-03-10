@@ -47,7 +47,7 @@ const UserManagement: React.FC = () => {
         query = query.ilike('username', `%${searchTerm}%`);
       }
 
-      const { data, error, count } = await query;
+      const { data, error } = await query;
 
       if (error) throw error;
 
