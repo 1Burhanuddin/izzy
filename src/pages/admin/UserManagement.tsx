@@ -37,33 +37,36 @@ const UserManagement: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Fetch user profiles
+      // Fetch user profiles with pagination
       let query = supabase
         .from('profiles')
-        .select('*')
-        .range((page - 1) * usersPerPage, page * usersPerPage - 1);
+        .select('*');
 
       if (searchTerm) {
         query = query.ilike('username', `%${searchTerm}%`);
       }
 
-      const { data, error } = await query;
+      // Get total count for pagination
+      const { count: totalCount, error: countError } = await query.count();
+      
+      if (countError) throw countError;
+      
+      // Apply pagination
+      const from = (page - 1) * usersPerPage;
+      const to = from + usersPerPage - 1;
+      
+      const { data, error } = await query
+        .range(from, to)
+        .order('created_at', { ascending: false });
 
       if (error) throw error;
-
-      // Get count for pagination
-      const { count: totalCount, error: countError } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
-      if (countError) throw countError;
-
+      
       // Calculate total pages
       setTotalPages(Math.ceil((totalCount || 0) / usersPerPage));
 
       // For each user, get their order count and total spent
       const enhancedUsers = await Promise.all(
-        data.map(async (user) => {
+        (data || []).map(async (user) => {
           // Get order count
           const { count: orderCount, error: orderCountError } = await supabase
             .from('orders')
@@ -86,7 +89,7 @@ const UserManagement: React.FC = () => {
             return { ...user, order_count: orderCount || 0, total_spent: 0 };
           }
 
-          const totalSpent = ordersData.reduce((sum, order) => sum + (order.total_amount || 0), 0);
+          const totalSpent = (ordersData || []).reduce((sum, order) => sum + (order.total_amount || 0), 0);
 
           return {
             ...user,
@@ -99,6 +102,7 @@ const UserManagement: React.FC = () => {
       setUsers(enhancedUsers);
     } catch (error: any) {
       toast.error(`Failed to fetch users: ${error.message}`);
+      console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
     }

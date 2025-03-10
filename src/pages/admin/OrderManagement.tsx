@@ -52,39 +52,55 @@ const OrderManagement: React.FC = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      // First fetch all users to get their emails
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, username');
+      
+      if (profilesError) throw profilesError;
+      
+      // Create a map of user IDs to usernames
+      const userMap = new Map();
+      profiles?.forEach(profile => {
+        userMap.set(profile.id, profile.username);
+      });
+      
+      // Now fetch orders with pagination
       let query = supabase
         .from('orders')
-        .select(`*, profiles:user_id(username)`)
-        .order('created_at', { ascending: false })
-        .range((page - 1) * ordersPerPage, page * ordersPerPage - 1);
+        .select('*')
+        .order('created_at', { ascending: false });
 
       if (selectedStatus !== 'all') {
         query = query.eq('status', selectedStatus);
       }
-
-      const { data: ordersData, error } = await query;
+      
+      // Get count for pagination
+      const { count: totalCount, error: countError } = await query.count();
+      
+      if (countError) throw countError;
+      
+      // Calculate total pages
+      setTotalPages(Math.ceil((totalCount || 0) / ordersPerPage));
+      
+      // Apply pagination
+      const from = (page - 1) * ordersPerPage;
+      const to = from + ordersPerPage - 1;
+      
+      const { data: ordersData, error } = await query.range(from, to);
 
       if (error) throw error;
 
-      // Get count for pagination
-      const { count: totalCount, error: countError } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true });
-
-      if (countError) throw countError;
-
-      // Calculate total pages
-      setTotalPages(Math.ceil((totalCount || 0) / ordersPerPage));
-
-      // Format the order data
-      const formattedOrders = ordersData.map((order: any) => ({
+      // Format the order data with customer emails from the map
+      const formattedOrders = (ordersData || []).map((order: any) => ({
         ...order,
-        customer_email: order.profiles?.username || 'N/A',
+        customer_email: userMap.get(order.user_id) || 'N/A',
       }));
 
       setOrders(formattedOrders);
     } catch (error: any) {
       toast.error(`Failed to fetch orders: ${error.message}`);
+      console.error('Error fetching orders:', error);
     } finally {
       setLoading(false);
     }
@@ -95,13 +111,16 @@ const OrderManagement: React.FC = () => {
     try {
       const { data: items, error } = await supabase
         .from('order_items')
-        .select('*, products(*)')
+        .select(`
+          *,
+          products:product_id (name, image)
+        `)
         .eq('order_id', orderId);
 
       if (error) throw error;
 
       // Format the items with product details
-      const formattedItems = items.map((item: any) => ({
+      const formattedItems = (items || []).map((item: any) => ({
         ...item,
         product_name: item.products?.name || 'Unknown Product',
         product_image: item.products?.image || null,
@@ -110,6 +129,7 @@ const OrderManagement: React.FC = () => {
       setOrderItems(formattedItems);
     } catch (error: any) {
       toast.error(`Failed to fetch order items: ${error.message}`);
+      console.error('Error fetching order items:', error);
     } finally {
       setOrderItemsLoading(false);
     }

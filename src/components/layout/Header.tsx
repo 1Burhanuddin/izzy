@@ -4,7 +4,6 @@ import { ShoppingBag, Menu, User, Search, X, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
-import CategoryNav from '../product/CategoryNav';
 import {
   DropdownMenu,
   DropdownMenuContent,
