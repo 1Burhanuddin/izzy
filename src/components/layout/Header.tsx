@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingBag, Menu, User, Search, X, ShoppingCart } from 'lucide-react';
@@ -22,6 +21,12 @@ const Header: React.FC = () => {
   const { user, profile, signOut, isAdmin } = useAuth();
   const { cartCount } = useCart();
   const navigate = useNavigate();
+
+  const categories = [
+    { id: "1", name: "Glass", slug: "glass" },
+    { id: "2", name: "Aluminium", slug: "aluminium" },
+    { id: "3", name: "Mirrors", slug: "mirrors" }
+  ];
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,14 +72,12 @@ const Header: React.FC = () => {
     <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          {/* Logo */}
           <div className="flex-shrink-0">
             <Link to="/" className="text-2xl font-bold">
               Izzy
             </Link>
           </div>
 
-          {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link to="/" className="text-gray-600 hover:text-black font-medium">
               Home
@@ -90,7 +93,6 @@ const Header: React.FC = () => {
             </Link>
           </nav>
 
-          {/* Desktop Header Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <button
               onClick={toggleSearch}
@@ -146,7 +148,6 @@ const Header: React.FC = () => {
             </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
           <div className="flex md:hidden items-center space-x-4">
             <Link to="/cart" className="p-2 text-gray-600 hover:text-black relative">
               <ShoppingBag className="h-5 w-5" />
@@ -166,7 +167,6 @@ const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* Search Overlay */}
         {searchOpen && (
           <div className="fixed inset-0 bg-white z-50 flex flex-col">
             <div className="container mx-auto px-4 py-6">
@@ -204,7 +204,6 @@ const Header: React.FC = () => {
           </div>
         )}
 
-        {/* Mobile Menu */}
         <div
           className={`fixed inset-0 bg-white z-40 transform transition-transform duration-300 ease-in-out ${
             menuOpen ? 'translate-x-0' : 'translate-x-full'
@@ -311,7 +310,7 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      <CategoryNav />
+      <CategoryNav categories={categories} />
     </header>
   );
 };
