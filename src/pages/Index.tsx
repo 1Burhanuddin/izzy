@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import ProductGrid from '@/components/product/ProductGrid';
@@ -8,43 +8,6 @@ import { Button } from '@/components/ui/button';
 import { Award, Star } from 'lucide-react';
 
 const Index = () => {
-  const [featuredProducts, setFeaturedProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Simulate fetching featured products
-    setLoading(true);
-    setTimeout(() => {
-      setFeaturedProducts([
-        {
-          id: '10',
-          name: 'Elegant Glass Vase',
-          price: 79.99,
-          image: 'https://images.unsplash.com/photo-1584433789858-3e5f051c5f7f?q=80&w=1000',
-          category: 'Decor',
-          availability: 'in_stock' as const,
-        },
-        {
-          id: '11',
-          name: 'Modern Aluminum Frame',
-          price: 49.99,
-          image: 'https://images.unsplash.com/photo-1621905244241-996e9156297c?q=80&w=1000',
-          category: 'Frames',
-          availability: 'in_stock' as const,
-        },
-        {
-          id: '12',
-          name: 'Designer Wall Mirror',
-          price: 199.99,
-          image: 'https://images.unsplash.com/photo-1619855544858-e05c0dbf92b5?q=80&w=1000',
-          category: 'Mirrors',
-          availability: 'in_stock' as const,
-        },
-      ]);
-      setLoading(false);
-    }, 500);
-  }, []);
-
   return (
     <Layout>
       {/* Hero Section with improved styling */}
@@ -91,25 +54,6 @@ const Index = () => {
               <Link to="/about">Learn More</Link>
             </Button>
           </div>
-        </div>
-      </section>
-
-      {/* Featured Products Section */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-2">
-              Featured Products
-            </h2>
-            <div className="w-24 h-1 bg-black mx-auto"></div>
-          </div>
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-            </div>
-          ) : (
-            <ProductGrid products={featuredProducts} columns={3} />
-          )}
         </div>
       </section>
 
