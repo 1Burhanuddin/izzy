@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -142,9 +143,14 @@ const OrderManagement: React.FC = () => {
 
   const updateOrderStatus = async (orderId: string, status: string) => {
     try {
+      const now = new Date().toISOString();
+      
       const { error } = await supabase
         .from('orders')
-        .update({ status, updated_at: new Date().toISOString() })
+        .update({ 
+          status, 
+          updated_at: now 
+        })
         .eq('id', orderId);
 
       if (error) throw error;
@@ -170,10 +176,18 @@ const OrderManagement: React.FC = () => {
           .single();
           
         if (!userError) {
-          data.customer_email = userData?.username || 'Unknown';
+          const updatedOrder = {
+            ...data,
+            customer_email: userData?.username || 'Unknown'
+          };
+          setSelectedOrder(updatedOrder);
+        } else {
+          const updatedOrder = {
+            ...data,
+            customer_email: 'Unknown'
+          };
+          setSelectedOrder(updatedOrder);
         }
-        
-        setSelectedOrder(data);
       }
 
       toast.success(`Order status updated to ${status}`);

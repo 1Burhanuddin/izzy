@@ -15,6 +15,7 @@ type Order = {
   created_at: string;
   total_amount: number;
   payment_status: string;
+  updated_at: string;
 };
 
 const UserProfile: React.FC = () => {
@@ -180,6 +181,18 @@ const UserProfile: React.FC = () => {
                           <div className="mt-2 text-sm text-green-600 flex items-center">
                             <CheckCircle className="h-4 w-4 mr-1" />
                             <span>Your order has been delivered. Thank you for shopping with us!</span>
+                          </div>
+                        )}
+                        {order.status === 'processing' && (
+                          <div className="mt-2 text-sm text-blue-600 flex items-center">
+                            <Package className="h-4 w-4 mr-1" />
+                            <span>Your order is being processed!</span>
+                          </div>
+                        )}
+                        {order.status === 'cancelled' && (
+                          <div className="mt-2 text-sm text-red-600 flex items-center">
+                            <X className="h-4 w-4 mr-1" />
+                            <span>Your order has been cancelled.</span>
                           </div>
                         )}
                       </div>
