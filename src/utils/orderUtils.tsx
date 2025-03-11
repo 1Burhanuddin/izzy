@@ -31,3 +31,20 @@ export const getPaymentStatusBadge = (status: string) => {
       return <Badge variant="outline">{status}</Badge>;
   }
 };
+
+export const getOrderStatusText = (status: string) => {
+  switch (status) {
+    case 'pending':
+      return 'Pending';
+    case 'processing':
+      return 'Processing';
+    case 'shipped':
+      return 'Shipped';
+    case 'delivered':
+      return 'Delivered';
+    case 'cancelled':
+      return 'Cancelled';
+    default:
+      return status;
+  }
+};

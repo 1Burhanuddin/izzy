@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Package, X } from 'lucide-react';
@@ -51,6 +50,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
 }) => {
   if (!selectedOrder) return null;
 
+  const handleStatusUpdate = async (status: string) => {
+    if (selectedOrder && selectedOrder.id) {
+      await updateOrderStatus(selectedOrder.id, status);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-4 border-b flex justify-between items-center">
@@ -67,7 +72,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             <div className="space-y-2">
               <p className="text-sm"><span className="font-medium">Order ID:</span> {selectedOrder.id}</p>
               <p className="text-sm"><span className="font-medium">Date:</span> {new Date(selectedOrder.created_at).toLocaleString()}</p>
-              <p className="text-sm"><span className="font-medium">Customer:</span> {selectedOrder.customer_email}</p>
+              <p className="text-sm"><span className="font-medium">Customer:</span> {selectedOrder.customer_email || 'Unknown'}</p>
               <p className="text-sm"><span className="font-medium">Payment Method:</span> {selectedOrder.payment_method}</p>
               <p className="text-sm"><span className="font-medium">Total Amount:</span> ₹{selectedOrder.total_amount.toFixed(2)}</p>
               <div className="text-sm"><span className="font-medium">Payment Status:</span> {getPaymentStatusBadge(selectedOrder.payment_status)}</div>
@@ -99,7 +104,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => updateOrderStatus(selectedOrder.id, 'processing')}
+              onClick={() => handleStatusUpdate('processing')}
               disabled={selectedOrder.status === 'processing'}
             >
               Mark Processing
@@ -107,7 +112,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => updateOrderStatus(selectedOrder.id, 'shipped')}
+              onClick={() => handleStatusUpdate('shipped')}
               disabled={selectedOrder.status === 'shipped'}
             >
               Mark Shipped
@@ -115,7 +120,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => updateOrderStatus(selectedOrder.id, 'delivered')}
+              onClick={() => handleStatusUpdate('delivered')}
               disabled={selectedOrder.status === 'delivered'}
             >
               Mark Delivered
@@ -124,7 +129,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               variant="outline" 
               size="sm"
               className="text-red-500 hover:text-red-600"
-              onClick={() => updateOrderStatus(selectedOrder.id, 'cancelled')}
+              onClick={() => handleStatusUpdate('cancelled')}
               disabled={selectedOrder.status === 'cancelled'}
             >
               Cancel Order

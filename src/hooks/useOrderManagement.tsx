@@ -149,39 +149,18 @@ export const useOrderManagement = (isAdmin: boolean) => {
 
       if (error) throw error;
 
-      // Refetch orders to ensure we have the latest data
-      await fetchOrders();
+      // If we're viewing a list, update the order in the list
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status, updated_at: now } 
+            : order
+        )
+      );
       
-      // If an order is selected, refetch it to show updated status
+      // If an order is selected, update it directly to see status change immediately
       if (selectedOrder && selectedOrder.id === orderId) {
-        const { data, error: orderError } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('id', orderId)
-          .single();
-          
-        if (orderError) throw orderError;
-        
-        // Get the customer email
-        const { data: userData, error: userError } = await supabase
-          .from('profiles')
-          .select('username')
-          .eq('id', data.user_id)
-          .single();
-          
-        if (!userError) {
-          const updatedOrder = {
-            ...data,
-            customer_email: userData?.username || 'Unknown'
-          };
-          setSelectedOrder(updatedOrder);
-        } else {
-          const updatedOrder = {
-            ...data,
-            customer_email: 'Unknown'
-          };
-          setSelectedOrder(updatedOrder);
-        }
+        setSelectedOrder(prev => prev ? { ...prev, status, updated_at: now } : null);
       }
 
       toast.success(`Order status updated to ${status}`);
