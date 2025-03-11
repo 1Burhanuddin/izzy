@@ -52,9 +52,10 @@ const OrderManagement: React.FC = () => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
+      // First, fetch orders with pagination
       let query = supabase
         .from('orders')
-        .select('*, profiles!inner(username)')
+        .select('*')
         .order('created_at', { ascending: false })
         .range((page - 1) * ordersPerPage, page * ordersPerPage - 1);
 
@@ -66,25 +67,35 @@ const OrderManagement: React.FC = () => {
 
       if (error) throw error;
 
-      // Get count for pagination
-      const { data: countData, error: countError } = await supabase
+      // Get total count for pagination
+      const { count, error: countError } = await supabase
         .from('orders')
-        .select('id', { count: 'exact' });
+        .select('*', { count: 'exact', head: true });
 
       if (countError) throw countError;
 
-      // Calculate total pages
-      const totalCount = countData?.length || 0;
-      setTotalPages(Math.ceil(totalCount / ordersPerPage));
+      setTotalPages(Math.ceil((count || 0) / ordersPerPage));
 
-      // Format the order data
-      const formattedOrders = ordersData.map((order: any) => ({
-        ...order,
-        customer_email: order.profiles?.username || 'N/A',
-      }));
+      // Fetch user emails for each order
+      const ordersWithUserEmails = await Promise.all(
+        ordersData.map(async (order: Order) => {
+          const { data: userData, error: userError } = await supabase
+            .from('profiles')
+            .select('username')
+            .eq('id', order.user_id)
+            .single();
 
-      setOrders(formattedOrders);
-      console.log("Fetched orders:", formattedOrders);
+          if (userError) {
+            console.error(`Error fetching user data for order ${order.id}:`, userError);
+            return { ...order, customer_email: 'Unknown' };
+          }
+
+          return { ...order, customer_email: userData?.username || 'Unknown' };
+        })
+      );
+
+      setOrders(ordersWithUserEmails);
+      console.log("Fetched orders:", ordersWithUserEmails);
     } catch (error: any) {
       console.error("Error fetching orders:", error);
       toast.error(`Failed to fetch orders: ${error.message}`);

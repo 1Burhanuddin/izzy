@@ -16,7 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // Scroll to top on page change
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [location.pathname]);
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -26,7 +26,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {isHomePage && (
           <div className="container mx-auto px-4 py-8">
             <h2 className="text-3xl font-bold mb-6 text-center">Shop By Category</h2>
-            <CategoryNav categories={['Glass', 'Aluminium', 'Mirrors']} />
+            <CategoryNav categories={["Glass", "Aluminium", "Mirrors"]} />
           </div>
         )}
       </main>
