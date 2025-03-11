@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, LogOut, Package, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, LogOut, Package, CheckCircle, X } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { getOrderStatusBadge } from '@/utils/orderUtils';
 
 type Order = {
   id: string;
@@ -65,23 +66,6 @@ const UserProfile: React.FC = () => {
 
   const goBack = () => {
     navigate(-1);
-  };
-
-  const getOrderStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Pending</Badge>;
-      case 'processing':
-        return <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">Processing</Badge>;
-      case 'shipped':
-        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Shipped</Badge>;
-      case 'delivered':
-        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Delivered</Badge>;
-      case 'cancelled':
-        return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Cancelled</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
   };
 
   if (isLoading) {
