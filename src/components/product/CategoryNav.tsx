@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-interface Category {
+export interface Category {
   id: string;
   name: string;
   slug: string;
