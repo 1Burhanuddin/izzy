@@ -4,6 +4,7 @@ import { useLocation } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import CategoryNav from '../product/CategoryNav';
+import { Category } from '../product/CategoryNav';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location.pathname]);
 
   // Define categories with the proper structure
-  const categories = [
+  const categories: Category[] = [
     { id: "1", name: "Glass", slug: "glass" },
     { id: "2", name: "Aluminium", slug: "aluminium" },
     { id: "3", name: "Mirrors", slug: "mirrors" }

@@ -1,16 +1,25 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, LogOut } from 'lucide-react';
+import { ArrowLeft, User, Mail, LogOut, Package } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+type Order = {
+  id: string;
+  status: string;
+  created_at: string;
+  total_amount: number;
+  payment_status: string;
+};
+
 const UserProfile: React.FC = () => {
   const { user, profile, signOut, isLoading } = useAuth();
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const navigate = useNavigate();
 
@@ -35,12 +44,14 @@ const UserProfile: React.FC = () => {
 
       if (error) {
         console.error('Error fetching orders:', error);
+        toast.error(`Error fetching orders: ${error.message}`);
         return;
       }
 
       setOrders(data || []);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching orders:', error);
+      toast.error(`Error fetching orders: ${error.message}`);
     } finally {
       setLoadingOrders(false);
     }
@@ -53,6 +64,23 @@ const UserProfile: React.FC = () => {
 
   const goBack = () => {
     navigate(-1);
+  };
+
+  const getOrderStatusBadge = (status: string) => {
+    switch (status) {
+      case 'pending':
+        return <Badge variant="outline" className="bg-yellow-50 text-yellow-600 border-yellow-200">Pending</Badge>;
+      case 'processing':
+        return <Badge variant="outline" className="bg-blue-50 text-blue-600 border-blue-200">Processing</Badge>;
+      case 'shipped':
+        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Shipped</Badge>;
+      case 'delivered':
+        return <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200">Delivered</Badge>;
+      case 'cancelled':
+        return <Badge variant="outline" className="bg-red-50 text-red-600 border-red-200">Cancelled</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   };
 
   if (isLoading) {
@@ -131,16 +159,29 @@ const UserProfile: React.FC = () => {
                   </div>
                 ) : orders.length > 0 ? (
                   <div className="space-y-4">
-                    {orders.map((order: any) => (
+                    {orders.map((order: Order) => (
                       <div key={order.id} className="bg-gray-50 p-4 rounded-lg">
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-medium">Order #{order.id.substring(0, 8)}</span>
-                          <Badge>{order.status}</Badge>
+                          {getOrderStatusBadge(order.status)}
                         </div>
                         <div className="text-sm text-gray-500">
                           <p>Date: {new Date(order.created_at).toLocaleDateString()}</p>
                           <p>Total: ₹{order.total_amount.toFixed(2)}</p>
+                          <p>Payment Status: {order.payment_status}</p>
                         </div>
+                        {order.status === 'shipped' && (
+                          <div className="mt-2 text-sm text-blue-600 flex items-center">
+                            <Package className="h-4 w-4 mr-1" />
+                            <span>Your order has been shipped and is on its way!</span>
+                          </div>
+                        )}
+                        {order.status === 'delivered' && (
+                          <div className="mt-2 text-sm text-green-600 flex items-center">
+                            <Check className="h-4 w-4 mr-1" />
+                            <span>Your order has been delivered. Thank you for shopping with us!</span>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

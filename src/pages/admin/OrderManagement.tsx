@@ -68,29 +68,40 @@ const OrderManagement: React.FC = () => {
       if (error) throw error;
 
       // Get total count for pagination
-      const { count, error: countError } = await supabase
+      const countQuery = supabase
         .from('orders')
         .select('*', { count: 'exact', head: true });
+        
+      if (selectedStatus !== 'all') {
+        countQuery.eq('status', selectedStatus);
+      }
+
+      const { count, error: countError } = await countQuery;
 
       if (countError) throw countError;
 
       setTotalPages(Math.ceil((count || 0) / ordersPerPage));
 
-      // Fetch user emails for each order
+      // Fetch user emails for each order separately to avoid relationship errors
       const ordersWithUserEmails = await Promise.all(
         ordersData.map(async (order: Order) => {
-          const { data: userData, error: userError } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('id', order.user_id)
-            .single();
+          try {
+            const { data: userData, error: userError } = await supabase
+              .from('profiles')
+              .select('username')
+              .eq('id', order.user_id)
+              .single();
 
-          if (userError) {
-            console.error(`Error fetching user data for order ${order.id}:`, userError);
+            if (userError) {
+              console.error(`Error fetching user data for order ${order.id}:`, userError);
+              return { ...order, customer_email: 'Unknown' };
+            }
+
+            return { ...order, customer_email: userData?.username || 'Unknown' };
+          } catch (error) {
+            console.error(`Error processing order ${order.id}:`, error);
             return { ...order, customer_email: 'Unknown' };
           }
-
-          return { ...order, customer_email: userData?.username || 'Unknown' };
         })
       );
 
@@ -133,17 +144,36 @@ const OrderManagement: React.FC = () => {
     try {
       const { error } = await supabase
         .from('orders')
-        .update({ status })
+        .update({ status, updated_at: new Date().toISOString() })
         .eq('id', orderId);
 
       if (error) throw error;
 
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status } : order
-      ));
-
+      // Refetch orders to ensure we have the latest data
+      await fetchOrders();
+      
+      // If an order is selected, refetch it to show updated status
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder({ ...selectedOrder, status });
+        const { data, error: orderError } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('id', orderId)
+          .single();
+          
+        if (orderError) throw orderError;
+        
+        // Get the customer email
+        const { data: userData, error: userError } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('id', data.user_id)
+          .single();
+          
+        if (!userError) {
+          data.customer_email = userData?.username || 'Unknown';
+        }
+        
+        setSelectedOrder(data);
       }
 
       toast.success(`Order status updated to ${status}`);
@@ -285,8 +315,8 @@ const OrderManagement: React.FC = () => {
                   {selectedOrder.shipping_address ? (
                     <div className="space-y-1">
                       <p className="text-sm">{selectedOrder.shipping_address.name}</p>
-                      <p className="text-sm">{selectedOrder.shipping_address.street}</p>
-                      <p className="text-sm">{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.zipCode}</p>
+                      <p className="text-sm">{selectedOrder.shipping_address.address || selectedOrder.shipping_address.street}</p>
+                      <p className="text-sm">{selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state} {selectedOrder.shipping_address.zipCode || selectedOrder.shipping_address.pincode}</p>
                       <p className="text-sm">{selectedOrder.shipping_address.phone}</p>
                     </div>
                   ) : (
