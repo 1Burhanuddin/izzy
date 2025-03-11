@@ -6,120 +6,76 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { Users, ChevronLeft, ChevronRight, Search, User, Package, ShoppingCart } from 'lucide-react';
-import { format } from 'date-fns';
-
-type UserProfile = {
-  id: string;
-  username: string;
-  role: string;
-  created_at: string;
-  updated_at: string;
-  order_count: number;
-  total_spent: number;
-};
+import { User, UserX, Check, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const UserManagement: React.FC = () => {
   const { isAdmin } = useAuth();
-  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const usersPerPage = 10;
 
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
     }
-  }, [isAdmin, page, searchTerm]);
+  }, [isAdmin, page, searchQuery]);
 
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      // Fetch user profiles
       let query = supabase
         .from('profiles')
         .select('*')
         .range((page - 1) * usersPerPage, page * usersPerPage - 1);
 
-      if (searchTerm) {
-        query = query.ilike('username', `%${searchTerm}%`);
+      if (searchQuery) {
+        query = query.ilike('username', `%${searchQuery}%`);
       }
 
-      const { data, error, count } = await query;
+      const { data: usersData, error } = await query;
 
       if (error) throw error;
 
       // Get count for pagination
-      const { count: totalCount, error: countError } = await supabase
+      const { data: countData, error: countError } = await supabase
         .from('profiles')
-        .select('*', { count: 'exact', head: true });
+        .select('id', { count: 'exact' });
 
       if (countError) throw countError;
 
       // Calculate total pages
-      setTotalPages(Math.ceil((totalCount || 0) / usersPerPage));
+      const totalCount = countData?.length || 0;
+      setTotalPages(Math.ceil(totalCount / usersPerPage));
 
-      // For each user, get their order count and total spent
-      const enhancedUsers = await Promise.all(
-        data.map(async (user) => {
-          // Get order count
-          const { count: orderCount, error: orderCountError } = await supabase
-            .from('orders')
-            .select('*', { count: 'exact', head: true })
-            .eq('user_id', user.id);
-
-          if (orderCountError) {
-            console.error('Error fetching order count:', orderCountError);
-            return { ...user, order_count: 0, total_spent: 0 };
-          }
-
-          // Get total spent
-          const { data: ordersData, error: ordersError } = await supabase
-            .from('orders')
-            .select('total_amount')
-            .eq('user_id', user.id);
-
-          if (ordersError) {
-            console.error('Error fetching orders:', ordersError);
-            return { ...user, order_count: orderCount || 0, total_spent: 0 };
-          }
-
-          const totalSpent = ordersData.reduce((sum, order) => sum + (order.total_amount || 0), 0);
-
-          return {
-            ...user,
-            order_count: orderCount || 0,
-            total_spent: totalSpent,
-          };
-        })
-      );
-
-      setUsers(enhancedUsers);
+      setUsers(usersData || []);
+      console.log("Fetched users:", usersData);
     } catch (error: any) {
+      console.error("Error fetching users:", error);
       toast.error(`Failed to fetch users: ${error.message}`);
     } finally {
       setLoading(false);
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: string) => {
+  const updateUserRole = async (userId: string, role: string) => {
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role: newRole })
+        .update({ role })
         .eq('id', userId);
 
       if (error) throw error;
 
       setUsers(users.map(user => 
-        user.id === userId ? { ...user, role: newRole } : user
+        user.id === userId ? { ...user, role } : user
       ));
 
-      toast.success(`User role updated to ${newRole}`);
+      toast.success(`User role updated to ${role}`);
     } catch (error: any) {
-      toast.error(`Failed to update user role: ${error.message}`);
+      toast.error(`Failed to update user: ${error.message}`);
     }
   };
 
@@ -140,31 +96,29 @@ const UserManagement: React.FC = () => {
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">User Management</h1>
-            <p className="text-gray-600">
-              Manage user accounts and permissions
-            </p>
+            <p className="text-gray-600">Manage user accounts and roles</p>
           </div>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <div className="flex">
-            <div className="relative flex-grow">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                className="focus:ring-black focus:border-black block w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md"
-                placeholder="Search users by email"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+        {/* Search bar */}
+        <div className="mb-6">
+          <div className="relative max-w-md">
+            <input
+              type="text"
+              placeholder="Search users by email..."
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button
+              className="absolute inset-y-0 right-0 px-4 text-gray-500 hover:text-gray-700"
+              onClick={() => setSearchQuery('')}
+            >
+              {searchQuery && 'X'}
+            </button>
           </div>
         </div>
 
-        {/* Users table */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
@@ -179,16 +133,13 @@ const UserManagement: React.FC = () => {
                       User
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Role
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Registered On
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Orders
-                    </th>
-                    <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Total Spent
+                      Created At
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Actions
@@ -207,54 +158,45 @@ const UserManagement: React.FC = () => {
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900">
-                              {user.username}
+                              {user.username || 'No Name'}
                             </div>
                             <div className="text-sm text-gray-500">
-                              {user.id.substring(0, 8)}...
+                              ID: {user.id.substring(0, 8)}...
                             </div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">{user.username}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
                         {getRoleBadge(user.role)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {format(new Date(user.created_at), 'dd MMM yyyy')}
-                        </div>
+                        <div className="text-sm text-gray-900">{new Date(user.created_at).toLocaleDateString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="inline-flex items-center">
-                          <Package className="h-4 w-4 mr-1 text-gray-500" />
-                          <span className="text-sm text-gray-900">{user.order_count}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="inline-flex items-center">
-                          <ShoppingCart className="h-4 w-4 mr-1 text-gray-500" />
-                          <span className="text-sm text-gray-900">₹{user.total_spent.toFixed(2)}</span>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex space-x-2">
-                          {user.role === 'customer' ? (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateUserRole(user.id, 'admin')}
-                            >
-                              Make Admin
-                            </Button>
-                          ) : (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateUserRole(user.id, 'customer')}
-                            >
-                              Remove Admin
-                            </Button>
-                          )}
-                        </div>
+                        {user.role === 'admin' ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateUserRole(user.id, 'customer')}
+                            className="mr-2"
+                          >
+                            <UserX className="h-4 w-4 mr-1" />
+                            Remove Admin
+                          </Button>
+                        ) : (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateUserRole(user.id, 'admin')}
+                            className="mr-2"
+                          >
+                            <Check className="h-4 w-4 mr-1" />
+                            Make Admin
+                          </Button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -292,11 +234,11 @@ const UserManagement: React.FC = () => {
         ) : (
           <div className="text-center py-12 bg-gray-50 rounded-lg">
             <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-              <Users className="h-8 w-8 text-gray-400" />
+              <User className="h-8 w-8 text-gray-400" />
             </div>
             <h2 className="text-xl font-medium mb-2">No users found</h2>
             <p className="text-gray-500">
-              {searchTerm ? 'No users match your search criteria' : 'There are no users registered yet'}
+              {searchQuery ? 'No users match your search criteria' : 'There are no users in the system'}
             </p>
           </div>
         )}

@@ -54,7 +54,7 @@ const OrderManagement: React.FC = () => {
     try {
       let query = supabase
         .from('orders')
-        .select('*, profiles(email:username)')
+        .select('*, profiles!inner(username)')
         .order('created_at', { ascending: false })
         .range((page - 1) * ordersPerPage, page * ordersPerPage - 1);
 
@@ -62,28 +62,31 @@ const OrderManagement: React.FC = () => {
         query = query.eq('status', selectedStatus);
       }
 
-      const { data: ordersData, error, count } = await query;
+      const { data: ordersData, error } = await query;
 
       if (error) throw error;
 
       // Get count for pagination
-      const { count: totalCount, error: countError } = await supabase
+      const { data: countData, error: countError } = await supabase
         .from('orders')
-        .select('*', { count: 'exact', head: true });
+        .select('id', { count: 'exact' });
 
       if (countError) throw countError;
 
       // Calculate total pages
-      setTotalPages(Math.ceil((totalCount || 0) / ordersPerPage));
+      const totalCount = countData?.length || 0;
+      setTotalPages(Math.ceil(totalCount / ordersPerPage));
 
       // Format the order data
       const formattedOrders = ordersData.map((order: any) => ({
         ...order,
-        customer_email: order.profiles?.email || 'N/A',
+        customer_email: order.profiles?.username || 'N/A',
       }));
 
       setOrders(formattedOrders);
+      console.log("Fetched orders:", formattedOrders);
     } catch (error: any) {
+      console.error("Error fetching orders:", error);
       toast.error(`Failed to fetch orders: ${error.message}`);
     } finally {
       setLoading(false);
