@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +18,7 @@ type Order = {
   transaction_id: string | null;
   shipping_address: any;
   customer_email?: string;
+  updated_at: string;
 };
 
 type OrderItem = {

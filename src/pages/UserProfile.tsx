@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, LogOut, Package } from 'lucide-react';
+import { ArrowLeft, User, Mail, LogOut, Package, CheckCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -178,7 +178,7 @@ const UserProfile: React.FC = () => {
                         )}
                         {order.status === 'delivered' && (
                           <div className="mt-2 text-sm text-green-600 flex items-center">
-                            <Check className="h-4 w-4 mr-1" />
+                            <CheckCircle className="h-4 w-4 mr-1" />
                             <span>Your order has been delivered. Thank you for shopping with us!</span>
                           </div>
                         )}
