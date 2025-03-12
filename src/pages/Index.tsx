@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -12,19 +11,12 @@ const Index = () => {
       {/* Hero Section with blue colors and cloud effect */}
       <section className="relative overflow-hidden bg-gradient-to-r from-blue-700 to-blue-500 text-white min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">
-          <video
+          {/* Hero background image */}
+          <img 
+            src="https://images.unsplash.com/photo-1536532184021-da5392b55da1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
+            alt="Blue sky with clouds" 
             className="w-full h-full object-cover opacity-40"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-          >
-            <source
-              src="https://d1xzdqg8s8ggsr.cloudfront.net/654bb41e6a54e30008612d94/654e31ebca0b8600070af2af/9c76eb5e-aa87-480f-b5ba-5eb3d416798b.mp4"
-              type="video/mp4"
-            />
-          </video>
+          />
           
           {/* Cloud-like overlay effect */}
           <div className="absolute inset-0 bg-gradient-to-b from-blue-400/30 via-blue-600/20 to-blue-900/40"></div>
