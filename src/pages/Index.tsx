@@ -14,7 +14,7 @@ const Index = () => {
         <div className="absolute inset-0 z-0">
           {/* Hero background image */}
           <img 
-            src="https://www.freepik.com/free-photo/shopping-bag-cart_12975138.htm#fromView=keyword&page=1&position=1&uuid=e945fb22-51bc-46ad-89e6-89a6fc9a4fd3&query=Ecommerce+Background" 
+            src="https://img.freepik.com/free-photo/shopping-bag-cart_23-2148879372.jpg" 
             alt="Sky with clouds" 
             className="w-full h-full object-cover opacity-40"
           />
