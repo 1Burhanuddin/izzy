@@ -10,7 +10,7 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section with neutral colors and cloud effect */}
-      <section className="">
+      <section className="relative overflow-hidden bg-gradient-to-r from-gray-700 to-gray-500 text-white min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">
           {/* Hero background image */}
           <img 
