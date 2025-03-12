@@ -10,10 +10,10 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section with improved styling */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-gray-900 to-black text-white min-h-[85vh] flex items-center">
+      <section className="relative overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900 text-white min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <video
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover opacity-50"
             autoPlay
             muted
             loop
@@ -25,33 +25,35 @@ const Index = () => {
               type="video/mp4"
             />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60"></div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in">
-            Transform Your Space with Izzy
-          </h1>
-          <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up">
-            Premium glass and aluminum solutions for modern homes and offices.
-            Expert craftsmanship with timeless designs.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 animate-fade-in" style={{animationDelay: "0.3s"}}>
-            <Button
-              asChild
-              size="lg"
-              className="px-8 bg-white text-black hover:bg-gray-200"
-            >
-              <Link to="/products/glass">Shop Now</Link>
-            </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="px-8 border-white text-black bg-white/80 hover:bg-white hover:text-black"
-            >
-              <Link to="/about">Learn More</Link>
-            </Button>
+          <div className="max-w-4xl mx-auto text-center">
+            <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-white drop-shadow-lg">
+              Transform Your Space with Izzy
+            </h1>
+            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-white/90 drop-shadow-md">
+              Premium glass and aluminum solutions for modern homes and offices.
+              Expert craftsmanship with timeless designs.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{animationDelay: "0.3s"}}>
+              <Button
+                asChild
+                size="lg"
+                className="px-8 bg-white text-gray-900 hover:bg-gray-200 shadow-md"
+              >
+                <Link to="/products/glass">Shop Now</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="px-8 border-white text-white hover:bg-white/20 hover:text-white transition-colors"
+              >
+                <Link to="/about">Learn More</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>

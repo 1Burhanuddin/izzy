@@ -57,7 +57,7 @@ const Cart = () => {
             <div className="lg:col-span-2">
               <div className="bg-white rounded-lg shadow-md overflow-hidden">
                 <div className="p-4 border-b">
-                  <div className="grid grid-cols-12 gap-4 font-semibold text-gray-600">
+                  <div className="hidden md:grid md:grid-cols-12 gap-4 font-semibold text-gray-600">
                     <div className="col-span-6">Product</div>
                     <div className="col-span-2">Price</div>
                     <div className="col-span-2">Quantity</div>
@@ -67,10 +67,10 @@ const Cart = () => {
                 <div className="divide-y">
                   {cartItems.map((item) => (
                     <div key={item.id} className="p-4">
-                      <div className="grid grid-cols-12 gap-4 items-center">
-                        <div className="col-span-6">
-                          <div className="flex items-center">
-                            <div className="w-16 h-16 rounded overflow-hidden bg-gray-100 flex-shrink-0">
+                      <div className="flex flex-col md:grid md:grid-cols-12 gap-4 items-center">
+                        <div className="w-full md:col-span-6">
+                          <div className="flex flex-col sm:flex-row items-center">
+                            <div className="w-24 h-24 sm:w-16 sm:h-16 rounded overflow-hidden bg-gray-100 flex-shrink-0 mb-4 sm:mb-0">
                               {item.product.image ? (
                                 <img
                                   src={item.product.image}
@@ -83,16 +83,18 @@ const Cart = () => {
                                 </div>
                               )}
                             </div>
-                            <div className="ml-4">
+                            <div className="sm:ml-4 text-center sm:text-left">
                               <h3 className="text-sm font-medium">{item.product.name}</h3>
                               <p className="text-xs text-gray-500 mt-1">{item.product.category}</p>
                             </div>
                           </div>
                         </div>
-                        <div className="col-span-2">
+                        <div className="w-full md:col-span-2 flex justify-between md:block">
+                          <span className="md:hidden text-sm font-medium">Price:</span>
                           <span className="text-sm font-medium">₹{item.product.price.toFixed(2)}</span>
                         </div>
-                        <div className="col-span-2">
+                        <div className="w-full md:col-span-2 flex justify-between md:block">
+                          <span className="md:hidden text-sm font-medium">Quantity:</span>
                           <div className="flex items-center">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -109,7 +111,8 @@ const Cart = () => {
                             </button>
                           </div>
                         </div>
-                        <div className="col-span-2 flex items-center justify-between">
+                        <div className="w-full md:col-span-2 flex justify-between items-center">
+                          <span className="md:hidden text-sm font-medium">Total:</span>
                           <span className="text-sm font-medium">
                             ₹{(item.product.price * item.quantity).toFixed(2)}
                           </span>
@@ -117,7 +120,7 @@ const Cart = () => {
                             onClick={() => removeFromCart(item.id)}
                             className="text-red-500 hover:text-red-700"
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
                       </div>
@@ -128,7 +131,7 @@ const Cart = () => {
             </div>
 
             <div className="lg:col-span-1">
-              <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
+              <div className="bg-white rounded-lg shadow-md p-6 sticky top-24">
                 <h2 className="text-lg font-semibold mb-4">Order Summary</h2>
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between">
