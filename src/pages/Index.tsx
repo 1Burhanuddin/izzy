@@ -10,13 +10,13 @@ const Index = () => {
   return (
     <Layout>
       {/* Hero Section with neutral colors and cloud effect */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-gray-700 to-gray-500 text-white min-h-[85vh] flex items-center">
-        <div className="absolute inset-0 z-0">
+      <section className="">
+        <div className="">
           {/* Hero background image */}
           <img 
             src="https://images.unsplash.com/photo-1536532184021-da5392b55da1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2340&q=80" 
             alt="Sky with clouds" 
-            className="w-full h-full object-cover opacity-40 grayscale"
+            className="w-full h-full object-cover "
           />
           
           {/* Cloud-like overlay effect */}
