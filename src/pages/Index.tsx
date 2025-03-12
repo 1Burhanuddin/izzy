@@ -20,14 +20,14 @@ const Index = () => {
           />
           
           {/* Cloud-like overlay effect */}
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-400/30 via-gray-600/20 to-gray-900/40"></div>
+          <div className=""></div>
           
           {/* Cloud elements using SVG filters */}
-          <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30">
-            <div className="cloud absolute top-[10%] left-[5%] w-64 h-24 bg-white rounded-full"></div>
-            <div className="cloud absolute top-[15%] right-[10%] w-80 h-20 bg-white rounded-full"></div>
-            <div className="cloud absolute top-[40%] left-[20%] w-48 h-16 bg-white rounded-full"></div>
-            <div className="cloud absolute bottom-[30%] right-[25%] w-56 h-18 bg-white rounded-full"></div>
+          <div className="">
+            <div className=""></div>
+            <div className=""></div>
+            <div className=""></div>
+            <div className=""></div>
           </div>
         </div>
 
