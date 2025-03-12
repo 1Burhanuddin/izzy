@@ -9,11 +9,11 @@ import { Award, Star } from 'lucide-react';
 const Index = () => {
   return (
     <Layout>
-      {/* Hero Section with improved styling */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-gray-800 to-gray-900 text-white min-h-[85vh] flex items-center">
+      {/* Hero Section with blue colors and cloud effect */}
+      <section className="relative overflow-hidden bg-gradient-to-r from-blue-700 to-blue-500 text-white min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">
           <video
-            className="w-full h-full object-cover opacity-50"
+            className="w-full h-full object-cover opacity-40"
             autoPlay
             muted
             loop
@@ -25,7 +25,17 @@ const Index = () => {
               type="video/mp4"
             />
           </video>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60"></div>
+          
+          {/* Cloud-like overlay effect */}
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-400/30 via-blue-600/20 to-blue-900/40"></div>
+          
+          {/* Cloud elements using SVG filters */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-30">
+            <div className="cloud absolute top-[10%] left-[5%] w-64 h-24 bg-white rounded-full"></div>
+            <div className="cloud absolute top-[15%] right-[10%] w-80 h-20 bg-white rounded-full"></div>
+            <div className="cloud absolute top-[40%] left-[20%] w-48 h-16 bg-white rounded-full"></div>
+            <div className="cloud absolute bottom-[30%] right-[25%] w-56 h-18 bg-white rounded-full"></div>
+          </div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
@@ -41,7 +51,7 @@ const Index = () => {
               <Button
                 asChild
                 size="lg"
-                className="px-8 bg-white text-gray-900 hover:bg-gray-200 shadow-md"
+                className="px-8 bg-white text-blue-700 hover:bg-blue-50 shadow-md"
               >
                 <Link to="/products/glass">Shop Now</Link>
               </Button>
@@ -66,12 +76,12 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-2">Why Choose Izzy</h2>
-            <div className="w-24 h-1 bg-black mx-auto"></div>
+            <div className="w-24 h-1 bg-blue-600 mx-auto"></div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="h-8 w-8 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-2">Quality Materials</h3>
@@ -79,7 +89,7 @@ const Index = () => {
             </div>
             
             <div className="bg-gray-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                 </svg>
@@ -89,7 +99,7 @@ const Index = () => {
             </div>
             
             <div className="bg-gray-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-black rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
@@ -102,7 +112,7 @@ const Index = () => {
       </section>
 
       {/* Testimonial Section */}
-      <section className="py-24 bg-gray-100">
+      <section className="py-24 bg-blue-50">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl font-bold mb-8">
