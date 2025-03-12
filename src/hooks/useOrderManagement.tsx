@@ -139,6 +139,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
     try {
       const now = new Date().toISOString();
       
+      // First, update the database
       const { error } = await supabase
         .from('orders')
         .update({ 
@@ -149,7 +150,9 @@ export const useOrderManagement = (isAdmin: boolean) => {
 
       if (error) throw error;
 
-      // If we're viewing a list, update the order in the list
+      // After successful database update, update the local state
+      
+      // Update the orders list if the order is in the current view
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
@@ -158,13 +161,17 @@ export const useOrderManagement = (isAdmin: boolean) => {
         )
       );
       
-      // If an order is selected, update it directly to see status change immediately
+      // Update the selected order if it's currently being viewed
       if (selectedOrder && selectedOrder.id === orderId) {
         setSelectedOrder(prev => prev ? { ...prev, status, updated_at: now } : null);
       }
 
+      // Refresh the orders list to ensure we have the latest data
+      fetchOrders();
+
       toast.success(`Order status updated to ${status}`);
     } catch (error: any) {
+      console.error("Error updating order status:", error);
       toast.error(`Failed to update order: ${error.message}`);
     }
   };
