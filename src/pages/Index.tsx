@@ -44,7 +44,7 @@ const Index = () => {
               <Button
                 asChild
                 size="lg"
-                className="px-8 bg-white text-gray-700 hover:bg-gray-50 shadow-md"
+                className="px-8 bg-white text-black hover:bg-gray-50 shadow-md"
               >
                 <Link to="/products/glass">Shop Now</Link>
               </Button>
