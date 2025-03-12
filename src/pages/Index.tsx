@@ -16,7 +16,7 @@ const Index = () => {
           <img 
             src="https://img.freepik.com/free-photo/shopping-bag-cart_23-2148879372.jpg" 
             alt="Sky with clouds" 
-            className="w-full h-full object-cover opacity-40"
+            className="w-full h-full object-cover "
           />
           
           {/* Cloud-like overlay effect */}
