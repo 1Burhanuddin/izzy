@@ -52,7 +52,7 @@ const Index = () => {
                 asChild
                 variant="outline"
                 size="lg"
-                className="px-8 border-white text-white hover:bg-white/20 hover:text-white transition-colors"
+                className="px-8 border-white text-black hover:bg-white/20 hover:text-white transition-colors"
               >
                 <Link to="/about">Learn More</Link>
               </Button>
