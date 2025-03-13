@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -158,7 +157,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
       
       console.log("Database update successful");
 
-      // Update the local state
+      // Update the local state immediately
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
@@ -172,42 +171,35 @@ export const useOrderManagement = (isAdmin: boolean) => {
         setSelectedOrder(prev => prev ? { ...prev, status, updated_at: now } : null);
       }
 
-      // Fetch fresh data to ensure we have the latest state
-      // We're using setTimeout to ensure the database has time to process the update
-      // before we fetch the latest data
-      setTimeout(async () => {
-        try {
-          // Get the fresh data for just this order
-          const { data: updatedOrder, error: fetchError } = await supabase
-            .from('orders')
-            .select('*')
-            .eq('id', orderId)
-            .single();
-            
-          if (fetchError) {
-            console.error("Error fetching updated order:", fetchError);
-            return;
-          }
+      // Get the updated order data directly from the database to confirm the update
+      const { data: updatedOrder, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+        
+      if (fetchError) {
+        console.error("Error fetching updated order:", fetchError);
+      } else if (updatedOrder) {
+        console.log("Fetched updated order from database:", updatedOrder);
+        
+        // Verify if the status was updated correctly
+        if (updatedOrder.status !== status) {
+          console.error(`Status mismatch: Expected ${status}, got ${updatedOrder.status}`);
           
-          if (updatedOrder) {
-            console.log("Fetched updated order:", updatedOrder);
+          // Try the update one more time if the status doesn't match
+          const { error: retryError } = await supabase
+            .from('orders')
+            .update({ status })
+            .eq('id', orderId);
             
-            // If the order is in the current page, update it
-            setOrders(prevOrders => 
-              prevOrders.map(order => 
-                order.id === orderId ? { ...order, ...updatedOrder } : order
-              )
-            );
-            
-            // If this is the currently selected order, update it
-            if (selectedOrder && selectedOrder.id === orderId) {
-              setSelectedOrder({ ...updatedOrder, customer_email: selectedOrder.customer_email });
-            }
+          if (retryError) {
+            console.error("Retry update error:", retryError);
+          } else {
+            console.log("Retry update successful");
           }
-        } catch (fetchErr) {
-          console.error("Error in refresh logic:", fetchErr);
         }
-      }, 300);
+      }
 
       toast.success(`Order status updated to ${status}`);
     } catch (error: any) {
