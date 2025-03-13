@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -81,11 +80,12 @@ export const useOrderManagement = (isAdmin: boolean) => {
       const ordersWithUserEmails = await Promise.all(
         ordersData.map(async (order: Order) => {
           try {
+            // FIX: Using the correct filter syntax and maybeSingle instead of single
             const { data: userData, error: userError } = await supabase
               .from('profiles')
               .select('username')
               .eq('id', order.user_id)
-              .single();
+              .maybeSingle();
 
             if (userError) {
               console.error(`Error fetching user data for order ${order.id}:`, userError);
@@ -158,8 +158,6 @@ export const useOrderManagement = (isAdmin: boolean) => {
       console.log("Database update successful");
 
       // After successful database update, update the local state
-      
-      // Update the orders list if the order is in the current view
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
