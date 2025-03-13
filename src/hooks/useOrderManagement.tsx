@@ -167,7 +167,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
       }
 
       // Refresh the orders list to ensure we have the latest data
-      fetchOrders();
+      await fetchOrders();
 
       toast.success(`Order status updated to ${status}`);
     } catch (error: any) {
