@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -157,7 +158,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
       
       console.log("Database update successful");
 
-      // After successful database update, update the local state
+      // Update the local state
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
@@ -171,9 +172,42 @@ export const useOrderManagement = (isAdmin: boolean) => {
         setSelectedOrder(prev => prev ? { ...prev, status, updated_at: now } : null);
       }
 
-      // Refresh the orders list to ensure we have the latest data
-      await fetchOrders();
-      console.log("Orders refreshed from database");
+      // Fetch fresh data to ensure we have the latest state
+      // We're using setTimeout to ensure the database has time to process the update
+      // before we fetch the latest data
+      setTimeout(async () => {
+        try {
+          // Get the fresh data for just this order
+          const { data: updatedOrder, error: fetchError } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('id', orderId)
+            .single();
+            
+          if (fetchError) {
+            console.error("Error fetching updated order:", fetchError);
+            return;
+          }
+          
+          if (updatedOrder) {
+            console.log("Fetched updated order:", updatedOrder);
+            
+            // If the order is in the current page, update it
+            setOrders(prevOrders => 
+              prevOrders.map(order => 
+                order.id === orderId ? { ...order, ...updatedOrder } : order
+              )
+            );
+            
+            // If this is the currently selected order, update it
+            if (selectedOrder && selectedOrder.id === orderId) {
+              setSelectedOrder({ ...updatedOrder, customer_email: selectedOrder.customer_email });
+            }
+          }
+        } catch (fetchErr) {
+          console.error("Error in refresh logic:", fetchErr);
+        }
+      }, 300);
 
       toast.success(`Order status updated to ${status}`);
     } catch (error: any) {
