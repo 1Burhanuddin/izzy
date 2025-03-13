@@ -139,6 +139,8 @@ export const useOrderManagement = (isAdmin: boolean) => {
     try {
       const now = new Date().toISOString();
       
+      console.log(`Updating order ${orderId} status to ${status}`);
+      
       // First, update the database
       const { error } = await supabase
         .from('orders')
@@ -148,7 +150,12 @@ export const useOrderManagement = (isAdmin: boolean) => {
         })
         .eq('id', orderId);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase update error:", error);
+        throw error;
+      }
+      
+      console.log("Database update successful");
 
       // After successful database update, update the local state
       
@@ -168,6 +175,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
 
       // Refresh the orders list to ensure we have the latest data
       await fetchOrders();
+      console.log("Orders refreshed from database");
 
       toast.success(`Order status updated to ${status}`);
     } catch (error: any) {
