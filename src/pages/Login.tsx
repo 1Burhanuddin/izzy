@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -13,24 +12,24 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // If user is already logged in, redirect to home
   if (user && !isLoading) {
     return <Navigate to="/" />;
   }
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    
+
     // Validate inputs
     if (!email || !password) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
     }
-    
+
     try {
       await signIn(email, password);
     } catch (err: any) {
@@ -39,7 +38,7 @@ const Login = () => {
       setLoading(false);
     }
   };
-  
+
   return (
     <Layout>
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
@@ -49,13 +48,13 @@ const Login = () => {
               <h1 className="text-3xl font-bold mb-2">Welcome Back</h1>
               <p className="text-gray-600">Sign in to your account</p>
             </div>
-            
+
             {error && (
               <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg text-sm">
                 {error}
               </div>
             )}
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
@@ -70,7 +69,7 @@ const Login = () => {
                   placeholder="your@email.com"
                 />
               </div>
-              
+
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label htmlFor="password" className="block text-sm font-medium text-gray-700">
@@ -105,7 +104,7 @@ const Login = () => {
                   </button>
                 </div>
               </div>
-              
+
               <div>
                 <Button 
                   type="submit" 
@@ -123,7 +122,7 @@ const Login = () => {
                 </Button>
               </div>
             </form>
-            
+
             <div className="mt-8 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
@@ -135,23 +134,7 @@ const Login = () => {
                 </Link>
               </p>
             </div>
-            
-            {/* Demo Credentials */}
-            <div className="mt-8 pt-6 border-t border-gray-100">
-              <p className="text-xs text-gray-500 mb-2 text-center">Demo Credentials</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-3 bg-gray-50 rounded-lg text-xs">
-                  <p className="font-semibold mb-1">Admin</p>
-                  <p>Email: admin@example.com</p>
-                  <p>Password: admin123</p>
-                </div>
-                <div className="p-3 bg-gray-50 rounded-lg text-xs">
-                  <p className="font-semibold mb-1">Customer</p>
-                  <p>Email: user@example.com</p>
-                  <p>Password: user123</p>
-                </div>
-              </div>
-            </div>
+
           </div>
         </div>
       </div>
