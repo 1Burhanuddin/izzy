@@ -67,9 +67,9 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
 
       <div className="flex flex-col items-center justify-center mt-6 border rounded-lg p-6 bg-gray-50">
         <div className="text-center">
-          <div className="bg-white p-3 rounded-lg inline-block mb-3">
-{/*             <QrCode className="h-24 w-24 text-gray-800" /> */}
-          </div>
+{/*           <div className="bg-white p-3 rounded-lg inline-block mb-3">
+            <QrCode className="h-24 w-24 text-gray-800" />
+          </div> */}
           <p className="font-semibold text-gray-800 mb-2">Pay to: {merchantUpiId}</p>
           <div className="flex justify-center mb-4">
             <Button
