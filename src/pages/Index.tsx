@@ -104,13 +104,7 @@ const Index = () => {
             <h2 className="text-3xl font-bold mb-8">
               What Our Customers Say
             </h2>
-            <div className="mb-8 flex justify-center">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="h-6 w-6 text-yellow-400 fill-yellow-400" />
-                ))}
-              </div>
-            </div>
+            
             <div className="text-xl italic text-gray-700 mb-4">
               "Izzy transformed my living room with their stunning glass
               table. The quality is exceptional, and the service was
