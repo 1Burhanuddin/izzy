@@ -33,10 +33,10 @@ const Index = () => {
 
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-white drop-shadow-lg">
+            <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-black drop-shadow-lg">
               Transform Your Space with Izzy
             </h1>
-            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-white/90 drop-shadow-md">
+            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-black/90 drop-shadow-md">
               Premium glass and aluminum solutions for modern homes and offices.
               Expert craftsmanship with timeless designs.
             </p>
@@ -48,14 +48,7 @@ const Index = () => {
               >
                 <Link to="/products/glass">Shop Now</Link>
               </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="px-8 border-white text-black hover:bg-white/20 hover:text-white transition-colors"
-              >
-                <Link to="/about">Learn More</Link>
-              </Button>
+            
             </div>
           </div>
         </div>
