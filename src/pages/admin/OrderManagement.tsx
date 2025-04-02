@@ -23,7 +23,8 @@ const OrderManagement: React.FC = () => {
     setSelectedStatus,
     handleOrderClick,
     handleCloseDetails,
-    updateOrderStatus
+    updateOrderStatus,
+    fetchOrders
   } = useOrderManagement(isAdmin);
 
   return (
@@ -36,6 +37,16 @@ const OrderManagement: React.FC = () => {
               Manage and track customer orders
             </p>
           </div>
+          <button 
+            onClick={() => fetchOrders()} 
+            className="flex items-center px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 12a9 9 0 0 0-9-9 9 9 0 0 0-9 9 9 9 0 0 0 9 9 9 9 0 0 0 9-9Z"></path>
+              <path d="m9 12 2 2 4-4"></path>
+            </svg>
+            Refresh Orders
+          </button>
         </div>
 
         {/* Filter by status */}

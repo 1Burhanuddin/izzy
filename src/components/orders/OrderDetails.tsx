@@ -2,8 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { Package, X, RefreshCw } from 'lucide-react';
 
 type Order = {
   id: string;
@@ -49,10 +48,14 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   getPaymentStatusBadge 
 }) => {
   if (!selectedOrder) return null;
+  
+  const [isUpdating, setIsUpdating] = React.useState(false);
 
   const handleStatusUpdate = async (status: string) => {
     if (selectedOrder && selectedOrder.id) {
+      setIsUpdating(true);
       await updateOrderStatus(selectedOrder.id, status);
+      setIsUpdating(false);
     }
   };
 
@@ -76,10 +79,13 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
               <p className="text-sm"><span className="font-medium">Payment Method:</span> {selectedOrder.payment_method}</p>
               <p className="text-sm"><span className="font-medium">Total Amount:</span> ₹{selectedOrder.total_amount.toFixed(2)}</p>
               <div className="text-sm"><span className="font-medium">Payment Status:</span> {getPaymentStatusBadge(selectedOrder.payment_status)}</div>
-              <div className="text-sm"><span className="font-medium">Order Status:</span> {getStatusBadge(selectedOrder.status)}</div>
+              <div className="text-sm">
+                <span className="font-medium">Order Status:</span> {getStatusBadge(selectedOrder.status)}
+              </div>
               {selectedOrder.transaction_id && (
                 <p className="text-sm"><span className="font-medium">Transaction ID:</span> {selectedOrder.transaction_id}</p>
               )}
+              <p className="text-sm"><span className="font-medium">Last Updated:</span> {new Date(selectedOrder.updated_at).toLocaleString()}</p>
             </div>
           </div>
           
@@ -101,39 +107,48 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Update Order Status</h3>
           <div className="flex flex-wrap gap-2">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleStatusUpdate('processing')}
-              disabled={selectedOrder.status === 'processing'}
-            >
-              Mark Processing
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleStatusUpdate('shipped')}
-              disabled={selectedOrder.status === 'shipped'}
-            >
-              Mark Shipped
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleStatusUpdate('delivered')}
-              disabled={selectedOrder.status === 'delivered'}
-            >
-              Mark Delivered
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-red-500 hover:text-red-600"
-              onClick={() => handleStatusUpdate('cancelled')}
-              disabled={selectedOrder.status === 'cancelled'}
-            >
-              Cancel Order
-            </Button>
+            {isUpdating ? (
+              <div className="flex items-center space-x-2">
+                <RefreshCw className="h-4 w-4 animate-spin"/>
+                <span>Updating...</span>
+              </div>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleStatusUpdate('processing')}
+                  disabled={selectedOrder.status === 'processing'}
+                >
+                  Mark Processing
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleStatusUpdate('shipped')}
+                  disabled={selectedOrder.status === 'shipped'}
+                >
+                  Mark Shipped
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleStatusUpdate('delivered')}
+                  disabled={selectedOrder.status === 'delivered'}
+                >
+                  Mark Delivered
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-red-500 hover:text-red-600"
+                  onClick={() => handleStatusUpdate('cancelled')}
+                  disabled={selectedOrder.status === 'cancelled'}
+                >
+                  Cancel Order
+                </Button>
+              </>
+            )}
           </div>
         </div>
         

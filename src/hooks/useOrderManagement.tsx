@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -80,7 +81,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
       const ordersWithUserEmails = await Promise.all(
         ordersData.map(async (order: Order) => {
           try {
-            // FIX: Using the correct filter syntax and maybeSingle instead of single
+            // Using eq operator and maybeSingle instead of single to avoid errors
             const { data: userData, error: userError } = await supabase
               .from('profiles')
               .select('username')
@@ -139,9 +140,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
     try {
       const now = new Date().toISOString();
       
-      console.log(`Updating order ${orderId} status to ${status}`);
-      
-      // First, update the database
+      // Step 1: Update the database
       const { error } = await supabase
         .from('orders')
         .update({ 
@@ -155,9 +154,23 @@ export const useOrderManagement = (isAdmin: boolean) => {
         throw error;
       }
       
-      console.log("Database update successful");
-
-      // Update the local state immediately
+      // Step 2: Verify the update with a direct fetch
+      const { data: updatedOrderData, error: fetchError } = await supabase
+        .from('orders')
+        .select('*')
+        .eq('id', orderId)
+        .single();
+        
+      if (fetchError) {
+        console.error("Error fetching updated order:", fetchError);
+        throw fetchError;
+      }
+      
+      if (!updatedOrderData || updatedOrderData.status !== status) {
+        throw new Error(`Status update failed. Expected: ${status}, Got: ${updatedOrderData?.status || 'unknown'}`);
+      }
+      
+      // Step 3: Update local state
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
@@ -168,40 +181,16 @@ export const useOrderManagement = (isAdmin: boolean) => {
       
       // Update the selected order if it's currently being viewed
       if (selectedOrder && selectedOrder.id === orderId) {
-        setSelectedOrder(prev => prev ? { ...prev, status, updated_at: now } : null);
-      }
-
-      // Get the updated order data directly from the database to confirm the update
-      const { data: updatedOrder, error: fetchError } = await supabase
-        .from('orders')
-        .select('*')
-        .eq('id', orderId)
-        .single();
-        
-      if (fetchError) {
-        console.error("Error fetching updated order:", fetchError);
-      } else if (updatedOrder) {
-        console.log("Fetched updated order from database:", updatedOrder);
-        
-        // Verify if the status was updated correctly
-        if (updatedOrder.status !== status) {
-          console.error(`Status mismatch: Expected ${status}, got ${updatedOrder.status}`);
-          
-          // Try the update one more time if the status doesn't match
-          const { error: retryError } = await supabase
-            .from('orders')
-            .update({ status })
-            .eq('id', orderId);
-            
-          if (retryError) {
-            console.error("Retry update error:", retryError);
-          } else {
-            console.log("Retry update successful");
-          }
-        }
+        setSelectedOrder({ ...updatedOrderData, customer_email: selectedOrder.customer_email });
       }
 
       toast.success(`Order status updated to ${status}`);
+      
+      // Step 4: Refresh orders list to ensure we have the latest data
+      setTimeout(() => {
+        fetchOrders();
+      }, 500);
+      
     } catch (error: any) {
       console.error("Error updating order status:", error);
       toast.error(`Failed to update order: ${error.message}`);
