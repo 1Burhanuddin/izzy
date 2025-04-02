@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +35,7 @@ interface OrderDetailsProps {
   handleCloseDetails: () => void;
   getStatusBadge: (status: string) => JSX.Element;
   getPaymentStatusBadge: (status: string) => JSX.Element;
+  updateLoading?: boolean;
 }
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({ 
@@ -45,17 +45,14 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   updateOrderStatus, 
   handleCloseDetails, 
   getStatusBadge, 
-  getPaymentStatusBadge 
+  getPaymentStatusBadge,
+  updateLoading = false
 }) => {
   if (!selectedOrder) return null;
-  
-  const [isUpdating, setIsUpdating] = React.useState(false);
 
   const handleStatusUpdate = async (status: string) => {
     if (selectedOrder && selectedOrder.id) {
-      setIsUpdating(true);
       await updateOrderStatus(selectedOrder.id, status);
-      setIsUpdating(false);
     }
   };
 
@@ -107,7 +104,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
         <div className="mb-6">
           <h3 className="text-sm font-medium text-gray-500 mb-2">Update Order Status</h3>
           <div className="flex flex-wrap gap-2">
-            {isUpdating ? (
+            {updateLoading ? (
               <div className="flex items-center space-x-2">
                 <RefreshCw className="h-4 w-4 animate-spin"/>
                 <span>Updating...</span>
@@ -118,7 +115,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => handleStatusUpdate('processing')}
-                  disabled={selectedOrder.status === 'processing'}
+                  disabled={selectedOrder.status === 'processing' || updateLoading}
                 >
                   Mark Processing
                 </Button>
@@ -126,7 +123,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => handleStatusUpdate('shipped')}
-                  disabled={selectedOrder.status === 'shipped'}
+                  disabled={selectedOrder.status === 'shipped' || updateLoading}
                 >
                   Mark Shipped
                 </Button>
@@ -134,7 +131,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   variant="outline" 
                   size="sm"
                   onClick={() => handleStatusUpdate('delivered')}
-                  disabled={selectedOrder.status === 'delivered'}
+                  disabled={selectedOrder.status === 'delivered' || updateLoading}
                 >
                   Mark Delivered
                 </Button>
@@ -143,7 +140,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                   size="sm"
                   className="text-red-500 hover:text-red-600"
                   onClick={() => handleStatusUpdate('cancelled')}
-                  disabled={selectedOrder.status === 'cancelled'}
+                  disabled={selectedOrder.status === 'cancelled' || updateLoading}
                 >
                   Cancel Order
                 </Button>

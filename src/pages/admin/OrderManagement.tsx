@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,6 +18,7 @@ const OrderManagement: React.FC = () => {
     selectedStatus,
     page,
     totalPages,
+    updateLoading,
     setPage,
     setSelectedStatus,
     handleOrderClick,
@@ -65,6 +65,7 @@ const OrderManagement: React.FC = () => {
             handleCloseDetails={handleCloseDetails}
             getStatusBadge={getOrderStatusBadge}
             getPaymentStatusBadge={getPaymentStatusBadge}
+            updateLoading={updateLoading}
           />
         ) : (
           <OrderList

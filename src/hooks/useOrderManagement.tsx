@@ -18,6 +18,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [updateLoading, setUpdateLoading] = useState(false);
 
   useEffect(() => {
     if (isAdmin) {
@@ -33,6 +34,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
       setTotalPages(Math.ceil(totalCount / ORDERS_PER_PAGE));
       console.log("Fetched orders:", ordersData);
     } catch (error: any) {
+      console.error("Error fetching orders:", error);
       toast.error(`Failed to fetch orders: ${error.message}`);
     } finally {
       setLoading(false);
@@ -45,6 +47,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
       const items = await fetchOrderItemsFromDB(orderId);
       setOrderItems(items);
     } catch (error: any) {
+      console.error("Error fetching order items:", error);
       toast.error(`Failed to fetch order items: ${error.message}`);
     } finally {
       setOrderItemsLoading(false);
@@ -52,9 +55,13 @@ export const useOrderManagement = (isAdmin: boolean) => {
   };
 
   const updateOrderStatus = async (orderId: string, status: string) => {
+    setUpdateLoading(true);
     try {
+      console.log(`Starting update of order ${orderId} to status ${status}`);
+      
       // Update the database
       const updatedOrder = await updateOrderStatusInDB(orderId, status);
+      console.log("Order updated successfully:", updatedOrder);
       
       // Update local state
       setOrders(prevOrders => 
@@ -73,13 +80,13 @@ export const useOrderManagement = (isAdmin: boolean) => {
       toast.success(`Order status updated to ${status}`);
       
       // Refresh orders list to ensure we have the latest data
-      setTimeout(() => {
-        fetchOrders();
-      }, 500);
+      await fetchOrders();
       
     } catch (error: any) {
       console.error("Error updating order status:", error);
       toast.error(`Failed to update order: ${error.message}`);
+    } finally {
+      setUpdateLoading(false);
     }
   };
 
@@ -102,6 +109,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
     selectedStatus,
     page,
     totalPages,
+    updateLoading,
     setPage,
     setSelectedStatus,
     handleOrderClick,

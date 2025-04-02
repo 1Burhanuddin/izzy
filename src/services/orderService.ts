@@ -105,37 +105,36 @@ export const updateOrderStatusInDB = async (orderId: string, status: string): Pr
   try {
     const now = new Date().toISOString();
     
-    // Step 1: Update the database
-    const { error } = await supabase
+    console.log(`Updating order ${orderId} to status ${status}`);
+    
+    // Step 1: Update the database with an explicit returning statement to get the updated data
+    const { data, error } = await supabase
       .from('orders')
       .update({ 
         status, 
         updated_at: now 
       })
-      .eq('id', orderId);
+      .eq('id', orderId)
+      .select('*')
+      .single();
 
     if (error) {
       console.error("Supabase update error:", error);
       throw error;
     }
     
-    // Step 2: Verify the update with a direct fetch
-    const { data: updatedOrderData, error: fetchError } = await supabase
-      .from('orders')
-      .select('*')
-      .eq('id', orderId)
-      .single();
-      
-    if (fetchError) {
-      console.error("Error fetching updated order:", fetchError);
-      throw fetchError;
+    if (!data) {
+      throw new Error(`Failed to update order: No data returned from update operation`);
     }
     
-    if (!updatedOrderData || updatedOrderData.status !== status) {
-      throw new Error(`Status update failed. Expected: ${status}, Got: ${updatedOrderData?.status || 'unknown'}`);
+    console.log(`Order updated successfully:`, data);
+    
+    // Ensure the status has been updated as expected
+    if (data.status !== status) {
+      throw new Error(`Status update failed. Expected: ${status}, Got: ${data.status}`);
     }
     
-    return updatedOrderData;
+    return data;
   } catch (error: any) {
     console.error("Error updating order status:", error);
     throw error;
