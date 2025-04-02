@@ -5,10 +5,17 @@ import Layout from '@/components/layout/Layout';
 import NewArrivals from '@/components/product/NewArrivals';
 import { Button } from '@/components/ui/button';
 import { Award, Star } from 'lucide-react';
+import CartDrawer from '@/components/cart/CartDrawer';
+import { useCart } from '@/contexts/CartContext';
 
 const Index = () => {
+  const { isCartOpen, closeCart } = useCart();
+  
   return (
     <Layout>
+      {/* Cart Drawer */}
+      <CartDrawer open={isCartOpen} onClose={closeCart} />
+      
       {/* Hero Section with neutral colors and cloud effect */}
       <section className="relative overflow-hidden bg-gradient-to-r from-gray-700 to-gray-500 text-white min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">

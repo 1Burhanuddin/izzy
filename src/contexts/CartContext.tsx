@@ -24,6 +24,9 @@ interface CartContextProps {
   cartCount: number;
   cartTotal: number;
   isLoading: boolean;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
   addToCart: (productId: string, quantity?: number) => Promise<void>;
   removeFromCart: (cartItemId: string) => Promise<void>;
   updateQuantity: (cartItemId: string, quantity: number) => Promise<void>;
@@ -35,10 +38,17 @@ const CartContext = createContext<CartContextProps | undefined>(undefined);
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isCartOpen, setIsCartOpen] = useState<boolean>(false);
   const { user } = useAuth();
 
   const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const cartTotal = cartItems.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+
+  // Open cart drawer
+  const openCart = () => setIsCartOpen(true);
+  
+  // Close cart drawer
+  const closeCart = () => setIsCartOpen(false);
 
   // Fetch cart items when user changes
   useEffect(() => {
@@ -129,6 +139,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           toast.success('Item added to cart');
         }
       }
+      
+      // Open cart drawer after adding item
+      openCart();
     } catch (error: any) {
       console.error('Error adding item to cart:', error);
       toast.error('Failed to add item to cart');
@@ -222,6 +235,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         cartCount,
         cartTotal,
         isLoading,
+        isCartOpen,
+        openCart,
+        closeCart,
         addToCart,
         removeFromCart,
         updateQuantity,
