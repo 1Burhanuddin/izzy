@@ -140,7 +140,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       }
       
-      // Open cart drawer after adding item
+      // Open cart drawer after adding item - Make sure this happens
       openCart();
     } catch (error: any) {
       console.error('Error adding item to cart:', error);

@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,11 @@ interface CartDrawerProps {
 
 const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
   const { cartItems, cartTotal, removeFromCart, updateQuantity } = useCart();
+
+  // Close the drawer when navigating to cart or checkout
+  const handleNavigate = () => {
+    onClose();
+  };
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -98,12 +103,12 @@ const CartDrawer: React.FC<CartDrawerProps> = ({ open, onClose }) => {
             </div>
             <SheetFooter className="flex-col gap-2 sm:flex-col">
               <Button asChild className="w-full">
-                <Link to="/checkout" onClick={onClose}>
+                <Link to="/checkout" onClick={handleNavigate}>
                   Checkout
                 </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link to="/cart" onClick={onClose}>
+                <Link to="/cart" onClick={handleNavigate}>
                   View Cart
                 </Link>
               </Button>
