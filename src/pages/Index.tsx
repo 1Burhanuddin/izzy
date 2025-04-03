@@ -61,65 +61,35 @@ const Index = () => {
         </div>
       </section>
 
-      {/* New Arrivals Section */}
+      {/* Featured Products Section (renamed from New Arrivals) */}
       <NewArrivals />
 
-      {/* Why Choose Us Section */}
+      {/* Why Choose Us Section with improved colors */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-2">Why Choose Izzy</h2>
-            <div className="w-24 h-1 bg-gray-600 mx-auto"></div>
+            <h2 className="text-3xl font-bold mb-2 text-gray-800">Why Choose Izzy</h2>
+            <div className="w-24 h-1 bg-blue-500 mx-auto"></div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gray-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-blue-50 p-6 rounded-lg text-center hover-lift">
+              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Award className="h-8 w-8 text-white" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Quality Materials</h3>
+              <h3 className="text-xl font-bold mb-2 text-purple-700">Quality Materials</h3>
               <p className="text-gray-600">Premium glass and aluminum sourced from the finest suppliers around the world.</p>
             </div>
             
-            <div className="bg-gray-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="bg-purple-50 p-6 rounded-lg text-center hover-lift">
+              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2">Expert Craftsmanship</h3>
+              <h3 className="text-xl font-bold mb-2 text-blue-700">Expert Craftsmanship</h3>
               <p className="text-gray-600">Skilled artisans with decades of experience in glass and aluminum fabrication.</p>
             </div>
-            
-            <div className="bg-gray-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-gray-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-              </div>
-              <h3 className="text-xl font-bold mb-2">5-Year Warranty</h3>
-              <p className="text-gray-600">We stand behind our products with an industry-leading warranty on all items.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonial Section */}
-      <section className="py-24 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl font-bold mb-8">
-              What Our Customers Say
-            </h2>
-            
-            <div className="text-xl italic text-gray-700 mb-4">
-              "Izzy transformed my living room with their stunning glass
-              table. The quality is exceptional, and the service was
-              impeccable. Highly recommended!"
-            </div>
-            <p className="text-gray-600 font-medium">
-              - Emily R., Satisfied Customer
-            </p>
           </div>
         </div>
       </section>

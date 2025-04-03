@@ -34,6 +34,10 @@
     --ring: 240 10% 3.9%;
     
     --radius: 0.5rem;
+    
+    /* Added custom colors */
+    --blue-accent: 210 100% 50%;
+    --purple-accent: 270 80% 60%;
   }
  
   * {
@@ -64,11 +68,13 @@
 }
 
 .hover-lift {
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid rgba(0, 0, 0, 0.05);
 }
 
 .hover-lift:hover {
   transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .lazy-image {
@@ -107,6 +113,23 @@
   animation: shine 3s linear infinite;
 }
 
+/* Blue and purple text gradients */
+.text-gradient-blue {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-purple {
+  background: linear-gradient(90deg, #8b5cf6 0%, #a78bfa 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
 @keyframes shine {
   to {
     background-position: 200% center;
@@ -135,3 +158,22 @@
   transform: translateY(-20px);
   transition: opacity 0.4s, transform 0.4s;
 }
+
+/* Added subtle card effects */
+.card-blue {
+  @apply bg-blue-50 border border-blue-100 hover:border-blue-200 transition-all;
+}
+
+.card-purple {
+  @apply bg-purple-50 border border-purple-100 hover:border-purple-200 transition-all;
+}
+
+.section-title-accent::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  margin-top: 8px;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+}
+
