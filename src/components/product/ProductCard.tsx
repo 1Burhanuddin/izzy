@@ -8,6 +8,7 @@ import { ShoppingCart, Eye } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useCart } from '@/contexts/CartContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface ProductCardProps {
   product: {
@@ -25,6 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const isMobile = useIsMobile();
 
   const getBadgeVariant = (availability: string) => {
     switch (availability) {
@@ -84,7 +86,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             {getAvailabilityText(availability)}
           </Badge>
           
-          <div className="absolute bottom-0 left-0 right-0 flex transform gap-2 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 transition-all duration-300 group-hover:opacity-100">
+          {/* Desktop hover overlay */}
+          <div className="absolute bottom-0 left-0 right-0 flex transform gap-2 bg-gradient-to-t from-black/80 to-transparent p-4 opacity-0 transition-all duration-300 group-hover:opacity-100 md:flex hidden">
             <Button 
               size="sm" 
               variant="secondary" 
@@ -111,9 +114,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </div>
         
         <CardContent className="p-4">
-          <div className="mb-1 text-sm font-medium text-purple-600">{category}</div>
+          <div className="mb-1 text-sm font-medium text-blue-600">{category}</div>
           <h3 className="mb-2 line-clamp-2 text-lg font-semibold text-gray-800 transition-colors group-hover:text-blue-600">{name}</h3>
           <p className="font-bold text-gray-900">₹{price.toFixed(2)}</p>
+          
+          {/* Mobile-only buttons */}
+          <div className="flex gap-2 mt-3 md:hidden">
+            <Button 
+              size="sm" 
+              variant="secondary"
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              onClick={handleAddToCart}
+              disabled={availability === 'out_of_stock'}
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              Add to Cart
+            </Button>
+            
+            <Button 
+              size="sm" 
+              variant="outline"
+              className="aspect-square p-0 h-9 w-9"
+              onClick={(e) => {
+                e.preventDefault();
+                navigate(`/product/${id}`);
+              }}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </div>
         </CardContent>
       </Link>
     </Card>

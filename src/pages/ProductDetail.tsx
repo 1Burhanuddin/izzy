@@ -1,10 +1,9 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import Layout from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, ArrowLeft, Star } from 'lucide-react';
+import { ShoppingCart, ArrowLeft } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -37,7 +36,6 @@ const ProductDetail: React.FC = () => {
 
         console.log("Fetching product with ID:", id);
         
-        // For hardcoded demo products on the homepage
         if (id === '10' || id === '11' || id === '12') {
           const demoProducts = {
             '10': {
@@ -74,7 +72,6 @@ const ProductDetail: React.FC = () => {
           return;
         }
 
-        // Regular database fetch for other products
         const { data, error } = await supabase
           .from('products')
           .select('*')
@@ -88,14 +85,13 @@ const ProductDetail: React.FC = () => {
           return;
         }
 
-        // Convert availability to the correct type
         const formattedProduct = {
           ...data,
           availability: (data.availability === 'in_stock' || 
                         data.availability === 'low_stock' || 
                         data.availability === 'out_of_stock') 
                         ? data.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
-                        : 'in_stock' // Default to in_stock if value is unexpected
+                        : 'in_stock'
         };
 
         console.log("Product data loaded:", formattedProduct);
@@ -194,7 +190,6 @@ const ProductDetail: React.FC = () => {
         </Button>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Product Image */}
           <div className="rounded-lg overflow-hidden bg-gray-100 shadow-md hover:shadow-lg transition-all duration-300">
             {product.image ? (
               <img 
@@ -209,36 +204,26 @@ const ProductDetail: React.FC = () => {
             )}
           </div>
 
-          {/* Product Details */}
           <div className="bg-white p-6 rounded-lg shadow-sm">
             <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
             <div className="flex items-center gap-2 mb-4">
               <Badge variant={getBadgeVariant(product.availability) as any}>
                 {getAvailabilityText(product.availability)}
               </Badge>
-              <span className="text-gray-600">{product.category}</span>
-            </div>
-            
-            <div className="flex items-center mb-4">
-              <div className="flex mr-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="h-5 w-5 text-yellow-400 fill-yellow-400" />
-                ))}
-              </div>
-              <span className="text-sm text-gray-600">(25 reviews)</span>
+              <span className="text-blue-600">{product.category}</span>
             </div>
             
             <p className="text-2xl font-bold mb-4">₹{product.price.toFixed(2)}</p>
             
             {product.description && (
               <div className="mb-6 bg-gray-50 p-4 rounded-lg">
-                <h3 className="text-lg font-medium mb-2">Description</h3>
+                <h3 className="text-lg font-medium mb-2 text-blue-800">Description</h3>
                 <p className="text-gray-700">{product.description}</p>
               </div>
             )}
             
             <div className="mb-6">
-              <h3 className="text-lg font-medium mb-2">Quantity</h3>
+              <h3 className="text-lg font-medium mb-2 text-blue-800">Quantity</h3>
               <div className="flex items-center">
                 <button 
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -267,7 +252,7 @@ const ProductDetail: React.FC = () => {
               <Button 
                 onClick={handleAddToCart} 
                 disabled={product.availability === 'out_of_stock'}
-                className="w-full bg-black hover:bg-gray-800"
+                className="w-full bg-blue-600 hover:bg-blue-700"
                 size="lg"
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
