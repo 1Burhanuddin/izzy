@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -78,6 +79,7 @@ const OrderManagement: React.FC = () => {
             setPage={setPage}
             getStatusBadge={getOrderStatusBadge}
             getPaymentStatusBadge={getPaymentStatusBadge}
+            updateOrderStatus={updateOrderStatus}
           />
         )}
       </div>

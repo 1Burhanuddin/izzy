@@ -2,6 +2,13 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Eye, Package } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type Order = {
   id: string;
@@ -27,6 +34,7 @@ interface OrderListProps {
   setPage: React.Dispatch<React.SetStateAction<number>>;
   getStatusBadge: (status: string) => JSX.Element;
   getPaymentStatusBadge: (status: string) => JSX.Element;
+  updateOrderStatus: (orderId: string, status: string) => Promise<void>;
 }
 
 const OrderList: React.FC<OrderListProps> = ({ 
@@ -38,8 +46,20 @@ const OrderList: React.FC<OrderListProps> = ({
   handleOrderClick, 
   setPage, 
   getStatusBadge, 
-  getPaymentStatusBadge 
+  getPaymentStatusBadge,
+  updateOrderStatus
 }) => {
+  const [updatingOrderId, setUpdatingOrderId] = React.useState<string | null>(null);
+
+  const handleStatusChange = async (orderId: string, newStatus: string) => {
+    setUpdatingOrderId(orderId);
+    try {
+      await updateOrderStatus(orderId, newStatus);
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -112,7 +132,25 @@ const OrderList: React.FC<OrderListProps> = ({
                   {getPaymentStatusBadge(order.payment_status)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {getStatusBadge(order.status)}
+                  <div className="flex items-center space-x-2">
+                    {getStatusBadge(order.status)}
+                    <Select
+                      value={order.status}
+                      onValueChange={(value) => handleStatusChange(order.id, value)}
+                      disabled={updatingOrderId === order.id}
+                    >
+                      <SelectTrigger className="h-8 w-32 text-xs">
+                        <SelectValue placeholder="Update" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                        <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <Button

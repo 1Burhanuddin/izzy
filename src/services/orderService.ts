@@ -107,6 +107,22 @@ export const updateOrderStatusInDB = async (orderId: string, status: string): Pr
     
     console.log(`Updating order ${orderId} to status ${status}`);
     
+    // First, check if the order exists
+    const { data: orderData, error: checkError } = await supabase
+      .from('orders')
+      .select('*')
+      .eq('id', orderId)
+      .maybeSingle();
+    
+    if (checkError) {
+      console.error("Error checking order existence:", checkError);
+      throw checkError;
+    }
+    
+    if (!orderData) {
+      throw new Error(`Order with ID ${orderId} not found`);
+    }
+    
     // Step 1: Update the database with an explicit returning statement to get the updated data
     const { data, error } = await supabase
       .from('orders')
@@ -116,7 +132,7 @@ export const updateOrderStatusInDB = async (orderId: string, status: string): Pr
       })
       .eq('id', orderId)
       .select('*')
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Supabase update error:", error);
