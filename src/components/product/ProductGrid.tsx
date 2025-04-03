@@ -14,13 +14,11 @@ type Product = {
 interface ProductGridProps {
   products: Product[];
   columns?: 2 | 3 | 4;
-  onAddToCart?: (productId: string) => void;
 }
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
   products, 
-  columns = 3,
-  onAddToCart 
+  columns = 3
 }) => {
   const getGridClass = () => {
     switch (columns) {
@@ -41,7 +39,6 @@ const ProductGrid: React.FC<ProductGridProps> = ({
         <ProductCard 
           key={product.id} 
           product={product} 
-          onAddToCart={onAddToCart}
         />
       ))}
     </div>
