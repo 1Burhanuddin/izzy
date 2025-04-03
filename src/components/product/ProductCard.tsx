@@ -66,7 +66,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-5px]">
       <Link to={`/product/${id}`} className="block">
-        <div className="relative overflow-hidden pt-[75%]">
+        <div className="relative overflow-hidden pt-[65%] md:pt-[75%]">
           {image ? (
             <img
               src={image}
@@ -81,7 +81,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           
           <Badge
             variant={getBadgeVariant(availability) as any}
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 text-xs"
           >
             {getAvailabilityText(availability)}
           </Badge>
@@ -113,34 +113,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </div>
         </div>
         
-        <CardContent className="p-4">
-          <div className="mb-1 text-sm font-medium text-blue-600">{category}</div>
-          <h3 className="mb-2 line-clamp-2 text-lg font-semibold text-gray-800 transition-colors group-hover:text-blue-600">{name}</h3>
-          <p className="font-bold text-gray-900">₹{price.toFixed(2)}</p>
+        <CardContent className="p-3 md:p-4">
+          <div className="mb-1 text-xs md:text-sm font-medium text-blue-600">{category}</div>
+          <h3 className="mb-2 line-clamp-2 text-sm md:text-lg font-semibold text-gray-800 transition-colors group-hover:text-blue-600">{name}</h3>
+          <p className="font-bold text-gray-900 text-sm md:text-base">₹{price.toFixed(2)}</p>
           
           {/* Mobile-only buttons */}
-          <div className="flex gap-2 mt-3 md:hidden">
+          <div className="flex gap-1 mt-2 md:hidden">
             <Button 
               size="sm" 
               variant="secondary"
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+              className="flex-1 py-1 h-8 text-xs bg-blue-600 hover:bg-blue-700 text-white"
               onClick={handleAddToCart}
               disabled={availability === 'out_of_stock'}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" />
+              <ShoppingCart className="mr-1 h-3 w-3" />
               Add to Cart
             </Button>
             
             <Button 
               size="sm" 
               variant="outline"
-              className="aspect-square p-0 h-9 w-9"
+              className="aspect-square p-0 h-8 w-8"
               onClick={(e) => {
                 e.preventDefault();
                 navigate(`/product/${id}`);
               }}
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-3 w-3" />
             </Button>
           </div>
         </CardContent>
