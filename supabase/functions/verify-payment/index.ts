@@ -15,7 +15,19 @@ serve(async (req) => {
   }
 
   try {
+    // Parse request body and extract sessionId
     const { sessionId } = await req.json();
+    
+    if (!sessionId) {
+      return new Response(
+        JSON.stringify({ error: "Session ID is required" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
+
+    console.log(`Verifying payment for session: ${sessionId}`);
+    
+    // Get authorization header
     const authHeader = req.headers.get("Authorization");
     
     if (!authHeader) {
@@ -26,16 +38,25 @@ serve(async (req) => {
     }
     
     // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-    );
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    
+    if (!supabaseUrl || !supabaseAnonKey) {
+      console.error("Missing Supabase configuration");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
+    }
+    
+    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
     
     // Validate user token
     const token = authHeader.replace("Bearer ", "");
     const { data: userData, error: userError } = await supabaseClient.auth.getUser(token);
     
     if (userError || !userData.user) {
+      console.error("User authentication error:", userError);
       return new Response(
         JSON.stringify({ error: "Unauthorized" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
@@ -43,27 +64,55 @@ serve(async (req) => {
     }
     
     // Initialize Stripe with secret key
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+    const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeSecretKey) {
+      console.error("Missing Stripe secret key");
+      return new Response(
+        JSON.stringify({ error: "Server configuration error" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
+      );
+    }
+    
+    const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16",
     });
     
-    // Retrieve session from Stripe
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    console.log("Retrieving Stripe session...");
     
-    // Check payment status
-    if (session.payment_status === "paid") {
-      // Update order status in database
-      const { data: orders, error: orderQueryError } = await supabaseClient
-        .from("orders")
-        .select("*")
-        .eq("transaction_id", sessionId)
-        .maybeSingle();
-        
-      if (orderQueryError) {
-        throw orderQueryError;
-      }
+    // Retrieve session from Stripe
+    try {
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      console.log("Stripe session retrieved:", JSON.stringify({
+        id: session.id,
+        payment_status: session.payment_status,
+        customer: session.customer
+      }));
       
-      if (orders) {
+      // Check payment status
+      if (session.payment_status === "paid") {
+        // Update order status in database
+        console.log("Payment is paid, updating order status...");
+        
+        const { data: orders, error: orderQueryError } = await supabaseClient
+          .from("orders")
+          .select("*")
+          .eq("transaction_id", sessionId)
+          .maybeSingle();
+          
+        if (orderQueryError) {
+          console.error("Error querying order:", orderQueryError);
+          throw orderQueryError;
+        }
+        
+        if (!orders) {
+          console.error("No order found with transaction ID:", sessionId);
+          return new Response(
+            JSON.stringify({ error: "Order not found" }),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 404 }
+          );
+        }
+        
+        console.log(`Updating order ${orders.id} to processing status`);
         const { error: updateError } = await supabaseClient
           .from("orders")
           .update({ 
@@ -74,29 +123,37 @@ serve(async (req) => {
           .eq("id", orders.id);
           
         if (updateError) {
+          console.error("Error updating order:", updateError);
           throw updateError;
         }
+        
+        console.log("Order successfully updated");
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            paid: true, 
+            orderId: orders.id
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
+      } else {
+        console.log(`Payment not completed. Status: ${session.payment_status}`);
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            paid: false, 
+            status: session.payment_status 
+          }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        );
       }
-      
+    } catch (stripeError) {
+      console.error("Stripe error:", stripeError);
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          paid: true, 
-          orderId: orders?.id
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
-      );
-    } else {
-      return new Response(
-        JSON.stringify({ 
-          success: true, 
-          paid: false, 
-          status: session.payment_status 
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
+        JSON.stringify({ error: `Stripe error: ${stripeError.message}` }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
-    
   } catch (error) {
     console.error("Payment verification error:", error);
     return new Response(
