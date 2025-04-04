@@ -83,18 +83,37 @@ serve(async (req) => {
     });
     
     // Format line items for Stripe
-    const lineItems = cartItems.map((item: any) => ({
-      price_data: {
-        currency: "inr",
-        product_data: {
-          name: item.product.name,
-          images: item.product.image ? [item.product.image] : [],
-          description: `Category: ${item.product.category}`,
+    const lineItems = cartItems.map((item: any) => {
+      // Create line item with basic product data
+      const lineItem = {
+        price_data: {
+          currency: "inr",
+          product_data: {
+            name: item.product.name,
+            description: `Category: ${item.product.category}`,
+          },
+          unit_amount: Math.round(item.product.price * 100), // Stripe uses cents/paise
         },
-        unit_amount: Math.round(item.product.price * 100), // Stripe uses cents/paise
-      },
-      quantity: item.quantity,
-    }));
+        quantity: item.quantity,
+      };
+      
+      // Only add image if it exists and is not too long
+      if (item.product.image) {
+        // Check if the image URL is valid and not too long
+        try {
+          const imageUrl = new URL(item.product.image);
+          if (item.product.image.length <= 2000) { // Using 2000 to be safe (below Stripe's 2048 limit)
+            lineItem.price_data.product_data.images = [item.product.image];
+          } else {
+            console.log(`Image URL too long (${item.product.image.length} chars), skipping for product: ${item.product.name}`);
+          }
+        } catch (e) {
+          console.log(`Invalid image URL for product ${item.product.name}, skipping`);
+        }
+      }
+      
+      return lineItem;
+    });
     
     console.log("Line items prepared:", lineItems.length);
     

@@ -107,7 +107,7 @@ const Checkout = () => {
         console.log("Starting Stripe checkout process...");
         
         // Use Stripe payment gateway
-        const { data, error } = await supabase.functions.invoke('create-checkout', {
+        const response = await supabase.functions.invoke('create-checkout', {
           body: {
             cartItems: cartItems,
             shippingAddress: shippingAddress,
@@ -117,13 +117,15 @@ const Checkout = () => {
             Authorization: `Bearer ${session?.access_token}`
           }
         });
-
-        if (error) {
-          console.error('Error creating checkout session:', error);
-          setError(`Failed to create checkout session: ${error.message || 'Unknown error'}`);
+        
+        if (response.error) {
+          console.error('Error creating checkout session:', response.error);
+          setError(`Failed to create checkout session: ${response.error.message || 'Unknown error'}`);
           toast.error('Failed to create checkout session');
           return;
         }
+        
+        const data = response.data;
 
         // Redirect to Stripe Checkout
         if (data?.url) {
