@@ -8,6 +8,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Minimum amount required by Stripe in INR (approximately ₹50)
+const MINIMUM_AMOUNT_INR = 50;
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -120,6 +123,18 @@ serve(async (req) => {
     // Calculate the total amount
     const totalAmount = cartItems.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0);
     console.log("Total amount:", totalAmount);
+    
+    // Check if total amount meets Stripe's minimum requirement
+    if (totalAmount < MINIMUM_AMOUNT_INR) {
+      console.error(`Total amount (₹${totalAmount}) is less than the minimum required by Stripe (₹${MINIMUM_AMOUNT_INR})`);
+      return new Response(
+        JSON.stringify({ 
+          error: `The minimum order amount is ₹${MINIMUM_AMOUNT_INR}. Please add more items to your cart.`,
+          code: "amount_too_small" 
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
+      );
+    }
     
     // Check if we have an existing customer or create one
     let customerId;

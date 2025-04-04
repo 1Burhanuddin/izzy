@@ -16,7 +16,8 @@ import {
   Phone, 
   ShieldCheck,
   AlertCircle,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from 'lucide-react';
 import UPIPayment from '@/components/payment/UPIPayment';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -32,6 +33,7 @@ const Checkout = () => {
   const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -88,6 +90,7 @@ const Checkout = () => {
     }
 
     setError(null);
+    setErrorCode(null);
     try {
       setLoading(true);
 
@@ -126,6 +129,15 @@ const Checkout = () => {
         }
         
         const data = response.data;
+
+        // Check for specific error codes
+        if (data?.error) {
+          console.error('Checkout error response:', data.error);
+          setError(data.error);
+          setErrorCode(data.code || null);
+          toast.error(data.error);
+          return;
+        }
 
         // Redirect to Stripe Checkout
         if (data?.url) {
@@ -202,6 +214,15 @@ const Checkout = () => {
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
+        {errorCode === 'amount_too_small' && (
+          <Alert variant="warning" className="mb-6 bg-yellow-50 border-yellow-200">
+            <AlertTriangle className="h-4 w-4 text-yellow-500" />
+            <AlertDescription className="text-yellow-700">
+              The total amount is too low for online payment. Please add more items to your cart or choose a different payment method.
+            </AlertDescription>
           </Alert>
         )}
 
@@ -403,6 +424,12 @@ const Checkout = () => {
                     <span>Total</span>
                     <span>₹{cartTotal.toFixed(2)}</span>
                   </div>
+                  
+                  {cartTotal < 50 && paymentMethod === 'stripe' && (
+                    <div className="mt-2 text-sm text-red-500">
+                      * Stripe requires a minimum order of ₹50 for online payments
+                    </div>
+                  )}
                 </div>
               </div>
 
