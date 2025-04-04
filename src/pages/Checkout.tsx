@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,16 +14,20 @@ import {
   CreditCard, 
   Landmark, 
   Phone, 
-  ShieldCheck
+  ShieldCheck,
+  AlertCircle
 } from 'lucide-react';
 import UPIPayment from '@/components/payment/UPIPayment';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Checkout = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const canceled = searchParams.get('canceled');
   
-  const [paymentMethod, setPaymentMethod] = useState('upi');
+  const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,6 +39,12 @@ const Checkout = () => {
     state: '',
     pincode: '',
   });
+
+  useEffect(() => {
+    if (canceled) {
+      toast.error('Payment was canceled. Please try again.');
+    }
+  }, [canceled]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -84,40 +94,68 @@ const Checkout = () => {
         pincode: formData.pincode
       };
 
-      // Create order
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          total_amount: cartTotal,
-          payment_method: paymentMethod,
-          shipping_address: shippingAddress,
-          transaction_id: paymentMethod === 'upi' ? `UPI_${Date.now()}` : null
-        })
-        .select()
-        .single();
+      if (paymentMethod === 'stripe') {
+        // Use Stripe payment gateway
+        const { data, error } = await supabase.functions.invoke('create-checkout', {
+          body: {
+            cartItems: cartItems,
+            shippingAddress: shippingAddress,
+            paymentMethod: paymentMethod
+          },
+          headers: {
+            Authorization: `Bearer ${session?.access_token}`
+          }
+        });
 
-      if (orderError) throw orderError;
+        if (error) {
+          console.error('Error creating checkout session:', error);
+          throw new Error('Failed to create checkout session');
+        }
 
-      // Create order items
-      const orderItems = cartItems.map(item => ({
-        order_id: order.id,
-        product_id: item.product_id,
-        quantity: item.quantity,
-        price: item.product.price
-      }));
+        // Redirect to Stripe Checkout
+        if (data?.url) {
+          window.location.href = data.url;
+          return;
+        } else {
+          throw new Error('Invalid checkout URL received');
+        }
+      } else {
+        // Use UPI or other payment methods (existing logic)
+        // Create order
+        const { data: order, error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            user_id: user.id,
+            total_amount: cartTotal,
+            payment_method: paymentMethod,
+            shipping_address: shippingAddress,
+            transaction_id: paymentMethod === 'upi' ? `UPI_${Date.now()}` : null
+          })
+          .select()
+          .single();
 
-      const { error: itemsError } = await supabase
-        .from('order_items')
-        .insert(orderItems);
+        if (orderError) throw orderError;
 
-      if (itemsError) throw itemsError;
+        // Create order items
+        const orderItems = cartItems.map(item => ({
+          order_id: order.id,
+          product_id: item.product_id,
+          quantity: item.quantity,
+          price: item.product.price
+        }));
 
-      // Clear cart after successful order
-      await clearCart();
+        const { error: itemsError } = await supabase
+          .from('order_items')
+          .insert(orderItems);
 
-      toast.success('Order placed successfully!');
-      navigate('/order-confirmation');
+        if (itemsError) throw itemsError;
+
+        // Clear cart after successful order
+        await clearCart();
+
+        toast.success('Order placed successfully!');
+        navigate('/order-confirmation');
+      }
     } catch (error: any) {
       console.error('Error processing order:', error);
       toast.error('Failed to process your order. Please try again.');
@@ -140,6 +178,15 @@ const Checkout = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+
+        {canceled && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Your payment was canceled. You can try again by proceeding to checkout.
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Column - Shipping & Payment */}
@@ -237,18 +284,18 @@ const Checkout = () => {
                   className="space-y-3"
                 >
                   <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="upi" id="upi" />
-                    <Label htmlFor="upi" className="flex items-center cursor-pointer">
-                      <Phone className="mr-2 h-5 w-5 text-blue-500" />
-                      <span>UPI</span>
+                    <RadioGroupItem value="stripe" id="stripe" />
+                    <Label htmlFor="stripe" className="flex items-center cursor-pointer">
+                      <CreditCard className="mr-2 h-5 w-5 text-blue-500" />
+                      <span>Credit/Debit Card (Stripe)</span>
                     </Label>
                   </div>
                   
                   <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="credit-card" id="credit-card" />
-                    <Label htmlFor="credit-card" className="flex items-center cursor-pointer">
-                      <CreditCard className="mr-2 h-5 w-5 text-green-500" />
-                      <span>Credit/Debit Card</span>
+                    <RadioGroupItem value="upi" id="upi" />
+                    <Label htmlFor="upi" className="flex items-center cursor-pointer">
+                      <Phone className="mr-2 h-5 w-5 text-green-500" />
+                      <span>UPI</span>
                     </Label>
                   </div>
                   
@@ -267,9 +314,17 @@ const Checkout = () => {
                   </div>
                 )}
 
-                {paymentMethod !== 'upi' && (
+                {paymentMethod !== 'upi' && paymentMethod !== 'stripe' && (
                   <div className="mt-4 p-4 bg-gray-100 rounded-md text-center">
                     <p className="text-gray-500">This payment method is currently unavailable</p>
+                  </div>
+                )}
+                
+                {paymentMethod === 'stripe' && (
+                  <div className="mt-4 p-4 bg-blue-50 rounded-md">
+                    <p className="text-blue-700 text-sm">
+                      You'll be redirected to Stripe's secure payment page to complete your purchase.
+                    </p>
                   </div>
                 )}
               </div>
@@ -279,7 +334,7 @@ const Checkout = () => {
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? 'Processing...' : 'Place Order'}
+                {loading ? 'Processing...' : paymentMethod === 'stripe' ? 'Proceed to Payment' : 'Place Order'}
               </Button>
             </form>
           </div>
