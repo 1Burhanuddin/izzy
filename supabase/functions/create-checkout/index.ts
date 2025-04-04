@@ -15,10 +15,12 @@ serve(async (req) => {
   }
 
   try {
+    console.log("Received checkout request");
     const { cartItems, shippingAddress, paymentMethod } = await req.json();
     const authHeader = req.headers.get("Authorization");
     
     if (!authHeader) {
+      console.error("Missing Authorization header");
       return new Response(
         JSON.stringify({ error: "Authorization header is required" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 401 }
@@ -54,9 +56,11 @@ serve(async (req) => {
     }
     
     const user = userData.user;
+    console.log("Authenticated user:", user.id);
     
     // Check if we have necessary data
     if (!cartItems || !cartItems.length || !shippingAddress) {
+      console.error("Invalid request data", { cartItems: !!cartItems, hasItems: !!cartItems?.length, shippingAddress: !!shippingAddress });
       return new Response(
         JSON.stringify({ error: "Invalid request data" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 400 }
@@ -68,11 +72,12 @@ serve(async (req) => {
     if (!stripeSecretKey) {
       console.error("Missing Stripe secret key");
       return new Response(
-        JSON.stringify({ error: "Server configuration error" }),
+        JSON.stringify({ error: "Server configuration error: Missing Stripe secret key" }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
     
+    console.log("Initializing Stripe with secret key");
     const stripe = new Stripe(stripeSecretKey, {
       apiVersion: "2023-10-16",
     });
@@ -93,9 +98,14 @@ serve(async (req) => {
     
     console.log("Line items prepared:", lineItems.length);
     
+    // Calculate the total amount
+    const totalAmount = cartItems.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0);
+    console.log("Total amount:", totalAmount);
+    
     // Check if we have an existing customer or create one
     let customerId;
     try {
+      console.log("Looking up customer with email:", user.email);
       const customers = await stripe.customers.list({ email: user.email, limit: 1 });
       
       if (customers.data.length > 0) {
@@ -131,21 +141,28 @@ serve(async (req) => {
       const origin = req.headers.get("origin") || "http://localhost:5173";
       console.log("Creating Stripe checkout session. Origin:", origin);
       
-      const session = await stripe.checkout.sessions.create({
+      const sessionParams = {
         customer: customerId,
         payment_method_types: ["card"],
         line_items: lineItems,
         mode: "payment",
         success_url: `${origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${origin}/checkout?canceled=true`,
-        shipping_address_collection: {
-          allowed_countries: ["IN"],
-        },
         metadata: {
           user_id: user.id,
           paymentMethod: paymentMethod,
         },
-      });
+      };
+      
+      console.log("Stripe session params:", JSON.stringify({
+        customer: customerId,
+        mode: sessionParams.mode,
+        success_url: sessionParams.success_url,
+        cancel_url: sessionParams.cancel_url,
+        line_items_count: lineItems.length
+      }));
+      
+      const session = await stripe.checkout.sessions.create(sessionParams);
       
       console.log("Stripe session created:", session.id);
       
@@ -154,7 +171,7 @@ serve(async (req) => {
         .from("orders")
         .insert({
           user_id: user.id,
-          total_amount: cartItems.reduce((sum: number, item: any) => sum + (item.product.price * item.quantity), 0),
+          total_amount: totalAmount,
           payment_method: "stripe",
           shipping_address: shippingAddress,
           status: "pending",
@@ -166,7 +183,7 @@ serve(async (req) => {
         
       if (orderError) {
         console.error("Error creating order:", orderError);
-        throw orderError;
+        throw new Error(`Database error: ${orderError.message}`);
       }
       
       console.log("Order created:", order.id);
@@ -185,27 +202,36 @@ serve(async (req) => {
         
       if (itemsError) {
         console.error("Error creating order items:", itemsError);
-        throw itemsError;
+        throw new Error(`Database error: ${itemsError.message}`);
       }
       
       // Return checkout URL
+      const responseData = { 
+        success: true, 
+        url: session.url,
+        orderId: order.id,
+        sessionId: session.id
+      };
+      
+      console.log("Returning checkout response:", JSON.stringify({
+        success: responseData.success,
+        orderId: responseData.orderId,
+        sessionId: responseData.sessionId,
+        hasUrl: !!responseData.url
+      }));
+      
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          url: session.url,
-          orderId: order.id,
-          sessionId: session.id
-        }),
+        JSON.stringify(responseData),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 200 }
       );
-    } catch (stripeError) {
+    } catch (stripeError: any) {
       console.error("Stripe session error:", stripeError);
       return new Response(
         JSON.stringify({ error: `Stripe checkout error: ${stripeError.message}` }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" }, status: 500 }
       );
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error("Checkout error:", error);
     return new Response(
       JSON.stringify({ error: error.message }),

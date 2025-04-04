@@ -15,7 +15,8 @@ import {
   Landmark, 
   Phone, 
   ShieldCheck,
-  AlertCircle
+  AlertCircle,
+  Loader2
 } from 'lucide-react';
 import UPIPayment from '@/components/payment/UPIPayment';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -30,6 +31,7 @@ const Checkout = () => {
   const [paymentMethod, setPaymentMethod] = useState('stripe');
   const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -44,7 +46,12 @@ const Checkout = () => {
     if (canceled) {
       toast.error('Payment was canceled. Please try again.');
     }
-  }, [canceled]);
+    
+    // Pre-fill email if user is logged in
+    if (user?.email) {
+      setFormData(prev => ({...prev, email: user.email || ''}));
+    }
+  }, [canceled, user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,6 +87,7 @@ const Checkout = () => {
       return;
     }
 
+    setError(null);
     try {
       setLoading(true);
 
@@ -95,6 +103,9 @@ const Checkout = () => {
       };
 
       if (paymentMethod === 'stripe') {
+        // Log status before API call
+        console.log("Starting Stripe checkout process...");
+        
         // Use Stripe payment gateway
         const { data, error } = await supabase.functions.invoke('create-checkout', {
           body: {
@@ -109,15 +120,20 @@ const Checkout = () => {
 
         if (error) {
           console.error('Error creating checkout session:', error);
-          throw new Error('Failed to create checkout session');
+          setError(`Failed to create checkout session: ${error.message || 'Unknown error'}`);
+          toast.error('Failed to create checkout session');
+          return;
         }
 
         // Redirect to Stripe Checkout
         if (data?.url) {
+          console.log("Redirecting to Stripe checkout URL:", data.url);
           window.location.href = data.url;
           return;
         } else {
-          throw new Error('Invalid checkout URL received');
+          console.error("Invalid checkout response:", data);
+          setError('Invalid checkout URL received from server');
+          toast.error('Failed to create checkout session');
         }
       } else {
         // Use UPI or other payment methods (existing logic)
@@ -158,6 +174,7 @@ const Checkout = () => {
       }
     } catch (error: any) {
       console.error('Error processing order:', error);
+      setError(`Failed to process your order: ${error.message || 'Unknown error'}`);
       toast.error('Failed to process your order. Please try again.');
     } finally {
       setLoading(false);
@@ -178,6 +195,13 @@ const Checkout = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold mb-8">Checkout</h1>
+
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
         {canceled && (
           <Alert variant="destructive" className="mb-6">
@@ -334,7 +358,14 @@ const Checkout = () => {
                 className="w-full"
                 disabled={loading}
               >
-                {loading ? 'Processing...' : paymentMethod === 'stripe' ? 'Proceed to Payment' : 'Place Order'}
+                {loading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  paymentMethod === 'stripe' ? 'Proceed to Payment' : 'Place Order'
+                )}
               </Button>
             </form>
           </div>
