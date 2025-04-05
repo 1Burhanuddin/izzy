@@ -338,7 +338,7 @@ const Checkout = () => {
 
                 {paymentMethod === 'upi' && (
                   <div className="mt-4">
-                    <UPIPayment upiId={upiId} setUpiId={setUpiId} />
+                    <UPIPayment upiId={upiId} setUpiId={setUpiId} amount={cartTotal} />
                   </div>
                 )}
 

@@ -9,9 +9,10 @@ import { toast } from 'sonner';
 interface UPIPaymentProps {
   upiId: string;
   setUpiId: (value: string) => void;
+  amount?: number; // Add amount as optional prop
 }
 
-const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
+const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) => {
   const [copied, setCopied] = useState(false);
   const merchantUpiId = "111burhanuddin@okicici";
   
@@ -38,7 +39,11 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
   };
 
   const openGooglePay = () => {
-    const googlePayDeepLink = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=Merchant&cu=INR`;
+    // Add amount parameter to the UPI payment URL
+    const amountStr = amount > 0 ? `&am=${amount.toFixed(2)}` : '';
+    const googlePayDeepLink = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=Merchant&cu=INR${amountStr}`;
+    
+    console.log('Opening Google Pay with URL:', googlePayDeepLink);
     window.location.href = googlePayDeepLink;
     
     // Fallback for desktop
@@ -71,6 +76,9 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId }) => {
             <QrCode className="h-24 w-24 text-gray-800" />
           </div> */}
           <p className="font-semibold text-gray-800 mb-2">Pay to: {merchantUpiId}</p>
+          {amount > 0 && (
+            <p className="font-bold text-lg text-green-600 mb-2">Amount: ₹{amount.toFixed(2)}</p>
+          )}
           <div className="flex justify-center mb-4">
             <Button
               variant="outline"
