@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -44,6 +45,20 @@ const Checkout = () => {
   });
 
   useEffect(() => {
+    // Check if user is authenticated
+    if (!user) {
+      toast.error('Please sign in to continue with checkout');
+      navigate('/login', { replace: true });
+      return;
+    }
+
+    // Check if cart is empty
+    if (cartItems.length === 0) {
+      toast.error('Your cart is empty');
+      navigate('/cart', { replace: true });
+      return;
+    }
+
     if (canceled) {
       toast.error('Payment was canceled. Please try again.');
     }
@@ -51,7 +66,7 @@ const Checkout = () => {
     if (user?.email) {
       setFormData(prev => ({...prev, email: user.email || ''}));
     }
-  }, [canceled, user]);
+  }, [canceled, user, cartItems, navigate]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -103,51 +118,58 @@ const Checkout = () => {
 
       if (paymentMethod === 'stripe') {
         console.log("Starting Stripe checkout process...");
-        console.log("Session token available:", !!session?.access_token);
         
+        // Check if session exists and is valid
         if (!session?.access_token) {
+          // Session missing or expired
           setError("Authentication session not found. Please try logging in again.");
           toast.error("Authentication error. Please try logging in again.");
           setLoading(false);
+          navigate('/login', { state: { returnTo: '/checkout' } });
           return;
         }
         
-        const response = await supabase.functions.invoke('create-checkout', {
-          body: {
-            cartItems: cartItems,
-            shippingAddress: shippingAddress,
-            paymentMethod: paymentMethod
-          },
-          headers: {
-            Authorization: `Bearer ${session?.access_token}`
+        console.log("Session token available:", !!session?.access_token);
+        
+        try {
+          const response = await supabase.functions.invoke('create-checkout', {
+            body: {
+              cartItems: cartItems,
+              shippingAddress: shippingAddress,
+              paymentMethod: paymentMethod
+            },
+            headers: {
+              Authorization: `Bearer ${session?.access_token}`
+            }
+          });
+          
+          if (response.error) {
+            console.error('Error creating checkout session:', response.error);
+            throw new Error(`Failed to create checkout session: ${response.error.message || 'Unknown error'}`);
           }
-        });
-        
-        if (response.error) {
-          console.error('Error creating checkout session:', response.error);
-          setError(`Failed to create checkout session: ${response.error.message || 'Unknown error'}`);
-          toast.error('Failed to create checkout session');
-          return;
-        }
-        
-        const data = response.data;
-
-        if (data?.error) {
-          console.error('Checkout error response:', data.error);
-          setError(data.error);
-          setErrorCode(data.code || null);
-          toast.error(data.error);
-          return;
-        }
-
-        if (data?.url) {
-          console.log("Redirecting to Stripe checkout URL:", data.url);
-          window.location.href = data.url;
-          return;
-        } else {
-          console.error("Invalid checkout response:", data);
-          setError('Invalid checkout URL received from server');
-          toast.error('Failed to create checkout session');
+          
+          const data = response.data;
+  
+          if (data?.error) {
+            console.error('Checkout error response:', data.error);
+            setError(data.error);
+            setErrorCode(data.code || null);
+            toast.error(data.error);
+            return;
+          }
+  
+          if (data?.url) {
+            console.log("Redirecting to Stripe checkout URL:", data.url);
+            window.location.href = data.url;
+            return;
+          } else {
+            console.error("Invalid checkout response:", data);
+            throw new Error('Invalid checkout URL received from server');
+          }
+        } catch (apiError: any) {
+          console.error('API error:', apiError);
+          setError(`Checkout error: ${apiError.message}`);
+          toast.error(`Checkout failed: ${apiError.message}`);
         }
       } else {
         // Handle UPI or other payment methods
@@ -162,14 +184,9 @@ const Checkout = () => {
     }
   };
 
-  if (!user) {
-    navigate('/login');
-    return null;
-  }
-
-  if (cartItems.length === 0) {
-    navigate('/cart');
-    return null;
+  // Redirect if not authenticated or cart is empty
+  if (!user || cartItems.length === 0) {
+    return null; // Will be redirected in useEffect
   }
 
   return (
