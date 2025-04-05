@@ -1,6 +1,6 @@
 
 import React, { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import CartDrawer from '../cart/CartDrawer';
@@ -60,7 +60,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Sidebar variant="inset" collapsible="offcanvas">
             <SidebarHeader className="py-6">
               <div className="flex items-center justify-center">
-                <span className="text-2xl font-bold">Izzy</span>
+                <span className="text-2xl font-bold text-gray-900">Menu</span>
               </div>
             </SidebarHeader>
             <SidebarContent>
@@ -74,10 +74,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                           tooltip={item.title}
                           isActive={location.pathname === item.url}
                         >
-                          <a href={item.url} className="flex items-center gap-3">
+                          <Link to={item.url} className="flex items-center gap-3">
                             <item.icon className="h-5 w-5" />
                             <span>{item.title}</span>
-                          </a>
+                          </Link>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     ))}
@@ -96,10 +96,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             tooltip={item.title}
                             isActive={location.pathname === item.url}
                           >
-                            <a href={item.url} className="flex items-center gap-3">
+                            <Link to={item.url} className="flex items-center gap-3">
                               <item.icon className="h-5 w-5" />
                               <span>{item.title}</span>
-                            </a>
+                            </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
@@ -111,10 +111,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                             tooltip={item.title}
                             isActive={location.pathname === item.url}
                           >
-                            <a href={item.url} className="flex items-center gap-3">
+                            <Link to={item.url} className="flex items-center gap-3">
                               <item.icon className="h-5 w-5" />
                               <span>{item.title}</span>
-                            </a>
+                            </Link>
                           </SidebarMenuButton>
                         </SidebarMenuItem>
                       ))}
@@ -130,7 +130,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
               ) : (
                 <Button asChild variant="outline" className="w-full">
-                  <a href="/login">Sign In</a>
+                  <Link to="/login">Sign In</Link>
                 </Button>
               )}
             </SidebarFooter>
