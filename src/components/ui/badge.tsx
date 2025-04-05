@@ -18,6 +18,12 @@ const badgeVariants = cva(
         outline: "text-foreground",
         warning: 
           "border-transparent bg-yellow-500 text-white hover:bg-yellow-600",
+        apple:
+          "border-transparent bg-black text-white",
+        "apple-blue":
+          "border-transparent bg-blue-500 text-white",
+        "apple-red":
+          "border-transparent bg-red-500 text-white",
       },
     },
     defaultVariants: {

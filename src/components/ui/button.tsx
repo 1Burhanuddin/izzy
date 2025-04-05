@@ -21,6 +21,10 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         warning: 
           "bg-yellow-500 text-white hover:bg-yellow-600",
+        apple: 
+          "bg-black text-white hover:bg-black/90 rounded-full",
+        "apple-outline": 
+          "border border-gray-300 bg-white text-black hover:bg-gray-100 rounded-full",
       },
       size: {
         default: "h-10 px-4 py-2",
