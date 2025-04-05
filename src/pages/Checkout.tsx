@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -49,7 +48,6 @@ const Checkout = () => {
       toast.error('Payment was canceled. Please try again.');
     }
     
-    // Pre-fill email if user is logged in
     if (user?.email) {
       setFormData(prev => ({...prev, email: user.email || ''}));
     }
@@ -75,7 +73,6 @@ const Checkout = () => {
       return;
     }
 
-    // Validate form
     const requiredFields = ['name', 'email', 'phone', 'address', 'city', 'state', 'pincode'];
     const missingFields = requiredFields.filter(field => !formData[field as keyof typeof formData]);
     
@@ -94,7 +91,6 @@ const Checkout = () => {
     try {
       setLoading(true);
 
-      // Create shipping address object from form data
       const shippingAddress = {
         name: formData.name,
         email: formData.email,
@@ -106,10 +102,8 @@ const Checkout = () => {
       };
 
       if (paymentMethod === 'stripe') {
-        // Log status before API call
         console.log("Starting Stripe checkout process...");
         
-        // Use Stripe payment gateway
         const response = await supabase.functions.invoke('create-checkout', {
           body: {
             cartItems: cartItems,
@@ -130,7 +124,6 @@ const Checkout = () => {
         
         const data = response.data;
 
-        // Check for specific error codes
         if (data?.error) {
           console.error('Checkout error response:', data.error);
           setError(data.error);
@@ -139,7 +132,6 @@ const Checkout = () => {
           return;
         }
 
-        // Redirect to Stripe Checkout
         if (data?.url) {
           console.log("Redirecting to Stripe checkout URL:", data.url);
           window.location.href = data.url;
@@ -150,8 +142,6 @@ const Checkout = () => {
           toast.error('Failed to create checkout session');
         }
       } else {
-        // Use UPI or other payment methods (existing logic)
-        // Create order
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert({
@@ -166,7 +156,6 @@ const Checkout = () => {
 
         if (orderError) throw orderError;
 
-        // Create order items
         const orderItems = cartItems.map(item => ({
           order_id: order.id,
           product_id: item.product_id,
@@ -180,7 +169,6 @@ const Checkout = () => {
 
         if (itemsError) throw itemsError;
 
-        // Clear cart after successful order
         await clearCart();
 
         toast.success('Order placed successfully!');
@@ -218,7 +206,7 @@ const Checkout = () => {
         )}
 
         {errorCode === 'amount_too_small' && (
-          <Alert variant="warning" className="mb-6 bg-yellow-50 border-yellow-200">
+          <Alert variant="default" className="mb-6 bg-yellow-50 border-yellow-200">
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
             <AlertDescription className="text-yellow-700">
               The total amount is too low for online payment. Please add more items to your cart or choose a different payment method.
@@ -236,10 +224,8 @@ const Checkout = () => {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Left Column - Shipping & Payment */}
           <div>
             <form onSubmit={handleSubmit}>
-              {/* Shipping Information */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-xl font-semibold mb-4">Shipping Information</h2>
                 <div className="space-y-4">
@@ -321,7 +307,6 @@ const Checkout = () => {
                 </div>
               </div>
 
-              {/* Payment Method */}
               <div className="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
                 
@@ -393,7 +378,6 @@ const Checkout = () => {
             </form>
           </div>
 
-          {/* Right Column - Order Summary */}
           <div>
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
               <h2 className="text-xl font-semibold mb-4">Order Summary</h2>
