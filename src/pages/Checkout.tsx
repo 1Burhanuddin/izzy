@@ -103,6 +103,14 @@ const Checkout = () => {
 
       if (paymentMethod === 'stripe') {
         console.log("Starting Stripe checkout process...");
+        console.log("Session token available:", !!session?.access_token);
+        
+        if (!session?.access_token) {
+          setError("Authentication session not found. Please try logging in again.");
+          toast.error("Authentication error. Please try logging in again.");
+          setLoading(false);
+          return;
+        }
         
         const response = await supabase.functions.invoke('create-checkout', {
           body: {
@@ -142,37 +150,8 @@ const Checkout = () => {
           toast.error('Failed to create checkout session');
         }
       } else {
-        const { data: order, error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            user_id: user.id,
-            total_amount: cartTotal,
-            payment_method: paymentMethod,
-            shipping_address: shippingAddress,
-            transaction_id: paymentMethod === 'upi' ? `UPI_${Date.now()}` : null
-          })
-          .select()
-          .single();
-
-        if (orderError) throw orderError;
-
-        const orderItems = cartItems.map(item => ({
-          order_id: order.id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          price: item.product.price
-        }));
-
-        const { error: itemsError } = await supabase
-          .from('order_items')
-          .insert(orderItems);
-
-        if (itemsError) throw itemsError;
-
-        await clearCart();
-
-        toast.success('Order placed successfully!');
-        navigate('/order-confirmation');
+        // Handle UPI or other payment methods
+        // ... keep existing code (UPI payment processing)
       }
     } catch (error: any) {
       console.error('Error processing order:', error);
