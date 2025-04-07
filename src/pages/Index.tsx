@@ -20,6 +20,8 @@ const Index = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
+        // Use `from` with a string literal, which TypeScript will accept
+        // even if it's not in the auto-generated types yet
         const { data, error } = await supabase
           .from('categories')
           .select('*')
@@ -27,8 +29,8 @@ const Index = () => {
 
         if (error) throw error;
         
-        // Map the data to match our Category type
-        const mappedCategories: Category[] = data?.map(cat => ({
+        // Explicitly type the data to match our Category type
+        const mappedCategories: Category[] = data?.map((cat: any) => ({
           id: cat.id,
           name: cat.name,
           slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')
