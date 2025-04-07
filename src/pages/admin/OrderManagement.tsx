@@ -20,11 +20,13 @@ const OrderManagement: React.FC = () => {
     page,
     totalPages,
     updateLoading,
+    deleteLoading,
     setPage,
     setSelectedStatus,
     handleOrderClick,
     handleCloseDetails,
     updateOrderStatus,
+    deleteOrder,
     fetchOrders
   } = useOrderManagement(isAdmin);
 
@@ -63,10 +65,12 @@ const OrderManagement: React.FC = () => {
             orderItems={orderItems}
             orderItemsLoading={orderItemsLoading}
             updateOrderStatus={updateOrderStatus}
+            deleteOrder={deleteOrder}
             handleCloseDetails={handleCloseDetails}
             getStatusBadge={getOrderStatusBadge}
             getPaymentStatusBadge={getPaymentStatusBadge}
             updateLoading={updateLoading}
+            deleteLoading={deleteLoading}
           />
         ) : (
           <OrderList
@@ -80,6 +84,8 @@ const OrderManagement: React.FC = () => {
             getStatusBadge={getOrderStatusBadge}
             getPaymentStatusBadge={getPaymentStatusBadge}
             updateOrderStatus={updateOrderStatus}
+            deleteOrder={deleteOrder}
+            deleteLoading={deleteLoading}
           />
         )}
       </div>

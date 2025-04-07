@@ -5,6 +5,7 @@ import {
   fetchOrdersFromDB, 
   fetchOrderItemsFromDB, 
   updateOrderStatusInDB,
+  deleteOrderFromDB,
   ORDERS_PER_PAGE 
 } from '@/services/orderService';
 import { toast } from 'sonner';
@@ -19,6 +20,7 @@ export const useOrderManagement = (isAdmin: boolean) => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [updateLoading, setUpdateLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   useEffect(() => {
     if (isAdmin) {
@@ -90,6 +92,33 @@ export const useOrderManagement = (isAdmin: boolean) => {
     }
   };
 
+  const deleteOrder = async (orderId: string) => {
+    setDeleteLoading(true);
+    try {
+      console.log(`Starting deletion of order ${orderId}`);
+      
+      // Delete from database
+      await deleteOrderFromDB(orderId);
+      
+      // Update local state - remove the deleted order
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+      
+      // If the deleted order is currently selected, clear the selection
+      if (selectedOrder && selectedOrder.id === orderId) {
+        setSelectedOrder(null);
+        setOrderItems([]);
+      }
+
+      toast.success(`Order deleted successfully`);
+      
+    } catch (error: any) {
+      console.error("Error deleting order:", error);
+      toast.error(`Failed to delete order: ${error.message}`);
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
   const handleOrderClick = (order: Order) => {
     setSelectedOrder(order);
     fetchOrderItems(order.id);
@@ -110,11 +139,13 @@ export const useOrderManagement = (isAdmin: boolean) => {
     page,
     totalPages,
     updateLoading,
+    deleteLoading,
     setPage,
     setSelectedStatus,
     handleOrderClick,
     handleCloseDetails,
     fetchOrders,
-    updateOrderStatus
+    updateOrderStatus,
+    deleteOrder
   };
 };

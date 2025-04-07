@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Eye, Package } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Eye, Package, Trash2, RefreshCw } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,6 +9,25 @@ import {
   DropdownMenuItem,
 } from '@/components/ui/dropdown-menu';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 type Order = {
   id: string;
@@ -35,6 +54,8 @@ interface OrderListProps {
   getStatusBadge: (status: string) => JSX.Element;
   getPaymentStatusBadge: (status: string) => JSX.Element;
   updateOrderStatus: (orderId: string, status: string) => Promise<void>;
+  deleteOrder: (orderId: string) => Promise<void>;
+  deleteLoading?: boolean;
 }
 
 const OrderList: React.FC<OrderListProps> = ({ 
@@ -47,9 +68,12 @@ const OrderList: React.FC<OrderListProps> = ({
   setPage, 
   getStatusBadge, 
   getPaymentStatusBadge,
-  updateOrderStatus
+  updateOrderStatus,
+  deleteOrder,
+  deleteLoading = false
 }) => {
   const [updatingOrderId, setUpdatingOrderId] = React.useState<string | null>(null);
+  const [deletingOrderId, setDeletingOrderId] = React.useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     setUpdatingOrderId(orderId);
@@ -57,6 +81,15 @@ const OrderList: React.FC<OrderListProps> = ({
       await updateOrderStatus(orderId, newStatus);
     } finally {
       setUpdatingOrderId(null);
+    }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    setDeletingOrderId(orderId);
+    try {
+      await deleteOrder(orderId);
+    } finally {
+      setDeletingOrderId(null);
     }
   };
 
@@ -86,88 +119,117 @@ const OrderList: React.FC<OrderListProps> = ({
 
   return (
     <>
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order ID
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Customer
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Total
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Payment Status
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Order Status
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {orders.map((order) => (
-              <tr key={order.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
+      <Table className="bg-white shadow rounded-lg">
+        <TableHeader className="bg-gray-50">
+          <TableRow>
+            <TableHead>Order ID</TableHead>
+            <TableHead>Customer</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Total</TableHead>
+            <TableHead>Payment Status</TableHead>
+            <TableHead>Order Status</TableHead>
+            <TableHead>Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {orders.map((order) => {
+            const isDelivered = order.status === 'delivered';
+            const isDeleting = deletingOrderId === order.id;
+            
+            return (
+              <TableRow key={order.id} className="hover:bg-gray-50">
+                <TableCell>
                   <div className="text-sm font-medium text-gray-900">#{order.id.substring(0, 8)}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
                   <div className="text-sm text-gray-900">{order.customer_email}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
                   <div className="text-sm text-gray-900">{new Date(order.created_at).toLocaleDateString()}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
                   <div className="text-sm text-gray-900">₹{order.total_amount.toFixed(2)}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
                   {getPaymentStatusBadge(order.payment_status)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                </TableCell>
+                <TableCell>
                   <div className="flex items-center space-x-2">
                     {getStatusBadge(order.status)}
-                    <Select
-                      value={order.status}
-                      onValueChange={(value) => handleStatusChange(order.id, value)}
-                      disabled={updatingOrderId === order.id}
-                    >
-                      <SelectTrigger className="h-8 w-32 text-xs">
-                        <SelectValue placeholder="Update" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="processing">Processing</SelectItem>
-                        <SelectItem value="shipped">Shipped</SelectItem>
-                        <SelectItem value="delivered">Delivered</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    {!isDelivered && (
+                      <Select
+                        value={order.status}
+                        onValueChange={(value) => handleStatusChange(order.id, value)}
+                        disabled={updatingOrderId === order.id}
+                      >
+                        <SelectTrigger className="h-8 w-32 text-xs">
+                          <SelectValue placeholder="Update" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="processing">Processing</SelectItem>
+                          <SelectItem value="shipped">Shipped</SelectItem>
+                          <SelectItem value="delivered">Delivered</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleOrderClick(order)}
-                    className="text-blue-600 hover:text-blue-800"
-                  >
-                    <Eye className="h-4 w-4" />
-                    <span className="ml-1">View</span>
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleOrderClick(order)}
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      <span>View</span>
+                    </Button>
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-red-600 hover:text-red-800"
+                          disabled={isDeleting}
+                        >
+                          {isDeleting ? (
+                            <RefreshCw className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4 mr-1" />
+                          )}
+                          <span>Delete</span>
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the order 
+                            #{order.id.substring(0, 8)} and all associated order items from the database.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDeleteOrder(order.id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
 
       {totalPages > 1 && (
         <div className="flex justify-center mt-6">

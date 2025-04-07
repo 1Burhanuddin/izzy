@@ -156,3 +156,39 @@ export const updateOrderStatusInDB = async (orderId: string, status: string): Pr
     throw error;
   }
 };
+
+/**
+ * Deletes an order and its related order items from the database
+ */
+export const deleteOrderFromDB = async (orderId: string): Promise<void> => {
+  try {
+    console.log(`Deleting order ${orderId} and its items`);
+    
+    // First, delete the order items
+    const { error: orderItemsError } = await supabase
+      .from('order_items')
+      .delete()
+      .eq('order_id', orderId);
+    
+    if (orderItemsError) {
+      console.error("Error deleting order items:", orderItemsError);
+      throw orderItemsError;
+    }
+    
+    // Then, delete the order itself
+    const { error: orderError } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+    
+    if (orderError) {
+      console.error("Error deleting order:", orderError);
+      throw orderError;
+    }
+    
+    console.log(`Order ${orderId} and its items deleted successfully`);
+  } catch (error: any) {
+    console.error("Error deleting order:", error);
+    throw error;
+  }
+};

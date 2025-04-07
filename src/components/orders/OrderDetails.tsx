@@ -1,7 +1,19 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Package, X, RefreshCw } from 'lucide-react';
+import { Package, X, RefreshCw, Trash2 } from 'lucide-react';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Order = {
   id: string;
@@ -32,10 +44,12 @@ interface OrderDetailsProps {
   orderItems: OrderItem[];
   orderItemsLoading: boolean;
   updateOrderStatus: (orderId: string, status: string) => Promise<void>;
+  deleteOrder: (orderId: string) => Promise<void>;
   handleCloseDetails: () => void;
   getStatusBadge: (status: string) => JSX.Element;
   getPaymentStatusBadge: (status: string) => JSX.Element;
   updateLoading?: boolean;
+  deleteLoading?: boolean;
 }
 
 const OrderDetails: React.FC<OrderDetailsProps> = ({ 
@@ -43,10 +57,12 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
   orderItems, 
   orderItemsLoading, 
   updateOrderStatus, 
+  deleteOrder,
   handleCloseDetails, 
   getStatusBadge, 
   getPaymentStatusBadge,
-  updateLoading = false
+  updateLoading = false,
+  deleteLoading = false
 }) => {
   if (!selectedOrder) return null;
 
@@ -55,6 +71,14 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
       await updateOrderStatus(selectedOrder.id, status);
     }
   };
+
+  const handleDeleteOrder = async () => {
+    if (selectedOrder && selectedOrder.id) {
+      await deleteOrder(selectedOrder.id);
+    }
+  };
+
+  const isDelivered = selectedOrder.status === 'delivered';
 
   return (
     <div className="bg-white rounded-lg shadow">
@@ -101,52 +125,99 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
           </div>
         </div>
         
-        <div className="mb-6">
-          <h3 className="text-sm font-medium text-gray-500 mb-2">Update Order Status</h3>
-          <div className="flex flex-wrap gap-2">
-            {updateLoading ? (
-              <div className="flex items-center space-x-2">
-                <RefreshCw className="h-4 w-4 animate-spin"/>
-                <span>Updating...</span>
-              </div>
-            ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleStatusUpdate('processing')}
-                  disabled={selectedOrder.status === 'processing' || updateLoading}
-                >
-                  Mark Processing
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleStatusUpdate('shipped')}
-                  disabled={selectedOrder.status === 'shipped' || updateLoading}
-                >
-                  Mark Shipped
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleStatusUpdate('delivered')}
-                  disabled={selectedOrder.status === 'delivered' || updateLoading}
-                >
-                  Mark Delivered
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="text-red-500 hover:text-red-600"
-                  onClick={() => handleStatusUpdate('cancelled')}
-                  disabled={selectedOrder.status === 'cancelled' || updateLoading}
-                >
-                  Cancel Order
-                </Button>
-              </>
-            )}
+        <div className="mb-6 flex justify-between items-center">
+          <div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Update Order Status</h3>
+            <div className="flex flex-wrap gap-2">
+              {updateLoading ? (
+                <div className="flex items-center space-x-2">
+                  <RefreshCw className="h-4 w-4 animate-spin"/>
+                  <span>Updating...</span>
+                </div>
+              ) : (
+                <>
+                  {!isDelivered && (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleStatusUpdate('processing')}
+                        disabled={selectedOrder.status === 'processing' || updateLoading}
+                      >
+                        Mark Processing
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleStatusUpdate('shipped')}
+                        disabled={selectedOrder.status === 'shipped' || updateLoading}
+                      >
+                        Mark Shipped
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleStatusUpdate('delivered')}
+                        disabled={updateLoading}
+                      >
+                        Mark Delivered
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => handleStatusUpdate('cancelled')}
+                        disabled={selectedOrder.status === 'cancelled' || updateLoading}
+                      >
+                        Cancel Order
+                      </Button>
+                    </>
+                  )}
+                  {isDelivered && (
+                    <Badge variant="success" className="px-3 py-1 text-sm">
+                      Order Delivered
+                    </Badge>
+                  )}
+                </>
+              )}
+            </div>
           </div>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive" 
+                size="sm"
+                disabled={deleteLoading}
+                className="flex items-center"
+              >
+                {deleteLoading ? (
+                  <RefreshCw className="h-4 w-4 animate-spin mr-2"/>
+                ) : (
+                  <Trash2 className="h-4 w-4 mr-2" />
+                )}
+                Delete Order
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the order 
+                  #{selectedOrder.id.substring(0, 8)} and all associated order items from the database.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDeleteOrder}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
         
         <h3 className="text-lg font-medium mb-3">Order Items</h3>
