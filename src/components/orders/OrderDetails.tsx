@@ -174,7 +174,7 @@ const OrderDetails: React.FC<OrderDetailsProps> = ({
                     </>
                   )}
                   {isDelivered && (
-                    <Badge variant="success" className="px-3 py-1 text-sm">
+                    <Badge variant="outline" className="bg-green-50 text-green-600 border-green-200 px-3 py-1 text-sm">
                       Order Delivered
                     </Badge>
                   )}
