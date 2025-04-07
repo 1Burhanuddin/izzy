@@ -20,6 +20,14 @@ type CategoryData = {
   created_at: string;
 };
 
+// Image mapping for categories
+const categoryImages = {
+  'mirror': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=1080&auto=format&fit=crop',
+  'glass': 'https://images.unsplash.com/photo-1518281361980-b26bfd556770?q=80&w=1080&auto=format&fit=crop',
+  'hardware': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1080&auto=format&fit=crop',
+  'aluminum': 'https://images.unsplash.com/photo-1535382651921-5e1fa3e3a084?q=80&w=1080&auto=format&fit=crop',
+};
+
 const Index = () => {
   const { isCartOpen, closeCart } = useCart();
   const [categories, setCategories] = useState<Category[]>([]);
@@ -120,17 +128,24 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <div className="flex flex-col gap-8 max-w-4xl mx-auto">
               {categories.map((category) => (
                 <Link key={category.id} to={`/products/${category.slug}`}>
-                  <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-lg border border-gray-100 h-full">
-                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 h-40 flex items-center justify-center p-6">
-                      <Sparkles className="text-gray-500 h-16 w-16 opacity-50" />
+                  <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-lg border border-gray-100 h-56 flex flex-col md:flex-row">
+                    <div className="md:w-1/2 h-52 md:h-full">
+                      <img 
+                        src={categoryImages[category.slug as keyof typeof categoryImages]} 
+                        alt={category.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    <CardContent className="p-4 text-center">
-                      <h3 className="font-semibold text-lg text-gray-800">{category.name}</h3>
-                      <Separator className="my-2 bg-gray-200" />
-                      <p className="text-sm text-gray-500 mt-1">View Collection</p>
+                    <CardContent className="p-6 flex flex-col justify-center items-center md:items-start md:w-1/2">
+                      <h3 className="font-semibold text-2xl text-gray-800 mb-3">{category.name}</h3>
+                      <Separator className="my-2 bg-gray-200 w-16" />
+                      <p className="text-gray-500 mt-2 mb-4">Premium quality {category.name.toLowerCase()} solutions for modern spaces</p>
+                      <Button variant="outline" className="mt-auto">
+                        View Collection
+                      </Button>
                     </CardContent>
                   </Card>
                 </Link>
@@ -138,7 +153,7 @@ const Index = () => {
             </div>
           )}
           
-          <div className="text-center mt-10">
+          <div className="text-center mt-12">
             <Button asChild variant="outline" className="px-8">
               <Link to="/products">View All Categories</Link>
             </Button>
