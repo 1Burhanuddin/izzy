@@ -26,10 +26,28 @@ const UserManagement: React.FC = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
+      // First get total count for pagination
+      let countQuery = supabase
+        .from('profiles')
+        .select('id', { count: 'exact' });
+      
+      if (searchQuery) {
+        countQuery = countQuery.ilike('username', `%${searchQuery}%`);
+      }
+      
+      const { count: totalCount, error: countError } = await countQuery;
+      
+      if (countError) throw countError;
+      
+      // Calculate total pages
+      setTotalPages(Math.ceil((totalCount || 0) / usersPerPage));
+      
+      // Now fetch the actual user data for the current page
       let query = supabase
         .from('profiles')
         .select('*')
-        .range((page - 1) * usersPerPage, page * usersPerPage - 1);
+        .range((page - 1) * usersPerPage, page * usersPerPage - 1)
+        .order('created_at', { ascending: false });
 
       if (searchQuery) {
         query = query.ilike('username', `%${searchQuery}%`);
@@ -38,17 +56,6 @@ const UserManagement: React.FC = () => {
       const { data: usersData, error } = await query;
 
       if (error) throw error;
-
-      // Get count for pagination
-      const { data: countData, error: countError } = await supabase
-        .from('profiles')
-        .select('id', { count: 'exact' });
-
-      if (countError) throw countError;
-
-      // Calculate total pages
-      const totalCount = countData?.length || 0;
-      setTotalPages(Math.ceil(totalCount / usersPerPage));
 
       setUsers(usersData || []);
       console.log("Fetched users:", usersData);
@@ -105,7 +112,7 @@ const UserManagement: React.FC = () => {
           <div className="relative max-w-md">
             <input
               type="text"
-              placeholder="Search users by email..."
+              placeholder="Search users by username..."
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -133,7 +140,7 @@ const UserManagement: React.FC = () => {
                       User
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
+                      Username
                     </th>
                     <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Role
