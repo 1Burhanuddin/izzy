@@ -1,15 +1,49 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import NewArrivals from '@/components/product/NewArrivals';
 import { Button } from '@/components/ui/button';
-import { Award, Star } from 'lucide-react';
+import { Award, Sparkles, Star } from 'lucide-react';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { useCart } from '@/contexts/CartContext';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import CategoryNav, { Category } from '@/components/product/CategoryNav';
 
 const Index = () => {
   const { isCartOpen, closeCart } = useCart();
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('categories')
+          .select('*')
+          .order('name');
+
+        if (error) throw error;
+        
+        // Map the data to match our Category type
+        const mappedCategories: Category[] = data?.map(cat => ({
+          id: cat.id,
+          name: cat.name,
+          slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')
+        })) || [];
+        
+        setCategories(mappedCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
   
   return (
     <Layout>
@@ -64,48 +98,86 @@ const Index = () => {
       {/* Featured Products Section */}
       <NewArrivals />
 
-      {/* Why Choose Us Section with improved colors */}
+      {/* Category Showcase Section */}
       <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold mb-3 text-gray-800">Explore Our Categories</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">Discover our curated collections tailored to elevate your space</p>
+          </div>
+          
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {categories.map((category) => (
+                <Link key={category.id} to={`/products/${category.slug}`}>
+                  <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-lg border border-gray-100 h-full">
+                    <div className="bg-gradient-to-r from-gray-50 to-gray-100 h-40 flex items-center justify-center p-6">
+                      <Sparkles className="text-gray-500 h-16 w-16 opacity-50" />
+                    </div>
+                    <CardContent className="p-4 text-center">
+                      <h3 className="font-semibold text-lg text-gray-800">{category.name}</h3>
+                      <Separator className="my-2 bg-gray-200" />
+                      <p className="text-sm text-gray-500 mt-1">View Collection</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          )}
+          
+          <div className="text-center mt-10">
+            <Button asChild variant="outline" className="px-8">
+              <Link to="/products">View All Categories</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section with more subtle colors */}
+      <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-2 text-gray-800">Why Choose Izzy</h2>
-            <div className="w-24 h-1 bg-blue-500 mx-auto"></div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="bg-blue-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Award className="h-8 w-8 text-white" />
+            <div className="bg-white p-6 rounded-lg text-center hover-lift shadow-sm border border-gray-100">
+              <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Award className="h-7 w-7 text-blue-600" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-blue-700">Quality Materials</h3>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Quality Materials</h3>
               <p className="text-gray-600">Premium glass and aluminum sourced from the finest suppliers.</p>
             </div>
             
-            <div className="bg-purple-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
+            <div className="bg-white p-6 rounded-lg text-center hover-lift shadow-sm border border-gray-100">
+              <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-purple-600">
                   <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-purple-700">Expert Craftsmanship</h3>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Expert Craftsmanship</h3>
               <p className="text-gray-600">Skilled artisans with decades of experience in fabrication.</p>
             </div>
             
-            <div className="bg-cyan-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-cyan-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-8 w-8 text-white">
+            <div className="bg-white p-6 rounded-lg text-center hover-lift shadow-sm border border-gray-100">
+              <div className="w-14 h-14 bg-cyan-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-7 w-7 text-cyan-600">
                   <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-2 text-cyan-700">Trusted Service</h3>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Trusted Service</h3>
               <p className="text-gray-600">Customer satisfaction is our highest priority with every project.</p>
             </div>
             
-            <div className="bg-amber-50 p-6 rounded-lg text-center hover-lift">
-              <div className="w-16 h-16 bg-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Star className="h-8 w-8 text-white" />
+            <div className="bg-white p-6 rounded-lg text-center hover-lift shadow-sm border border-gray-100">
+              <div className="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Star className="h-7 w-7 text-amber-600" />
               </div>
-              <h3 className="text-xl font-bold mb-2 text-amber-700">Custom Solutions</h3>
+              <h3 className="text-xl font-bold mb-2 text-gray-800">Custom Solutions</h3>
               <p className="text-gray-600">Bespoke designs tailored to your specific needs and preferences.</p>
             </div>
           </div>
