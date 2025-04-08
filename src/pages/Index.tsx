@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -11,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import CategoryNav, { Category } from '@/components/product/CategoryNav';
+import { TextShimmer } from '@/components/ui/text-shimmer';
 
 // Define a type for raw category data from Supabase
 type CategoryData = {
@@ -91,9 +91,15 @@ const Index = () => {
 
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-black drop-shadow-lg">
+            <TextShimmer 
+              as="h1" 
+              className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in 
+                [--base-color:#ffffff] [--base-gradient-color:#f0f0f0]
+                dark:[--base-color:#ffffff] dark:[--base-gradient-color:#a3a3a3]"
+              duration={3}
+            >
               Transform Your Space with Izzy
-            </h1>
+            </TextShimmer>
             <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-black/90 drop-shadow-md">
               Premium glass and aluminum solutions for modern homes and offices.
               Expert craftsmanship with timeless designs.
@@ -119,7 +125,15 @@ const Index = () => {
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold mb-3 text-gray-800">Explore Our Categories</h2>
+            <TextShimmer 
+              as="h2" 
+              className="text-3xl font-bold mb-3 text-gray-800
+                [--base-color:#1a1a1a] [--base-gradient-color:#4a4a4a]
+                dark:[--base-color:#e0e0e0] dark:[--base-gradient-color:#ffffff]"
+              duration={2.5}
+            >
+              Explore Our Categories
+            </TextShimmer>
             <p className="text-gray-600 max-w-2xl mx-auto">Discover our curated collections tailored to elevate your space</p>
           </div>
           
@@ -165,7 +179,15 @@ const Index = () => {
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-2 text-gray-800">Why Choose Izzy</h2>
+            <TextShimmer 
+              as="h2" 
+              className="text-3xl font-bold mb-2 text-gray-800 
+                [--base-color:#2a2a2a] [--base-gradient-color:#5a5a5a]
+                dark:[--base-color:#e5e5e5] dark:[--base-gradient-color:#ffffff]"
+              duration={2}
+            >
+              Why Choose Izzy
+            </TextShimmer>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
