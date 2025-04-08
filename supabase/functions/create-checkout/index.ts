@@ -34,9 +34,9 @@ serve(async (req) => {
     
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Missing Supabase configuration");
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
@@ -44,7 +44,9 @@ serve(async (req) => {
       );
     }
     
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    // Use the service role key to bypass RLS policies
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") || "");
     
     // Validate user token
     const token = authHeader.replace("Bearer ", "");
@@ -200,8 +202,8 @@ serve(async (req) => {
       
       console.log("Stripe session created:", session.id);
       
-      // Store pre-order in database
-      const { data: order, error: orderError } = await supabaseClient
+      // Store pre-order in database - using admin client to bypass RLS
+      const { data: order, error: orderError } = await supabaseAdmin
         .from("orders")
         .insert({
           user_id: user.id,
@@ -222,7 +224,7 @@ serve(async (req) => {
       
       console.log("Order created:", order.id);
       
-      // Store order items
+      // Store order items - using admin client to bypass RLS
       const orderItems = cartItems.map((item: any) => ({
         order_id: order.id,
         product_id: item.product_id,
@@ -230,7 +232,7 @@ serve(async (req) => {
         price: item.product.price
       }));
       
-      const { error: itemsError } = await supabaseClient
+      const { error: itemsError } = await supabaseAdmin
         .from("order_items")
         .insert(orderItems);
         

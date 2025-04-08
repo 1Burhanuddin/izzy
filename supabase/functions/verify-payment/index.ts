@@ -39,9 +39,9 @@ serve(async (req) => {
     
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabaseServiceKey) {
       console.error("Missing Supabase configuration");
       return new Response(
         JSON.stringify({ error: "Server configuration error" }),
@@ -49,7 +49,9 @@ serve(async (req) => {
       );
     }
     
-    const supabaseClient = createClient(supabaseUrl, supabaseAnonKey);
+    // Use service role key to bypass RLS
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+    const supabaseClient = createClient(supabaseUrl, Deno.env.get("SUPABASE_ANON_KEY") || "");
     
     // Validate user token
     const token = authHeader.replace("Bearer ", "");
@@ -93,7 +95,7 @@ serve(async (req) => {
         // Update order status in database
         console.log("Payment is paid, updating order status...");
         
-        const { data: orders, error: orderQueryError } = await supabaseClient
+        const { data: orders, error: orderQueryError } = await supabaseAdmin
           .from("orders")
           .select("*")
           .eq("transaction_id", sessionId)
@@ -113,7 +115,7 @@ serve(async (req) => {
         }
         
         console.log(`Updating order ${orders.id} to processing status`);
-        const { error: updateError } = await supabaseClient
+        const { error: updateError } = await supabaseAdmin
           .from("orders")
           .update({ 
             status: "processing", 
