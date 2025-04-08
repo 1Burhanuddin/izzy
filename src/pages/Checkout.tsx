@@ -48,7 +48,7 @@ const Checkout = () => {
     // Check if user is authenticated
     if (!user) {
       toast.error('Please sign in to continue with checkout');
-      navigate('/login', { replace: true });
+      navigate('/login', { state: { returnTo: '/checkout' } });
       return;
     }
 
@@ -160,6 +160,10 @@ const Checkout = () => {
   
           if (data?.url) {
             console.log("Redirecting to Stripe checkout URL:", data.url);
+            // Save order ID to local storage before redirecting to Stripe
+            if (data.orderId) {
+              localStorage.setItem('pendingOrderId', data.orderId);
+            }
             window.location.href = data.url;
             return;
           } else {
@@ -171,9 +175,57 @@ const Checkout = () => {
           setError(`Checkout error: ${apiError.message}`);
           toast.error(`Checkout failed: ${apiError.message}`);
         }
+      } else if (paymentMethod === 'upi') {
+        // Handle UPI payment method
+        try {
+          // Create a direct order in the database
+          const { data: order, error: orderError } = await supabase
+            .from('orders')
+            .insert({
+              user_id: user.id,
+              total_amount: cartTotal,
+              payment_method: 'upi',
+              shipping_address: shippingAddress,
+              status: 'pending',
+              payment_status: 'pending',
+              transaction_id: `UPI_${Date.now()}`
+            })
+            .select()
+            .single();
+          
+          if (orderError) {
+            throw new Error(`Failed to create order: ${orderError.message}`);
+          }
+          
+          // Create order items
+          const orderItems = cartItems.map(item => ({
+            order_id: order.id,
+            product_id: item.product_id,
+            quantity: item.quantity,
+            price: item.product.price
+          }));
+          
+          const { error: itemsError } = await supabase
+            .from('order_items')
+            .insert(orderItems);
+          
+          if (itemsError) {
+            throw new Error(`Failed to create order items: ${itemsError.message}`);
+          }
+          
+          // Save order ID and redirect to confirmation page
+          localStorage.setItem('pendingOrderId', order.id);
+          await clearCart();
+          toast.success('Order placed successfully!');
+          navigate('/order-confirmation');
+        } catch (error: any) {
+          console.error('Error creating UPI order:', error);
+          setError(`Failed to create order: ${error.message}`);
+          toast.error(`Failed to create order: ${error.message}`);
+        }
       } else {
-        // Handle UPI or other payment methods
-        // ... keep existing code (UPI payment processing)
+        setError('This payment method is not implemented yet');
+        toast.error('This payment method is not implemented yet');
       }
     } catch (error: any) {
       console.error('Error processing order:', error);

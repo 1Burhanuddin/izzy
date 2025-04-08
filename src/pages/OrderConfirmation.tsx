@@ -28,11 +28,31 @@ const OrderConfirmation = () => {
       verifyPayment();
     } else if (sessionId && !session) {
       console.log("Session ID exists but no auth session - waiting for auth");
-      setError("Waiting for authentication...");
+      // Try to check again when session becomes available
+      const checkInterval = setInterval(() => {
+        if (session) {
+          clearInterval(checkInterval);
+          verifyPayment();
+        }
+      }, 1000);
+      
+      // Clear interval after 30 seconds to prevent endless checking
+      setTimeout(() => {
+        clearInterval(checkInterval);
+        if (!session) {
+          setError("Authentication session not found. Please try logging in again.");
+        }
+      }, 30000);
+    } else if (!sessionId) {
+      // If no sessionId, check if there's a pending order in local storage
+      const pendingOrderId = localStorage.getItem('pendingOrderId');
+      if (pendingOrderId) {
+        setOrderId(pendingOrderId);
+        clearCart();
+        localStorage.removeItem('pendingOrderId');
+        toast.success('Order confirmed! Thank you for your purchase.');
+      }
     }
-    
-    // If no sessionId, the user probably came from a non-Stripe payment
-    // No need to verify payment in that case
   }, [sessionId, session]);
 
   const verifyPayment = async () => {
@@ -40,7 +60,7 @@ const OrderConfirmation = () => {
       setLoading(true);
       setError(null);
       
-      console.log("Calling verify-payment function");
+      console.log("Calling verify-payment function with sessionId:", sessionId);
       const { data, error } = await supabase.functions.invoke('verify-payment', {
         body: { sessionId },
         headers: {
@@ -65,7 +85,6 @@ const OrderConfirmation = () => {
       } else {
         setError(`Payment verification failed. Status: ${data.status || 'unknown'}`);
         toast.error('Payment verification failed. Please contact support.');
-        // Optionally redirect to a different page
       }
     } catch (error: any) {
       console.error('Error in payment verification:', error);
