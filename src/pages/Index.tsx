@@ -12,7 +12,6 @@ import { Separator } from '@/components/ui/separator';
 import CategoryNav, { Category } from '@/components/product/CategoryNav';
 import { TextShimmer } from '@/components/ui/text-shimmer';
 
-// Define a type for raw category data from Supabase
 type CategoryData = {
   id: string;
   name: string;
@@ -20,7 +19,6 @@ type CategoryData = {
   created_at: string;
 };
 
-// Image mapping for categories
 const categoryImages = {
   'mirror': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=1080&auto=format&fit=crop',
   'glass': 'https://images.unsplash.com/photo-1518281361980-b26bfd556770?q=80&w=1080&auto=format&fit=crop',
@@ -36,7 +34,6 @@ const Index = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        // Type assertion to any to bypass TypeScript checking for the table name
         const { data, error } = await (supabase as any)
           .from('categories')
           .select('*')
@@ -44,7 +41,6 @@ const Index = () => {
 
         if (error) throw error;
         
-        // Explicitly type the data to match our Category type
         const mappedCategories: Category[] = (data as CategoryData[])?.map((cat) => ({
           id: cat.id,
           name: cat.name,
@@ -64,23 +60,18 @@ const Index = () => {
   
   return (
     <Layout>
-      {/* Cart Drawer */}
       <CartDrawer open={isCartOpen} onClose={closeCart} />
       
-      {/* Hero Section with neutral colors and cloud effect */}
       <section className="relative overflow-hidden bg-gradient-to-r from-gray-700 to-gray-500 text-white min-h-[85vh] flex items-center">
         <div className="absolute inset-0 z-0">
-          {/* Hero background image */}
           <img 
            src="https://t4.ftcdn.net/jpg/05/12/76/37/360_F_512763745_aH8NST04ptKP863Tz0QHuj1FdHGqxmo5.jpg"
             alt="Sky with clouds" 
             className="w-full h-full object-cover "
           />
           
-          {/* Cloud-like overlay effect */}
           <div className=""></div>
           
-          {/* Cloud elements using SVG filters */}
           <div className="">
             <div className=""></div>
             <div className=""></div>
@@ -118,10 +109,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Products Section */}
       <NewArrivals />
 
-      {/* Category Showcase Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-10">
@@ -175,7 +164,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Why Choose Us Section with more subtle colors */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
