@@ -20,31 +20,28 @@ const OrderConfirmation = () => {
   const [loading, setLoading] = useState(!!sessionId);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [verificationAttempts, setVerificationAttempts] = useState(0);
 
   useEffect(() => {
-    // Verify Stripe payment if session_id is present
-    if (sessionId && session) {
-      console.log("Verifying payment for session:", sessionId);
-      verifyPayment();
-    } else if (sessionId && !session) {
-      console.log("Session ID exists but no auth session - waiting for auth");
-      // Try to check again when session becomes available
-      const checkInterval = setInterval(() => {
-        if (session) {
-          clearInterval(checkInterval);
-          verifyPayment();
-        }
-      }, 1000);
+    // Check if this is a return from Stripe
+    if (sessionId) {
+      console.log("Session ID detected in URL:", sessionId);
       
-      // Clear interval after 30 seconds to prevent endless checking
-      setTimeout(() => {
-        clearInterval(checkInterval);
-        if (!session) {
-          setError("Authentication session not found. Please try logging in again.");
-        }
-      }, 30000);
-    } else if (!sessionId) {
-      // If no sessionId, check if there's a pending order in local storage
+      // If there's no session yet, wait briefly and retry (max 3 attempts)
+      if (!session && verificationAttempts < 3) {
+        console.log(`No auth session yet, waiting... (attempt ${verificationAttempts + 1}/3)`);
+        const timer = setTimeout(() => {
+          setVerificationAttempts(prev => prev + 1);
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
+      
+      // If we have an auth session or have waited long enough, proceed with verification
+      if (session || verificationAttempts >= 3) {
+        verifyPayment();
+      }
+    } else {
+      // No sessionId in URL, check for pending order in local storage
       const pendingOrderId = localStorage.getItem('pendingOrderId');
       if (pendingOrderId) {
         setOrderId(pendingOrderId);
@@ -53,18 +50,24 @@ const OrderConfirmation = () => {
         toast.success('Order confirmed! Thank you for your purchase.');
       }
     }
-  }, [sessionId, session]);
+  }, [sessionId, session, verificationAttempts]);
 
   const verifyPayment = async () => {
     try {
       setLoading(true);
       setError(null);
       
+      if (!session) {
+        console.log("No auth session available for verification");
+        setError("Please log in to verify your payment");
+        return;
+      }
+      
       console.log("Calling verify-payment function with sessionId:", sessionId);
       const { data, error } = await supabase.functions.invoke('verify-payment', {
         body: { sessionId },
         headers: {
-          Authorization: `Bearer ${session?.access_token}`
+          Authorization: `Bearer ${session.access_token}`
         }
       });
       
@@ -81,6 +84,7 @@ const OrderConfirmation = () => {
         setOrderId(data.orderId);
         // Clear cart on successful payment verification
         await clearCart();
+        localStorage.removeItem('pendingOrderId');
         toast.success('Payment confirmed! Your order is being processed.');
       } else {
         setError(`Payment verification failed. Status: ${data.status || 'unknown'}`);

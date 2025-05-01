@@ -177,17 +177,27 @@ serve(async (req) => {
       const origin = req.headers.get("origin") || "http://localhost:5173";
       console.log("Creating Stripe checkout session. Origin:", origin);
       
+      // Make sure success_url includes the entire path and is properly encoded
+      const absoluteSuccessUrl = `${origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`;
+      console.log("Success URL:", absoluteSuccessUrl);
+      
       const sessionParams = {
         customer: customerId,
         payment_method_types: ["card"],
         line_items: lineItems,
         mode: "payment",
-        success_url: `${origin}/order-confirmation?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: absoluteSuccessUrl,
         cancel_url: `${origin}/checkout?canceled=true`,
         metadata: {
           user_id: user.id,
           paymentMethod: paymentMethod,
         },
+        // Allow both test and real cards based on the Stripe API key mode
+        payment_method_options: {
+          card: {
+            statement_descriptor_suffix: 'Izzy Store',
+          }
+        }
       };
       
       console.log("Stripe session params:", JSON.stringify({
@@ -241,7 +251,7 @@ serve(async (req) => {
         throw new Error(`Database error: ${itemsError.message}`);
       }
       
-      // Return checkout URL
+      // Save the order ID to localStorage via response - will be picked up by client
       const responseData = { 
         success: true, 
         url: session.url,
