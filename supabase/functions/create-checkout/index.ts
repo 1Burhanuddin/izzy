@@ -191,13 +191,8 @@ serve(async (req) => {
         metadata: {
           user_id: user.id,
           paymentMethod: paymentMethod,
-        },
-        // Allow both test and real cards based on the Stripe API key mode
-        payment_method_options: {
-          card: {
-            statement_descriptor_suffix: 'Izzy Store',
-          }
         }
+        // Removing the problematic payment_method_options that was causing the error
       };
       
       console.log("Stripe session params:", JSON.stringify({
