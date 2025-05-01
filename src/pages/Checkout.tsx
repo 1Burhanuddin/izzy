@@ -17,7 +17,8 @@ import {
   ShieldCheck,
   AlertCircle,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Info
 } from 'lucide-react';
 import UPIPayment from '@/components/payment/UPIPayment';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -34,6 +35,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
+  const [isTestMode, setIsTestMode] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -155,7 +157,14 @@ const Checkout = () => {
             setError(data.error);
             setErrorCode(data.code || null);
             toast.error(data.error);
+            setLoading(false);
             return;
+          }
+
+          // Check if we're in test mode
+          if (data?.isTestMode) {
+            setIsTestMode(true);
+            console.log("Stripe is in test mode");
           }
   
           if (data?.url) {
@@ -258,6 +267,21 @@ const Checkout = () => {
             <AlertTriangle className="h-4 w-4 text-yellow-500" />
             <AlertDescription className="text-yellow-700">
               The total amount is too low for online payment. Please add more items to your cart or choose a different payment method.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {paymentMethod === 'stripe' && (
+          <Alert variant="default" className="mb-6 bg-blue-50 border-blue-200">
+            <Info className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-blue-700">
+              <strong>Test Mode:</strong> Please use these Stripe test cards:
+              <ul className="list-disc ml-6 mt-2">
+                <li>Success: <code className="bg-gray-100 px-1 py-0.5 rounded">4242 4242 4242 4242</code></li>
+                <li>Requires Authentication: <code className="bg-gray-100 px-1 py-0.5 rounded">4000 0025 0000 3155</code></li>
+                <li>Decline: <code className="bg-gray-100 px-1 py-0.5 rounded">4000 0000 0000 0002</code></li>
+                <li>Any future date, any 3 digits for CVC, any name</li>
+              </ul>
             </AlertDescription>
           </Alert>
         )}

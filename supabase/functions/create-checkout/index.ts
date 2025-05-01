@@ -192,7 +192,6 @@ serve(async (req) => {
           user_id: user.id,
           paymentMethod: paymentMethod,
         }
-        // Removing the problematic payment_method_options that was causing the error
       };
       
       console.log("Stripe session params:", JSON.stringify({
@@ -251,14 +250,16 @@ serve(async (req) => {
         success: true, 
         url: session.url,
         orderId: order.id,
-        sessionId: session.id
+        sessionId: session.id,
+        isTestMode: stripeSecretKey.startsWith("sk_test_")
       };
       
       console.log("Returning checkout response:", JSON.stringify({
         success: responseData.success,
         orderId: responseData.orderId,
         sessionId: responseData.sessionId,
-        hasUrl: !!responseData.url
+        hasUrl: !!responseData.url,
+        isTestMode: responseData.isTestMode
       }));
       
       return new Response(
