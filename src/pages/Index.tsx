@@ -20,11 +20,14 @@ type CategoryData = {
   created_at: string;
 };
 
+// Fixed category images with more reliable URLs
 const categoryImages = {
-  'mirror': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=1080&auto=format&fit=crop',
-  'glass': 'https://images.unsplash.com/photo-1518281361980-b26bfd556770?q=80&w=1080&auto=format&fit=crop',
-  'hardware': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=1080&auto=format&fit=crop',
-  'aluminum': 'https://images.unsplash.com/photo-1535382651921-5e1fa3e3a084?q=80&w=1080&auto=format&fit=crop',
+  'mirror': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=800&auto=format&fit=crop',
+  'glass': 'https://images.unsplash.com/photo-1518281361980-b26bfd556770?q=80&w=800&auto=format&fit=crop',
+  'hardware': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=800&auto=format&fit=crop',
+  'aluminum': 'https://images.unsplash.com/photo-1535382651921-5e1fa3e3a084?q=80&w=800&auto=format&fit=crop',
+  // Adding fallback image for any missing categories
+  'default': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop',
 };
 
 const Index = () => {
@@ -79,8 +82,8 @@ const Index = () => {
             <TextShimmer 
               as="h1" 
               className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in 
-                [--base-color:#3b82f6] [--base-gradient-color:#60a5fa]
-                dark:[--base-color:#60a5fa] dark:[--base-gradient-color:#93c5fd]"
+                [--base-color:#0066cc] [--base-gradient-color:#60a5fa]
+                dark:[--base-color:#3b82f6] dark:[--base-gradient-color:#93c5fd]"
               duration={3}
             >
               Transform Your Space with Izzy
@@ -93,7 +96,7 @@ const Index = () => {
               <Button
                 asChild
                 size="lg"
-                className="px-8 bg-blue-500 hover:bg-blue-600 text-white shadow-md transition-all"
+                className="px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all"
               >
                 <Link to="/products/glass">Shop Now</Link>
               </Button>
@@ -110,7 +113,7 @@ const Index = () => {
             <TextShimmer 
               as="h2" 
               className="text-3xl font-bold mb-3 text-gray-800
-                [--base-color:#1a1a1a] [--base-gradient-color:#3b82f6]
+                [--base-color:#1e40af] [--base-gradient-color:#3b82f6]
                 dark:[--base-color:#e0e0e0] dark:[--base-gradient-color:#60a5fa]"
               duration={2.5}
             >
@@ -131,9 +134,14 @@ const Index = () => {
                     <div className="relative h-full flex flex-col">
                       <div className="absolute inset-0 overflow-hidden">
                         <img 
-                          src={categoryImages[category.slug as keyof typeof categoryImages]} 
+                          src={categoryImages[category.slug as keyof typeof categoryImages] || categoryImages.default} 
                           alt={category.name}
                           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.onerror = null;
+                            target.src = categoryImages.default;
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
                       </div>

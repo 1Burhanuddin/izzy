@@ -5,7 +5,6 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Users, Settings, Package } from 'lucide-react';
-import { TextShimmer } from '@/components/ui/text-shimmer';
 
 const AdminDashboard: React.FC = () => {
   const { user, profile } = useAuth();
@@ -49,17 +48,7 @@ const AdminDashboard: React.FC = () => {
     <Layout>
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <TextShimmer 
-            as="h1" 
-            className="text-3xl font-bold mb-2
-              [--base-color:theme(colors.slate.800)] 
-              [--base-gradient-color:theme(colors.blue.500)]
-              dark:[--base-color:theme(colors.slate.200)]
-              dark:[--base-gradient-color:theme(colors.blue.300)]"
-            duration={2.5}
-          >
-            Admin Dashboard
-          </TextShimmer>
+          <h1 className="text-3xl font-bold mb-2">Admin Dashboard</h1>
           <p className="text-gray-600">
             Welcome back, {profile?.username || user?.email}
           </p>
