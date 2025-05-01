@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Users, Settings, Package } from 'lucide-react';
 import { TextShimmer } from '@/components/ui/text-shimmer';
-import TextShimmerDemo from '@/components/demo/TextShimmerDemo';
 
 const AdminDashboard: React.FC = () => {
   const { user, profile } = useAuth();
@@ -82,11 +81,6 @@ const AdminDashboard: React.FC = () => {
               </div>
             </Link>
           ))}
-        </div>
-        
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6">Text Shimmer Examples</h2>
-          <TextShimmerDemo />
         </div>
       </div>
     </Layout>

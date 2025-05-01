@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -67,17 +68,10 @@ const Index = () => {
           <img 
            src="https://t4.ftcdn.net/jpg/05/12/76/37/360_F_512763745_aH8NST04ptKP863Tz0QHuj1FdHGqxmo5.jpg"
             alt="Sky with clouds" 
-            className="w-full h-full object-cover "
+            className="w-full h-full object-cover"
           />
           
-          <div className=""></div>
-          
-          <div className="">
-            <div className=""></div>
-            <div className=""></div>
-            <div className=""></div>
-            <div className=""></div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent"></div>
         </div>
 
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
@@ -85,13 +79,13 @@ const Index = () => {
             <TextShimmer 
               as="h1" 
               className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in 
-                [--base-color:#ffffff] [--base-gradient-color:#f0f0f0]
-                dark:[--base-color:#ffffff] dark:[--base-gradient-color:#a3a3a3]"
+                [--base-color:#3b82f6] [--base-gradient-color:#60a5fa]
+                dark:[--base-color:#60a5fa] dark:[--base-gradient-color:#93c5fd]"
               duration={3}
             >
               Transform Your Space with Izzy
             </TextShimmer>
-            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-black/90 drop-shadow-md">
+            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-white drop-shadow-md">
               Premium glass and aluminum solutions for modern homes and offices.
               Expert craftsmanship with timeless designs.
             </p>
@@ -99,11 +93,10 @@ const Index = () => {
               <Button
                 asChild
                 size="lg"
-                className="px-8 bg-white text-black hover:bg-gray-50 shadow-md"
+                className="px-8 bg-blue-500 hover:bg-blue-600 text-white shadow-md transition-all"
               >
                 <Link to="/products/glass">Shop Now</Link>
               </Button>
-            
             </div>
           </div>
         </div>
@@ -117,8 +110,8 @@ const Index = () => {
             <TextShimmer 
               as="h2" 
               className="text-3xl font-bold mb-3 text-gray-800
-                [--base-color:#1a1a1a] [--base-gradient-color:#4a4a4a]
-                dark:[--base-color:#e0e0e0] dark:[--base-gradient-color:#ffffff]"
+                [--base-color:#1a1a1a] [--base-gradient-color:#3b82f6]
+                dark:[--base-color:#e0e0e0] dark:[--base-gradient-color:#60a5fa]"
               duration={2.5}
             >
               Explore Our Categories
@@ -128,28 +121,30 @@ const Index = () => {
           
           {isLoading ? (
             <div className="flex justify-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-800"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {categories.map((category) => (
-                <Link key={category.id} to={`/products/${category.slug}`}>
-                  <Card className="overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:shadow-lg border border-gray-100 h-56 flex flex-col md:flex-row">
-                    <div className="md:w-1/2 h-52 md:h-full">
-                      <img 
-                        src={categoryImages[category.slug as keyof typeof categoryImages]} 
-                        alt={category.name}
-                        className="w-full h-full object-cover"
-                      />
+                <Link key={category.id} to={`/products/${category.slug}`} className="group">
+                  <Card className="overflow-hidden transition-all duration-300 group-hover:shadow-lg border-0 rounded-xl h-[280px] bg-gradient-to-br from-gray-50 to-gray-100">
+                    <div className="relative h-full flex flex-col">
+                      <div className="absolute inset-0 overflow-hidden">
+                        <img 
+                          src={categoryImages[category.slug as keyof typeof categoryImages]} 
+                          alt={category.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                      </div>
+                      <CardContent className="p-6 mt-auto relative z-10 text-white">
+                        <h3 className="font-semibold text-2xl mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
+                        <p className="text-gray-200 mb-4 opacity-90 line-clamp-2">Premium quality {category.name.toLowerCase()} solutions for modern spaces</p>
+                        <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors">
+                          View Collection
+                        </Button>
+                      </CardContent>
                     </div>
-                    <CardContent className="p-6 flex flex-col justify-center items-center md:items-start md:w-1/2">
-                      <h3 className="font-semibold text-2xl text-gray-800 mb-3">{category.name}</h3>
-                      <Separator className="my-2 bg-gray-200 w-16" />
-                      <p className="text-gray-500 mt-2 mb-4">Premium quality {category.name.toLowerCase()} solutions for modern spaces</p>
-                      <Button variant="outline" className="mt-auto">
-                        View Collection
-                      </Button>
-                    </CardContent>
                   </Card>
                 </Link>
               ))}
@@ -157,7 +152,7 @@ const Index = () => {
           )}
           
           <div className="text-center mt-12">
-            <Button asChild variant="outline" className="px-8">
+            <Button asChild variant="outline" className="px-8 border-blue-200 text-blue-600 hover:bg-blue-50">
               <Link to="/products">View All Categories</Link>
             </Button>
           </div>
@@ -170,8 +165,8 @@ const Index = () => {
             <TextShimmer 
               as="h2" 
               className="text-3xl font-bold mb-2 text-gray-800 
-                [--base-color:#2a2a2a] [--base-gradient-color:#5a5a5a]
-                dark:[--base-color:#e5e5e5] dark:[--base-gradient-color:#ffffff]"
+                [--base-color:#2a2a2a] [--base-gradient-color:#3b82f6]
+                dark:[--base-color:#e5e5e5] dark:[--base-gradient-color:#60a5fa]"
               duration={2}
             >
               Why Choose Izzy

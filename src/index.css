@@ -37,6 +37,8 @@
     
     /* Added custom colors */
     --blue-accent: 210 100% 50%;
+    --blue-accent-light: 210 100% 60%;
+    --blue-accent-dark: 210 100% 40%;
     --purple-accent: 270 80% 60%;
   }
  
@@ -120,6 +122,16 @@
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: shine 4s linear infinite;
+}
+
+.text-gradient-blue-pulse {
+  background: linear-gradient(90deg, #2563eb 0%, #60a5fa 50%, #2563eb 100%);
+  background-size: 200% auto;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shine 6s linear infinite;
 }
 
 .text-gradient-purple {
@@ -177,3 +189,25 @@
   background: linear-gradient(90deg, #3b82f6, #8b5cf6);
 }
 
+/* Enhanced category card hover effect */
+.category-card {
+  @apply overflow-hidden relative;
+  transform: translateZ(0);
+}
+
+.category-card img {
+  transition: transform 0.75s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.category-card:hover img {
+  transform: scale(1.1);
+}
+
+.category-card .overlay {
+  @apply absolute inset-0 bg-black bg-opacity-30;
+  transition: background-color 0.3s ease;
+}
+
+.category-card:hover .overlay {
+  @apply bg-black bg-opacity-20;
+}
