@@ -98,7 +98,7 @@ const Index = () => {
             <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-black drop-shadow-md">
               Transform Your Space with Izzy
             </h1>
-            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-white drop-shadow-md">
+            <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-black drop-shadow-md">
               Premium glass and aluminum solutions for modern homes and offices.
               Expert craftsmanship with timeless designs.
             </p>
@@ -106,7 +106,7 @@ const Index = () => {
               <Button
                 asChild
                 size="lg"
-                className="px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-md transition-all"
+                className="px-8 bg-blue-600 hover:bg-blue-700 text-black shadow-md transition-all"
               >
                 <Link to="/products/glass">Shop Now</Link>
               </Button>

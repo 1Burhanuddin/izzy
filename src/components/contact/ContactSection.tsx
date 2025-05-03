@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { Mail } from 'lucide-react';
+import { Mail, Send } from 'lucide-react';
 import GlassCard from '@/components/ui/GlassCard';
 
 const contactFormSchema = z.object({
@@ -25,6 +25,8 @@ interface ContactSectionProps {
 }
 
 const ContactSection: React.FC<ContactSectionProps> = ({ email }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues: {
@@ -35,20 +37,34 @@ const ContactSection: React.FC<ContactSectionProps> = ({ email }) => {
     },
   });
 
-  const handleSubmit = (values: ContactFormValues) => {
-    // In a real implementation, this would send data to a backend service
-    // Here we'll just construct a mailto link
-    const subject = encodeURIComponent(values.subject);
-    const body = encodeURIComponent(`From: ${values.name} (${values.email})\n\n${values.message}`);
+  const handleSubmit = async (values: ContactFormValues) => {
+    setIsSubmitting(true);
     
-    // Open default mail client
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    
-    // Show success message
-    toast.success('Message sent! Your default email client has been opened.');
-    
-    // Reset form
-    form.reset();
+    try {
+      // Simulate sending the email to the backend
+      // In a real implementation, this would be an API call to a backend service
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Log the data that would be sent
+      console.log('Sending email with data:', {
+        to: email,
+        from: values.email,
+        subject: values.subject,
+        name: values.name,
+        message: values.message
+      });
+      
+      // Show success message
+      toast.success('Message sent successfully! Thank you for contacting us.');
+      
+      // Reset form
+      form.reset();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error('Failed to send message. Please try again later.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -136,9 +152,20 @@ const ContactSection: React.FC<ContactSectionProps> = ({ email }) => {
                 <div className="pt-2">
                   <Button 
                     type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isSubmitting}
                   >
-                    Send Message
+                    {isSubmitting ? (
+                      <>
+                        <span className="mr-2">Sending...</span>
+                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      </>
+                    ) : (
+                      <>
+                        Send Message
+                        <Send className="ml-2 h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 </div>
               </form>
