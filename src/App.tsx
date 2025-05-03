@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -23,10 +23,11 @@ import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import UserProfile from "./pages/UserProfile";
 
+// Create a QueryClient instance outside the component
+// This ensures it's only created once and not on every render
+const queryClient = new QueryClient();
+
 const App = () => {
-  // Create a new QueryClient instance within the component
-  const queryClient = new QueryClient();
-  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
