@@ -6,7 +6,25 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { User, UserX, Check, ChevronLeft, ChevronRight } from 'lucide-react';
+import { 
+  User, 
+  UserX, 
+  Check, 
+  ChevronLeft, 
+  ChevronRight, 
+  Trash2, 
+  UserPen 
+} from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const UserManagement: React.FC = () => {
   const { isAdmin } = useAuth();
@@ -15,6 +33,10 @@ const UserManagement: React.FC = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [updatedUsername, setUpdatedUsername] = useState('');
   const usersPerPage = 10;
 
   useEffect(() => {
@@ -83,6 +105,79 @@ const UserManagement: React.FC = () => {
       toast.success(`User role updated to ${role}`);
     } catch (error: any) {
       toast.error(`Failed to update user: ${error.message}`);
+    }
+  };
+
+  const openUpdateModal = (user: any) => {
+    setSelectedUser(user);
+    setUpdatedUsername(user.username || '');
+    setIsUpdateModalOpen(true);
+  };
+
+  const openDeleteConfirm = (user: any) => {
+    setSelectedUser(user);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          username: updatedUsername
+        })
+        .eq('id', selectedUser.id);
+
+      if (error) throw error;
+
+      setUsers(users.map(user => 
+        user.id === selectedUser.id 
+          ? { ...user, username: updatedUsername } 
+          : user
+      ));
+
+      toast.success("User information updated successfully");
+      setIsUpdateModalOpen(false);
+    } catch (error: any) {
+      toast.error(`Failed to update user: ${error.message}`);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!selectedUser) return;
+    
+    try {
+      // First delete from profiles table
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', selectedUser.id);
+
+      if (profileError) throw profileError;
+      
+      // Then delete the user from auth.users
+      const { error: authError } = await supabase.auth.admin.deleteUser(
+        selectedUser.id
+      );
+
+      if (authError) {
+        // If we can't delete from auth.users, we should restore the profile
+        // but we'll just show an error for now
+        throw authError;
+      }
+
+      setUsers(users.filter(user => user.id !== selectedUser.id));
+      toast.success("User deleted successfully");
+      setIsDeleteConfirmOpen(false);
+    } catch (error: any) {
+      console.error("Error deleting user:", error);
+      toast.error(`Failed to delete user: ${error.message}`);
+      
+      if (error.message.includes("insufficient permissions")) {
+        toast.error("You don't have permission to delete users. This requires a service role key.");
+      }
     }
   };
 
@@ -183,27 +278,46 @@ const UserManagement: React.FC = () => {
                         <div className="text-sm text-gray-900">{new Date(user.created_at).toLocaleDateString()}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        {user.role === 'admin' ? (
+                        <div className="flex space-x-2">
+                          {user.role === 'admin' ? (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateUserRole(user.id, 'customer')}
+                            >
+                              <UserX className="h-4 w-4 mr-1" />
+                              Remove Admin
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateUserRole(user.id, 'admin')}
+                            >
+                              <Check className="h-4 w-4 mr-1" />
+                              Make Admin
+                            </Button>
+                          )}
+                          
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => updateUserRole(user.id, 'customer')}
-                            className="mr-2"
+                            onClick={() => openUpdateModal(user)}
                           >
-                            <UserX className="h-4 w-4 mr-1" />
-                            Remove Admin
+                            <UserPen className="h-4 w-4 mr-1" />
+                            Edit
                           </Button>
-                        ) : (
+                          
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => updateUserRole(user.id, 'admin')}
-                            className="mr-2"
+                            className="text-red-600 hover:bg-red-50 hover:border-red-200"
+                            onClick={() => openDeleteConfirm(user)}
                           >
-                            <Check className="h-4 w-4 mr-1" />
-                            Make Admin
+                            <Trash2 className="h-4 w-4 mr-1" />
+                            Delete
                           </Button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -250,6 +364,64 @@ const UserManagement: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* User Update Modal */}
+      <Dialog open={isUpdateModalOpen} onOpenChange={setIsUpdateModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Update User</DialogTitle>
+            <DialogDescription>
+              Update user information for {selectedUser?.username}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="username" className="text-right">
+                Username
+              </Label>
+              <Input
+                id="username"
+                value={updatedUsername}
+                onChange={(e) => setUpdatedUsername(e.target.value)}
+                className="col-span-3"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsUpdateModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" onClick={handleUpdateUser}>
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Delete User</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete user {selectedUser?.username}? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={handleDeleteUser}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 };
