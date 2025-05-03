@@ -13,6 +13,13 @@ import { Separator } from '@/components/ui/separator';
 import CategoryNav, { Category } from '@/components/product/CategoryNav';
 import { TextShimmer } from '@/components/ui/text-shimmer';
 import ContactSection from '@/components/contact/ContactSection';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 type CategoryData = {
   id: string;
@@ -21,7 +28,7 @@ type CategoryData = {
   created_at: string;
 };
 
-// Fixed category images with more reliable URLs
+// Enhanced category images with high-quality relevant images
 const categoryImages = {
   'mirror': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=800&auto=format&fit=crop',
   'glass': 'https://images.unsplash.com/photo-1518281361980-b26bfd556770?q=80&w=800&auto=format&fit=crop',
@@ -46,7 +53,15 @@ const Index = () => {
 
         if (error) throw error;
         
-        const mappedCategories: Category[] = (data as CategoryData[])?.map((cat) => ({
+        // Filter out any "railing" or "shower" related categories
+        const filteredData = (data as CategoryData[])?.filter(cat => 
+          !cat.name.toLowerCase().includes('railing') && 
+          !cat.name.toLowerCase().includes('shower') &&
+          !cat.slug?.toLowerCase().includes('railing') && 
+          !cat.slug?.toLowerCase().includes('shower')
+        );
+        
+        const mappedCategories: Category[] = filteredData.map((cat) => ({
           id: cat.id,
           name: cat.name,
           slug: cat.slug || cat.name.toLowerCase().replace(/\s+/g, '-')
@@ -80,7 +95,7 @@ const Index = () => {
 
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
           <div className="max-w-4xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-white drop-shadow-md">
+            <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-black drop-shadow-md">
               Transform Your Space with Izzy
             </h1>
             <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-white drop-shadow-md">
@@ -116,35 +131,49 @@ const Index = () => {
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-              {categories.map((category) => (
-                <Link key={category.id} to={`/products/${category.slug}`} className="group">
-                  <Card className="overflow-hidden transition-all duration-300 group-hover:shadow-lg border-0 rounded-xl h-[280px] bg-gradient-to-br from-gray-50 to-gray-100">
-                    <div className="relative h-full flex flex-col">
-                      <div className="absolute inset-0 overflow-hidden">
-                        <img 
-                          src={categoryImages[category.slug as keyof typeof categoryImages] || categoryImages.default} 
-                          alt={category.name}
-                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.onerror = null;
-                            target.src = categoryImages.default;
-                          }}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                      </div>
-                      <CardContent className="p-6 mt-auto relative z-10 text-white">
-                        <h3 className="font-semibold text-2xl mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
-                        <p className="text-gray-200 mb-4 opacity-90 line-clamp-2">Premium quality {category.name.toLowerCase()} solutions for modern spaces</p>
-                        <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors">
-                          View Collection
-                        </Button>
-                      </CardContent>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
+            <div className="max-w-5xl mx-auto px-4 md:px-8">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                className="w-full"
+              >
+                <CarouselContent>
+                  {categories.map((category) => (
+                    <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/3 pl-4 md:pl-6">
+                      <Link to={`/products/${category.slug}`} className="group">
+                        <div className="overflow-hidden rounded-xl relative h-[320px] shadow-md transition-all duration-300 group-hover:shadow-xl">
+                          <div className="absolute inset-0">
+                            <img 
+                              src={categoryImages[category.slug as keyof typeof categoryImages] || categoryImages.default} 
+                              alt={category.name}
+                              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.onerror = null;
+                                target.src = categoryImages.default;
+                              }}
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
+                          </div>
+                          <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                            <h3 className="font-semibold text-2xl mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
+                            <p className="text-gray-200 mb-4 opacity-90 line-clamp-2">Premium quality {category.name.toLowerCase()} solutions</p>
+                            <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors">
+                              View Collection
+                            </Button>
+                          </div>
+                        </div>
+                      </Link>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <div className="flex items-center justify-center mt-8 gap-2">
+                  <CarouselPrevious className="relative inset-0 translate-y-0 h-10 w-10" />
+                  <CarouselNext className="relative inset-0 translate-y-0 h-10 w-10" />
+                </div>
+              </Carousel>
             </div>
           )}
           
