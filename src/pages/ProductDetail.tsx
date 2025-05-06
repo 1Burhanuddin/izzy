@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -275,11 +276,12 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
         
-        {/* Related Products section */}
-        <div className="mt-16">
+        {/* Related Products carousel section */}
+        <div className="mt-12 border-t pt-8">
           <RelatedProducts 
             currentProductId={product.id} 
             category={product.category} 
+            limit={4}
           />
         </div>
       </div>
