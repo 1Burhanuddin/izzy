@@ -21,7 +21,7 @@ interface RelatedProductsProps {
 const RelatedProducts: React.FC<RelatedProductsProps> = ({ 
   currentProductId, 
   category, 
-  limit = 2 
+  limit = 2  // Default to show 2 related products
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);

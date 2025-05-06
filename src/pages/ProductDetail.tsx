@@ -275,7 +275,7 @@ const ProductDetail: React.FC = () => {
           </div>
         </div>
         
-        {/* Added Related Products section */}
+        {/* Related Products section */}
         <div className="mt-16">
           <RelatedProducts 
             currentProductId={product.id} 
