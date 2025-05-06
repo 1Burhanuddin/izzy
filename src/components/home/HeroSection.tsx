@@ -28,7 +28,7 @@ const HeroSection: React.FC = () => {
             <Button
               asChild
               size="lg"
-              className="px-8 bg-blue-600 hover:bg-blue-700 text-black shadow-md transition-all"
+              className="px-8 bg-black hover:bg-gray-800 text-white shadow-md transition-all"
             >
               <Link to="/products/glass">Shop Now</Link>
             </Button>

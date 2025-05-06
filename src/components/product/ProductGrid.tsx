@@ -18,7 +18,7 @@ interface ProductGridProps {
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
   products, 
-  columns = 3
+  columns = 2  // Changed default from 3 to 2
 }) => {
   const getGridClass = () => {
     switch (columns) {
@@ -29,7 +29,7 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       case 4:
         return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
       default:
-        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+        return 'grid-cols-1 sm:grid-cols-2';
     }
   };
 

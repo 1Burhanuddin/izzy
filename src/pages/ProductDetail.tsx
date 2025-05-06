@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import RelatedProducts from '@/components/product/RelatedProducts';
 
 interface Product {
   id: string;
@@ -272,6 +273,14 @@ const ProductDetail: React.FC = () => {
               )}
             </div>
           </div>
+        </div>
+        
+        {/* Added Related Products section */}
+        <div className="mt-16">
+          <RelatedProducts 
+            currentProductId={product.id} 
+            category={product.category} 
+          />
         </div>
       </div>
     </Layout>

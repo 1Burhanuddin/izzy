@@ -80,7 +80,7 @@ const NewArrivals: React.FC = () => {
           </Link>
         </div>
         
-        <ProductGrid products={newProducts} columns={3} />
+        <ProductGrid products={newProducts} columns={2} />
       </div>
     </section>
   );
