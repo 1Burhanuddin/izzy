@@ -22,40 +22,41 @@ type Product = {
   availability: 'in_stock' | 'low_stock' | 'out_of_stock';
 };
 
-const NewArrivals: React.FC = () => {
-  const [newProducts, setNewProducts] = useState<Product[]>([]);
+const BestSellers: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchNewProducts = async () => {
+    const fetchBestSellerProducts = async () => {
       try {
+        // In a real app, this would query products based on sales data
+        // For now, we'll simulate by fetching products with a different order
         const { data, error } = await supabase
           .from('products')
           .select('*')
-          .order('created_at', { ascending: false })
+          .order('price', { ascending: false }) // Using price as a proxy for popularity
           .limit(8);
 
         if (error) throw error;
         
-        // Convert the data to ensure availability is of the correct type
         const typedProducts = data?.map(product => ({
           ...product,
           availability: (product.availability === 'in_stock' || 
-                         product.availability === 'low_stock' || 
-                         product.availability === 'out_of_stock') 
-                         ? product.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
-                         : 'in_stock' // Default to in_stock if value is unexpected
+                        product.availability === 'low_stock' || 
+                        product.availability === 'out_of_stock') 
+                        ? product.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
+                        : 'in_stock'
         })) || [];
         
-        setNewProducts(typedProducts);
+        setProducts(typedProducts);
       } catch (error) {
-        console.error('Error fetching new products:', error);
+        console.error('Error fetching best seller products:', error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchNewProducts();
+    fetchBestSellerProducts();
   }, []);
 
   if (isLoading) {
@@ -66,17 +67,17 @@ const NewArrivals: React.FC = () => {
     );
   }
 
-  if (newProducts.length === 0) {
+  if (products.length === 0) {
     return null;
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex flex-wrap items-center justify-between mb-12">
           <div>
-            <h2 className="text-3xl font-bold mb-2 text-gray-800">Featured Products</h2>
-            <p className="text-gray-600">Premium selections for modern spaces</p>
+            <h2 className="text-3xl font-bold mb-2 text-gray-800">Best Sellers</h2>
+            <p className="text-gray-600">Our top selling premium products</p>
           </div>
           <Link 
             to="/products" 
@@ -89,7 +90,7 @@ const NewArrivals: React.FC = () => {
         
         <Carousel className="mx-auto" opts={{ loop: true, align: "start" }} autoplay={true}>
           <CarouselContent className="-ml-4">
-            {newProducts.map((product) => (
+            {products.map((product) => (
               <CarouselItem key={product.id} className="pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                 <ProductCard product={product} />
               </CarouselItem>
@@ -103,4 +104,4 @@ const NewArrivals: React.FC = () => {
   );
 };
 
-export default NewArrivals;
+export default BestSellers;

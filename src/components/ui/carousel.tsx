@@ -1,3 +1,4 @@
+
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
@@ -6,6 +7,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { useCarouselAutoplay } from "@/hooks/use-carousel-autoplay"
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -17,6 +19,8 @@ type CarouselProps = {
   plugins?: CarouselPlugin
   orientation?: "horizontal" | "vertical"
   setApi?: (api: CarouselApi) => void
+  autoplay?: boolean
+  autoplayInterval?: number
 }
 
 type CarouselContextProps = {
@@ -52,6 +56,8 @@ const Carousel = React.forwardRef<
       plugins,
       className,
       children,
+      autoplay = false,
+      autoplayInterval = 5000,
       ...props
     },
     ref
@@ -65,6 +71,12 @@ const Carousel = React.forwardRef<
     )
     const [canScrollPrev, setCanScrollPrev] = React.useState(false)
     const [canScrollNext, setCanScrollNext] = React.useState(false)
+
+    // Setup autoplay
+    const { setApi: setAutoplayApi } = useCarouselAutoplay({
+      enabled: autoplay,
+      interval: autoplayInterval,
+    })
 
     const onSelect = React.useCallback((api: CarouselApi) => {
       if (!api) {
@@ -97,14 +109,6 @@ const Carousel = React.forwardRef<
     )
 
     React.useEffect(() => {
-      if (!api || !setApi) {
-        return
-      }
-
-      setApi(api)
-    }, [api, setApi])
-
-    React.useEffect(() => {
       if (!api) {
         return
       }
@@ -113,10 +117,19 @@ const Carousel = React.forwardRef<
       api.on("reInit", onSelect)
       api.on("select", onSelect)
 
+      if (setApi) {
+        setApi(api)
+      }
+      
+      // Connect autoplay
+      if (autoplay) {
+        setAutoplayApi(api)
+      }
+
       return () => {
         api?.off("select", onSelect)
       }
-    }, [api, onSelect])
+    }, [api, onSelect, setApi, autoplay, setAutoplayApi])
 
     return (
       <CarouselContext.Provider
@@ -204,7 +217,7 @@ const CarouselPrevious = React.forwardRef<
       variant={variant}
       size={size}
       className={cn(
-        "absolute  h-8 w-8 rounded-full",
+        "absolute h-8 w-8 rounded-full",
         orientation === "horizontal"
           ? "-left-12 top-1/2 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",

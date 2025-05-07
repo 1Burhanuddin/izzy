@@ -8,6 +8,7 @@ import HeroSection from '@/components/home/HeroSection';
 import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
+import BestSellers from '@/components/product/BestSellers';
 
 const Index = () => {
   const { isCartOpen, closeCart } = useCart();
@@ -19,6 +20,8 @@ const Index = () => {
       <HeroSection />
       
       <NewArrivals />
+      
+      <BestSellers />
       
       <CategoriesSection />
       
