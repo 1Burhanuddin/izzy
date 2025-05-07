@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -12,7 +11,6 @@ import {
   CarouselNext
 } from '@/components/ui/carousel';
 import ProductCard from './ProductCard';
-import { useCarouselAutoplay } from '@/hooks/use-carousel-autoplay';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 type Product = {
@@ -74,24 +72,24 @@ const NewArrivals: React.FC = () => {
   }
 
   return (
-    <section className="py-16 bg-gray-50">
+    <section className="py-12 md:py-16 bg-gray-50">
       <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between mb-12">
+        <div className="flex flex-wrap items-center justify-between mb-8 md:mb-12">
           <div>
-            <h2 className="text-3xl font-bold mb-2 text-gray-800">Featured Products</h2>
-            <p className="text-gray-600">Premium selections for modern spaces</p>
+            <h2 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-800">Featured Products</h2>
+            <p className="text-sm md:text-base text-gray-600">Premium selections for modern spaces</p>
           </div>
           <Link 
             to="/products" 
-            className="mt-4 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
+            className="mt-3 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm md:text-base"
           >
             <span>View All Products</span>
-            <ArrowRight className="ml-1 h-4 w-4" />
+            <ArrowRight className="ml-1 h-3 w-3 md:h-4 md:w-4" />
           </Link>
         </div>
         
         <Carousel 
-          className="mx-auto" 
+          className="mx-auto w-full" 
           opts={{ 
             loop: true, 
             align: "start",
@@ -100,19 +98,19 @@ const NewArrivals: React.FC = () => {
           autoplay={true}
           autoplayInterval={5000}
         >
-          <CarouselContent className="-ml-4">
+          <CarouselContent className="-ml-2 md:-ml-4">
             {newProducts.map((product) => (
               <CarouselItem 
                 key={product.id} 
-                className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                className="pl-2 md:pl-4 basis-3/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
                 <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
           <div className="flex justify-center mt-4 gap-2">
-            <CarouselPrevious className="static translate-y-0 h-8 w-8" />
-            <CarouselNext className="static translate-y-0 h-8 w-8" />
+            <CarouselPrevious className="static translate-y-0 h-7 w-7 md:h-8 md:w-8" />
+            <CarouselNext className="static translate-y-0 h-7 w-7 md:h-8 md:w-8" />
           </div>
         </Carousel>
       </div>

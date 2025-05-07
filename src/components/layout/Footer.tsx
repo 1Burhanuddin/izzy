@@ -4,19 +4,19 @@ import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#1a1a1a] text-white py-16 px-4">
-      <div className="container mx-auto">
+    <footer className="bg-[#1a1a1a] text-white py-12 px-4 relative overflow-hidden">
+      <div className="container mx-auto relative z-10">
         {/* Logo and Tagline */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 border-b border-gray-800 pb-8">
-          <div className="text-3xl md:text-5xl font-bold mb-4 md:mb-0">IZZY</div>
-          <div className="text-lg md:text-2xl text-gray-300">Premium Glass & Aluminum Solutions</div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 border-b border-gray-800 pb-6">
+          <div className="text-3xl md:text-4xl font-bold mb-4 md:mb-0">IZZY</div>
+          <div className="text-lg md:text-xl text-gray-300">Premium Glass & Aluminum Solutions</div>
         </div>
         
         {/* Main Footer Content */}
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 mb-12">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <div>
-            <h3 className="text-xl font-bold mb-4">Company</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-4">Company</h3>
+            <ul className="space-y-2">
               <li>
                 <Link to="/about" className="text-gray-400 hover:text-white transition-colors">
                   About Us
@@ -41,8 +41,8 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-xl font-bold mb-4">Products</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-4">Products</h3>
+            <ul className="space-y-2">
               <li>
                 <Link to="/products/glass" className="text-gray-400 hover:text-white transition-colors">
                   Glass
@@ -67,8 +67,8 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-xl font-bold mb-4">Legal</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-4">Legal</h3>
+            <ul className="space-y-2">
               <li>
                 <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
                   Terms of Service
@@ -88,8 +88,8 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-xl font-bold mb-4">Support</h3>
-            <ul className="space-y-3">
+            <h3 className="text-lg font-bold mb-4">Support</h3>
+            <ul className="space-y-2">
               <li>
                 <Link to="/help" className="text-gray-400 hover:text-white transition-colors">
                   Help Center
@@ -104,19 +104,17 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        {/* Large watermark logo in background - hidden on mobile for better responsiveness */}
-        <div className="relative mb-6 hidden md:block">
-          <div className="absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none">
-            <span className="text-[8rem] md:text-[15rem] font-bold">IZZY</span>
-          </div>
-        </div>
-        
         {/* Footer Bottom */}
-        <div className="pt-6 text-center">
+        <div className="pt-4 text-center">
           <p className="text-gray-500">
             © {new Date().getFullYear()}. All rights reserved. IZZY
           </p>
         </div>
+      </div>
+      
+      {/* Large watermark logo in background */}
+      <div className="absolute inset-0 flex justify-center items-center opacity-5 pointer-events-none">
+        <span className="text-[8rem] md:text-[15rem] font-bold">IZZY</span>
       </div>
     </footer>
   );
