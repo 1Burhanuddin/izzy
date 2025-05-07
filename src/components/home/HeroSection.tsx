@@ -18,11 +18,11 @@ const HeroSection: React.FC = () => {
 
       <div className="relative z-10 container mx-auto px-6 py-20 md:py-32">
         <div className="max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in text-center md:text-left">
-            Immersive Design,<br/>Simplified
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-center md:text-left">
+            Transform Your Space with Izzy
           </h1>
           
-          <p className="text-lg md:text-xl mb-12 max-w-xl animate-fade-up text-gray-600 text-center md:text-left">
+          <p className="text-lg md:text-xl mb-12 max-w-xl text-gray-600 text-center md:text-left">
             Our premium glass and aluminum solutions blend exceptional craftsmanship with unparalleled elegance for modern homes and offices.
           </p>
           
