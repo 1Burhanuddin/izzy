@@ -64,7 +64,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   };
 
   return (
-    <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-5px]">
+    <Card className="group h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:translate-y-[-5px] max-w-full">
       <Link to={`/product/${id}`} className="block">
         <div className="relative overflow-hidden pt-[65%] md:pt-[75%]">
           {image ? (
@@ -91,11 +91,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <Button 
               size="sm" 
               variant="secondary" 
-              className="flex-1"
+              className="flex-1 text-xs"
               onClick={handleAddToCart}
               disabled={availability === 'out_of_stock'}
             >
-              <ShoppingCart className="mr-2 h-4 w-4" />
+              <ShoppingCart className="mr-1 h-3 w-3" />
               Add to Cart
             </Button>
             
@@ -108,15 +108,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 navigate(`/product/${id}`);
               }}
             >
-              <Eye className="h-4 w-4" />
+              <Eye className="h-3 w-3" />
             </Button>
           </div>
         </div>
         
         <CardContent className="p-3 md:p-4">
           <div className="mb-1 text-xs md:text-sm font-medium text-blue-600">{category}</div>
-          <h3 className="mb-2 line-clamp-2 text-sm md:text-lg font-semibold text-gray-800 transition-colors group-hover:text-blue-600">{name}</h3>
-          <p className="font-bold text-gray-900 text-sm md:text-base">₹{price.toFixed(2)}</p>
+          <h3 className="mb-2 line-clamp-2 text-sm md:text-base font-semibold text-gray-800 transition-colors group-hover:text-blue-600">{name}</h3>
+          <p className="font-bold text-gray-900 text-sm">₹{price.toFixed(2)}</p>
           
           {/* Mobile-only buttons */}
           <div className="flex gap-1 mt-2 md:hidden">
@@ -128,7 +128,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               disabled={availability === 'out_of_stock'}
             >
               <ShoppingCart className="mr-1 h-3 w-3" />
-              Add to Cart
+              Add
             </Button>
             
             <Button 

@@ -83,19 +83,22 @@ const CategoriesSection: React.FC = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           </div>
         ) : (
-          <div className="max-w-5xl mx-auto px-4 md:px-8">
+          <div className="max-w-5xl mx-auto">
             <Carousel
               opts={{
                 align: "start",
                 loop: true,
+                containScroll: "trimSnaps"
               }}
               className="w-full"
+              autoplay={true}
+              autoplayInterval={7000}
             >
               <CarouselContent>
                 {categories.map((category) => (
-                  <CarouselItem key={category.id} className="md:basis-1/2 lg:basis-1/3 pl-4 md:pl-6">
+                  <CarouselItem key={category.id} className="pl-4 sm:basis-1/2 lg:basis-1/3">
                     <Link to={`/products/${category.slug}`} className="group">
-                      <div className="overflow-hidden rounded-xl relative h-[320px] shadow-md transition-all duration-300 group-hover:shadow-xl">
+                      <div className="overflow-hidden rounded-xl relative h-[240px] md:h-[320px] shadow-md transition-all duration-300 group-hover:shadow-xl">
                         <div className="absolute inset-0">
                           <img 
                             src={categoryImages[category.slug as keyof typeof categoryImages] || categoryImages.default} 
@@ -109,10 +112,10 @@ const CategoriesSection: React.FC = () => {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
-                          <h3 className="font-semibold text-2xl mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
-                          <p className="text-gray-200 mb-4 opacity-90 line-clamp-2">Premium quality {category.name.toLowerCase()} solutions</p>
-                          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors">
+                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
+                          <h3 className="font-semibold text-xl md:text-2xl mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
+                          <p className="text-gray-200 mb-3 md:mb-4 opacity-90 line-clamp-2 text-sm md:text-base">Premium quality {category.name.toLowerCase()} solutions</p>
+                          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors text-xs md:text-sm">
                             View Collection
                           </Button>
                         </div>
@@ -121,16 +124,16 @@ const CategoriesSection: React.FC = () => {
                   </CarouselItem>
                 ))}
               </CarouselContent>
-              <div className="flex items-center justify-center mt-8 gap-2">
-                <CarouselPrevious className="relative inset-0 translate-y-0 h-10 w-10" />
-                <CarouselNext className="relative inset-0 translate-y-0 h-10 w-10" />
+              <div className="flex items-center justify-center mt-4 gap-2">
+                <CarouselPrevious className="static translate-y-0 h-8 w-8" />
+                <CarouselNext className="static translate-y-0 h-8 w-8" />
               </div>
             </Carousel>
           </div>
         )}
         
-        <div className="text-center mt-12">
-          <Button asChild variant="outline" className="px-8 border-blue-200 text-blue-600 hover:bg-blue-50">
+        <div className="text-center mt-8 md:mt-12">
+          <Button asChild variant="outline" className="px-6 md:px-8 border-blue-200 text-blue-600 hover:bg-blue-50">
             <Link to="/products">View All Categories</Link>
           </Button>
         </div>

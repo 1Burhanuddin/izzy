@@ -16,7 +16,7 @@ const HeroSection: React.FC = () => {
         <div className="absolute inset-0 bg-white/50"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-6 py-20 md:py-32">
+      <div className="relative z-10 container mx-auto px-4 py-20 md:py-32">
         <div className="max-w-3xl mx-auto">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 text-center md:text-left">
             Transform Your Space with Izzy
@@ -31,7 +31,7 @@ const HeroSection: React.FC = () => {
               asChild
               variant="apple"
               size="lg"
-              className="rounded-full px-10 py-6 text-base font-medium flex items-center gap-2"
+              className="rounded-full px-8 py-6 text-base font-medium flex items-center gap-2"
             >
               <Link to="/products/glass">
                 Shop now

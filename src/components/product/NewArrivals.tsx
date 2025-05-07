@@ -12,6 +12,8 @@ import {
   CarouselNext
 } from '@/components/ui/carousel';
 import ProductCard from './ProductCard';
+import { useCarouselAutoplay } from '@/hooks/use-carousel-autoplay';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Product = {
   id: string;
@@ -25,6 +27,7 @@ type Product = {
 const NewArrivals: React.FC = () => {
   const [newProducts, setNewProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchNewProducts = async () => {
@@ -87,16 +90,30 @@ const NewArrivals: React.FC = () => {
           </Link>
         </div>
         
-        <Carousel className="mx-auto" opts={{ loop: true, align: "start" }} autoplay={true}>
+        <Carousel 
+          className="mx-auto" 
+          opts={{ 
+            loop: true, 
+            align: "start",
+            containScroll: "trimSnaps" 
+          }} 
+          autoplay={true}
+          autoplayInterval={5000}
+        >
           <CarouselContent className="-ml-4">
             {newProducts.map((product) => (
-              <CarouselItem key={product.id} className="pl-4 sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
+              <CarouselItem 
+                key={product.id} 
+                className="pl-4 md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+              >
                 <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden lg:flex -left-4" />
-          <CarouselNext className="hidden lg:flex -right-4" />
+          <div className="flex justify-center mt-4 gap-2">
+            <CarouselPrevious className="static translate-y-0 h-8 w-8" />
+            <CarouselNext className="static translate-y-0 h-8 w-8" />
+          </div>
         </Carousel>
       </div>
     </section>

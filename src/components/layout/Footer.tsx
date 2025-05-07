@@ -4,19 +4,19 @@ import { Link } from 'react-router-dom';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#1a1a1a] text-white py-16 px-6">
+    <footer className="bg-[#1a1a1a] text-white py-16 px-4">
       <div className="container mx-auto">
         {/* Logo and Tagline */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-20 border-b border-gray-800 pb-10">
-          <div className="text-4xl md:text-5xl font-bold mb-4 md:mb-0">IZZY</div>
-          <div className="text-xl md:text-2xl text-gray-300">Premium Glass & Aluminum Solutions</div>
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 border-b border-gray-800 pb-8">
+          <div className="text-3xl md:text-5xl font-bold mb-4 md:mb-0">IZZY</div>
+          <div className="text-lg md:text-2xl text-gray-300">Premium Glass & Aluminum Solutions</div>
         </div>
         
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-10 mb-12">
           <div>
-            <h3 className="text-xl font-bold mb-6">Company</h3>
-            <ul className="space-y-4">
+            <h3 className="text-xl font-bold mb-4">Company</h3>
+            <ul className="space-y-3">
               <li>
                 <Link to="/about" className="text-gray-400 hover:text-white transition-colors">
                   About Us
@@ -41,8 +41,8 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-xl font-bold mb-6">Products</h3>
-            <ul className="space-y-4">
+            <h3 className="text-xl font-bold mb-4">Products</h3>
+            <ul className="space-y-3">
               <li>
                 <Link to="/products/glass" className="text-gray-400 hover:text-white transition-colors">
                   Glass
@@ -67,8 +67,8 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-xl font-bold mb-6">Legal</h3>
-            <ul className="space-y-4">
+            <h3 className="text-xl font-bold mb-4">Legal</h3>
+            <ul className="space-y-3">
               <li>
                 <Link to="/terms" className="text-gray-400 hover:text-white transition-colors">
                   Terms of Service
@@ -88,8 +88,8 @@ const Footer: React.FC = () => {
           </div>
           
           <div>
-            <h3 className="text-xl font-bold mb-6">Support</h3>
-            <ul className="space-y-4">
+            <h3 className="text-xl font-bold mb-4">Support</h3>
+            <ul className="space-y-3">
               <li>
                 <Link to="/help" className="text-gray-400 hover:text-white transition-colors">
                   Help Center
@@ -104,15 +104,15 @@ const Footer: React.FC = () => {
           </div>
         </div>
         
-        {/* Large watermark logo in background */}
-        <div className="relative mb-10">
+        {/* Large watermark logo in background - hidden on mobile for better responsiveness */}
+        <div className="relative mb-6 hidden md:block">
           <div className="absolute inset-0 flex justify-center items-center opacity-10 pointer-events-none">
-            <span className="text-[15rem] font-bold">IZZY</span>
+            <span className="text-[8rem] md:text-[15rem] font-bold">IZZY</span>
           </div>
         </div>
         
         {/* Footer Bottom */}
-        <div className="pt-8 mt-8 text-center md:text-left">
+        <div className="pt-6 text-center">
           <p className="text-gray-500">
             © {new Date().getFullYear()}. All rights reserved. IZZY
           </p>
