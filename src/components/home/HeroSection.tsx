@@ -2,35 +2,41 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { ArrowRight } from 'lucide-react';
 
 const HeroSection: React.FC = () => {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-r from-gray-700 to-gray-500 text-white min-h-[85vh] flex items-center">
+    <section className="relative overflow-hidden bg-white text-black min-h-[90vh] flex items-center">
       <div className="absolute inset-0 z-0">
         <img 
           src="https://t4.ftcdn.net/jpg/05/12/76/37/360_F_512763745_aH8NST04ptKP863Tz0QHuj1FdHGqxmo5.jpg"
           alt="Sky with clouds" 
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover opacity-90"
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent"></div>
+        <div className="absolute inset-0 bg-white/50"></div>
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-20 md:py-32 flex flex-col items-center">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-center mb-6 animate-fade-in text-black drop-shadow-md">
-            Transform Your Space with Izzy
+      <div className="relative z-10 container mx-auto px-6 py-20 md:py-32">
+        <div className="max-w-3xl mx-auto">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 animate-fade-in text-center md:text-left">
+            Immersive Design,<br/>Simplified
           </h1>
-          <p className="text-lg md:text-xl text-center max-w-2xl mb-10 animate-fade-up text-black drop-shadow-md">
-            Premium glass and aluminum solutions for modern homes and offices.
-            Expert craftsmanship with timeless designs.
+          
+          <p className="text-lg md:text-xl mb-12 max-w-xl animate-fade-up text-gray-600 text-center md:text-left">
+            Our premium glass and aluminum solutions blend exceptional craftsmanship with unparalleled elegance for modern homes and offices.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style={{animationDelay: "0.3s"}}>
+          
+          <div className="flex justify-center md:justify-start">
             <Button
               asChild
+              variant="apple"
               size="lg"
-              className="px-8 bg-black hover:bg-gray-800 text-white shadow-md transition-all"
+              className="rounded-full px-10 py-6 text-base font-medium flex items-center gap-2"
             >
-              <Link to="/products/glass">Shop Now</Link>
+              <Link to="/products/glass">
+                Shop now
+                <ArrowRight size={18} className="ml-1" />
+              </Link>
             </Button>
           </div>
         </div>
