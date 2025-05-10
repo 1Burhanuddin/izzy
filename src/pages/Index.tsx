@@ -9,6 +9,7 @@ import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
 import BestSellers from '@/components/product/BestSellers';
+import { LampDemo } from '@/components/ui/lamp-demo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Index = () => {
@@ -27,6 +28,11 @@ const Index = () => {
       <CategoriesSection />
       
       <FeaturesSection />
+
+      {/* Lamp Demo Section */}
+      <section className="py-12 md:py-16">
+        <LampDemo />
+      </section>
 
       <div className="container mx-auto px-4 my-8">
         <Accordion type="single" collapsible className="w-full border rounded-lg overflow-hidden shadow-sm">

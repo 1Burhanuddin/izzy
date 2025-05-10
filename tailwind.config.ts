@@ -95,7 +95,10 @@ export default {
 				'fade-in': 'fade-in 0.7s ease-out',
 				'fade-up': 'fade-up 0.7s ease-out',
 				'smooth-slide': 'smooth-slide 0.6s ease-out'
-			}
+			},
+			backgroundImage: {
+				'gradient-conic': 'conic-gradient(var(--conic-position), var(--tw-gradient-stops))',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
