@@ -20,6 +20,7 @@ import {
 import { Home, ShoppingBag, Search, User, SquareStack, ShieldCheck, Heart, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const location = useLocation();
   const { isCartOpen, closeCart } = useCart();
   const { user, isAdmin } = useAuth();
+  const isMobile = useIsMobile();
   
   // Scroll to top on page change
   useEffect(() => {
@@ -54,13 +56,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   return (
     <SidebarProvider defaultOpen={false}>
-      <div className="flex flex-col min-h-screen w-full">
+      <div className="flex flex-col min-h-screen w-full overflow-x-hidden">
         <Header />
         <div className="flex flex-1">
           <Sidebar variant="inset" collapsible="offcanvas">
-            <SidebarHeader className="py-6">
+            <SidebarHeader className="py-4 md:py-6">
               <div className="flex items-center justify-center">
-                <span className="text-2xl font-bold text-gray-900">Menu</span>
+                <span className="text-xl md:text-2xl font-bold text-gray-900">Menu</span>
               </div>
             </SidebarHeader>
             <SidebarContent>
@@ -136,7 +138,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </SidebarFooter>
           </Sidebar>
           
-          <main className="flex-grow pt-20">
+          <main className="flex-grow pt-16 md:pt-20 w-full max-w-full overflow-hidden">
             {children}
           </main>
         </div>

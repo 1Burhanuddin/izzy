@@ -11,6 +11,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type CategoryData = {
   id: string;
@@ -32,6 +33,7 @@ const categoryImages = {
 const CategoriesSection: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -69,18 +71,18 @@ const CategoriesSection: React.FC = () => {
   }, []);
 
   return (
-    <section className="py-16 bg-white">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold mb-3 text-gray-800">
+    <section className="py-10 md:py-16 bg-white">
+      <div className="container mx-auto">
+        <div className="text-center mb-6 md:mb-10">
+          <h2 className="text-xl md:text-3xl font-bold mb-2 text-gray-800">
             Explore Our Categories
           </h2>
-          <p className="text-gray-600 max-w-2xl mx-auto">Discover our curated collections tailored to elevate your space</p>
+          <p className="text-xs md:text-base text-gray-600 max-w-2xl mx-auto">Discover our curated collections tailored to elevate your space</p>
         </div>
         
         {isLoading ? (
-          <div className="flex justify-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          <div className="flex justify-center py-8">
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600"></div>
           </div>
         ) : (
           <div className="max-w-5xl mx-auto">
@@ -96,9 +98,9 @@ const CategoriesSection: React.FC = () => {
             >
               <CarouselContent>
                 {categories.map((category) => (
-                  <CarouselItem key={category.id} className="pl-4 sm:basis-1/2 lg:basis-1/3">
+                  <CarouselItem key={category.id} className="pl-4 basis-full xs:basis-4/5 sm:basis-1/2 lg:basis-1/3">
                     <Link to={`/products/${category.slug}`} className="group">
-                      <div className="overflow-hidden rounded-xl relative h-[240px] md:h-[320px] shadow-md transition-all duration-300 group-hover:shadow-xl">
+                      <div className="overflow-hidden rounded-xl relative h-[200px] md:h-[320px] shadow-md transition-all duration-300 group-hover:shadow-xl">
                         <div className="absolute inset-0">
                           <img 
                             src={categoryImages[category.slug as keyof typeof categoryImages] || categoryImages.default} 
@@ -112,10 +114,10 @@ const CategoriesSection: React.FC = () => {
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent"></div>
                         </div>
-                        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 text-white">
-                          <h3 className="font-semibold text-xl md:text-2xl mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
-                          <p className="text-gray-200 mb-3 md:mb-4 opacity-90 line-clamp-2 text-sm md:text-base">Premium quality {category.name.toLowerCase()} solutions</p>
-                          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors text-xs md:text-sm">
+                        <div className="absolute bottom-0 left-0 right-0 p-3 md:p-6 text-white">
+                          <h3 className="font-semibold text-lg md:text-2xl mb-1 md:mb-2 group-hover:text-blue-200 transition-colors">{category.name}</h3>
+                          <p className="text-gray-200 mb-2 md:mb-4 opacity-90 line-clamp-2 text-xs md:text-base">Premium quality {category.name.toLowerCase()} solutions</p>
+                          <Button variant="outline" size="sm" className="bg-white/10 backdrop-blur-sm border-white/30 text-white hover:bg-white/20 transition-colors text-xs">
                             View Collection
                           </Button>
                         </div>
@@ -125,15 +127,15 @@ const CategoriesSection: React.FC = () => {
                 ))}
               </CarouselContent>
               <div className="flex items-center justify-center mt-4 gap-2">
-                <CarouselPrevious className="static translate-y-0 h-8 w-8" />
-                <CarouselNext className="static translate-y-0 h-8 w-8" />
+                <CarouselPrevious className="static translate-y-0 h-6 w-6 md:h-8 md:w-8" />
+                <CarouselNext className="static translate-y-0 h-6 w-6 md:h-8 md:w-8" />
               </div>
             </Carousel>
           </div>
         )}
         
-        <div className="text-center mt-8 md:mt-12">
-          <Button asChild variant="outline" className="px-6 md:px-8 border-blue-200 text-blue-600 hover:bg-blue-50">
+        <div className="text-center mt-6 md:mt-12">
+          <Button asChild variant="outline" className="px-4 md:px-8 border-blue-200 text-blue-600 hover:bg-blue-50">
             <Link to="/products">View All Categories</Link>
           </Button>
         </div>

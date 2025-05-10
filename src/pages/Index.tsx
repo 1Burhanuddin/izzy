@@ -19,9 +19,9 @@ const Index = () => {
       <CartDrawer open={isCartOpen} onClose={closeCart} />
       
       {/* Lamp Demo Section as Hero */}
-      <section className="w-full overflow-hidden">
+      <div className="w-full overflow-hidden">
         <LampDemo />
-      </section>
+      </div>
       
       <NewArrivals />
       

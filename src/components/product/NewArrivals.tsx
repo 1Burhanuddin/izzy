@@ -72,16 +72,16 @@ const NewArrivals: React.FC = () => {
   }
 
   return (
-    <section className="py-12 md:py-16 bg-gray-50">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between mb-8 md:mb-12">
+    <section className="py-10 md:py-16 bg-gray-50">
+      <div className="container mx-auto">
+        <div className="flex flex-wrap items-center justify-between mb-6 md:mb-12">
           <div>
-            <h2 className="text-2xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-800">Featured Products</h2>
-            <p className="text-sm md:text-base text-gray-600">Premium selections for modern spaces</p>
+            <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-800">Featured Products</h2>
+            <p className="text-xs md:text-base text-gray-600">Premium selections for modern spaces</p>
           </div>
           <Link 
             to="/products" 
-            className="mt-3 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm md:text-base"
+            className="mt-2 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm md:text-base"
           >
             <span>View All Products</span>
             <ArrowRight className="ml-1 h-3 w-3 md:h-4 md:w-4" />
@@ -89,7 +89,7 @@ const NewArrivals: React.FC = () => {
         </div>
         
         <Carousel 
-          className="mx-auto w-full" 
+          className="w-full" 
           opts={{ 
             loop: true, 
             align: "start",
@@ -102,15 +102,15 @@ const NewArrivals: React.FC = () => {
             {newProducts.map((product) => (
               <CarouselItem 
                 key={product.id} 
-                className="pl-2 md:pl-4 basis-3/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
+                className="pl-2 md:pl-4 basis-full xs:basis-3/4 sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
                 <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
           <div className="flex justify-center mt-4 gap-2">
-            <CarouselPrevious className="static translate-y-0 h-7 w-7 md:h-8 md:w-8" />
-            <CarouselNext className="static translate-y-0 h-7 w-7 md:h-8 md:w-8" />
+            <CarouselPrevious className="static translate-y-0 h-6 w-6 md:h-8 md:w-8" />
+            <CarouselNext className="static translate-y-0 h-6 w-6 md:h-8 md:w-8" />
           </div>
         </Carousel>
       </div>
