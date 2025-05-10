@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -13,7 +12,11 @@ export default {
 	theme: {
 		container: {
 			center: true,
-			padding: '2rem',
+			padding: {
+				DEFAULT: '1rem',
+				sm: '1.5rem',
+				md: '2rem'
+			},
 			screens: {
 				'2xl': '1400px'
 			}
@@ -98,6 +101,9 @@ export default {
 			},
 			backgroundImage: {
 				'gradient-conic': 'conic-gradient(var(--conic-position), var(--tw-gradient-stops))',
+			},
+			screens: {
+				'xs': '480px',
 			},
 		}
 	},

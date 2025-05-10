@@ -30,12 +30,12 @@ const Index = () => {
       <FeaturesSection />
 
       {/* Lamp Demo Section */}
-      <section className="py-12 md:py-16">
+      <section className="w-full overflow-hidden py-8 md:py-12">
         <LampDemo />
       </section>
 
       <div className="container mx-auto px-4 my-8">
-        <Accordion type="single" collapsible className="w-full border rounded-lg overflow-hidden shadow-sm">
+        <Accordion type="single" defaultValue="contact" collapsible className="w-full border rounded-lg overflow-hidden shadow-sm">
           <AccordionItem value="contact">
             <AccordionTrigger className="px-4 py-3 text-lg font-medium">Contact Us</AccordionTrigger>
             <AccordionContent>
