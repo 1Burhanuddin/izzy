@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/carousel';
 import ProductCard from './ProductCard';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { TextShimmer } from '@/components/ui/text-shimmer';
 
 type Product = {
   id: string;
@@ -75,18 +76,26 @@ const BestSellers: React.FC = () => {
   return (
     <section className="py-10 md:py-16 bg-white">
       <div className="container mx-auto">
-        <div className="flex flex-wrap items-center justify-between mb-6 md:mb-12">
-          <div>
-            <h2 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-gray-800">Best Sellers</h2>
-            <p className="text-xs md:text-base text-gray-600">Our top selling premium products</p>
+        <div className="flex flex-wrap items-center justify-between mb-8 md:mb-12">
+          <div className="w-full flex justify-between items-center">
+            <div>
+              <TextShimmer
+                as="h2"
+                className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 text-gradient-purple"
+                duration={2.5}
+              >
+                Popular Choices
+              </TextShimmer>
+              <p className="text-sm md:text-base text-gray-600 italic">Our top selling premium selections</p>
+            </div>
+            <Link 
+              to="/products" 
+              className="flex items-center justify-center h-10 w-10 rounded-full bg-purple-100 hover:bg-purple-200 transition-colors"
+              aria-label="View all products"
+            >
+              <ArrowRight className="h-5 w-5 text-purple-700" />
+            </Link>
           </div>
-          <Link 
-            to="/products" 
-            className="mt-2 sm:mt-0 inline-flex items-center text-blue-600 hover:text-blue-800 font-medium text-sm md:text-base"
-          >
-            <span>View All Products</span>
-            <ArrowRight className="ml-1 h-3 w-3 md:h-4 md:w-4" />
-          </Link>
         </div>
         
         <Carousel 
