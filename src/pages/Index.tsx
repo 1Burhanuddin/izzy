@@ -4,7 +4,6 @@ import Layout from '@/components/layout/Layout';
 import NewArrivals from '@/components/product/NewArrivals';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { useCart } from '@/contexts/CartContext';
-import HeroSection from '@/components/home/HeroSection';
 import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
@@ -19,7 +18,10 @@ const Index = () => {
     <Layout>
       <CartDrawer open={isCartOpen} onClose={closeCart} />
       
-      <HeroSection />
+      {/* Lamp Demo Section as Hero */}
+      <section className="w-full overflow-hidden">
+        <LampDemo />
+      </section>
       
       <NewArrivals />
       
@@ -29,13 +31,8 @@ const Index = () => {
       
       <FeaturesSection />
 
-      {/* Lamp Demo Section */}
-      <section className="w-full overflow-hidden py-8 md:py-12">
-        <LampDemo />
-      </section>
-
       <div className="container mx-auto px-4 my-8">
-        <Accordion type="single" defaultValue="contact" collapsible className="w-full border rounded-lg overflow-hidden shadow-sm">
+        <Accordion type="single" collapsible className="w-full border rounded-lg overflow-hidden shadow-sm">
           <AccordionItem value="contact">
             <AccordionTrigger className="px-4 py-3 text-lg font-medium">Contact Us</AccordionTrigger>
             <AccordionContent>

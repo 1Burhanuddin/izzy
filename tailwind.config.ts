@@ -105,6 +105,9 @@ export default {
 			screens: {
 				'xs': '480px',
 			},
+			maxWidth: {
+				'screen-2xl': '1400px'
+			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
