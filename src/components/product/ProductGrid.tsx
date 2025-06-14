@@ -18,7 +18,7 @@ interface ProductGridProps {
 
 const ProductGrid: React.FC<ProductGridProps> = ({ 
   products, 
-  columns = 2  // Default to 2 columns
+  columns = 2
 }) => {
   const getGridClass = () => {
     switch (columns) {
@@ -27,19 +27,20 @@ const ProductGrid: React.FC<ProductGridProps> = ({
       case 3:
         return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
       case 4:
-        return 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+        return 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4';
       default:
         return 'grid-cols-1 sm:grid-cols-2';
     }
   };
 
   return (
-    <div className={`grid ${getGridClass()} gap-6`}>
+    <div className={`grid ${getGridClass()} gap-4 sm:gap-6 lg:gap-8 px-2 sm:px-0`}>
       {products.map((product) => (
-        <ProductCard 
-          key={product.id} 
-          product={product} 
-        />
+        <div key={product.id} className="flex justify-center">
+          <ProductCard 
+            product={product} 
+          />
+        </div>
       ))}
     </div>
   );

@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { ShoppingCart, Star, Heart } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-mobile"
 
 interface ProductRevealCardProps {
   name?: string
@@ -41,12 +42,31 @@ export function ProductRevealCard({
   availability = "in_stock",
 }: ProductRevealCardProps) {
   const [isFavorite, setIsFavorite] = useState(false)
+  const [showDetails, setShowDetails] = useState(false)
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimate = enableAnimations && !shouldReduceMotion
+  const isMobile = useIsMobile()
 
-  const handleFavorite = () => {
+  const handleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation()
     setIsFavorite(!isFavorite)
     onFavorite?.()
+  }
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onAdd?.()
+  }
+
+  const handleCardClick = () => {
+    if (isMobile) {
+      onViewDetails?.()
+    }
+  }
+
+  const handleToggleDetails = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setShowDetails(!showDetails)
   }
 
   const containerVariants = {
@@ -75,13 +95,13 @@ export function ProductRevealCard({
 
   const overlayVariants = {
     rest: { 
-      y: "100%", 
-      opacity: 0,
+      y: isMobile && !showDetails ? "100%" : "100%", 
+      opacity: isMobile && !showDetails ? 0 : 0,
       filter: "blur(4px)",
     },
     hover: { 
-      y: "0%", 
-      opacity: 1,
+      y: isMobile ? (showDetails ? "0%" : "100%") : "0%", 
+      opacity: isMobile ? (showDetails ? 1 : 0) : 1,
       filter: "blur(0px)",
       transition: {
         type: "spring",
@@ -193,11 +213,14 @@ export function ProductRevealCard({
     <motion.div
       data-slot="product-reveal-card"
       initial="rest"
-      whileHover="hover"
+      whileHover={!isMobile ? "hover" : "rest"}
+      animate={isMobile && showDetails ? "hover" : "rest"}
       variants={containerVariants}
+      onClick={handleCardClick}
       className={cn(
-        "relative w-80 rounded-2xl border border-border/50 bg-card text-card-foreground overflow-hidden",
+        "relative w-full max-w-sm mx-auto rounded-2xl border border-border/50 bg-card text-card-foreground overflow-hidden",
         "shadow-lg shadow-black/5 cursor-pointer group",
+        "h-auto min-h-[400px]",
         className
       )}
     >
@@ -206,8 +229,8 @@ export function ProductRevealCard({
         <motion.img
           src={image}
           alt={name}
-          className="h-56 w-full object-cover"
-          variants={imageVariants}
+          className="h-48 sm:h-56 w-full object-cover"
+          variants={!isMobile ? imageVariants : {}}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
@@ -218,7 +241,8 @@ export function ProductRevealCard({
           variants={favoriteVariants}
           animate={isFavorite ? "favorite" : "rest"}
           className={cn(
-            "absolute top-4 right-4 p-2 rounded-full backdrop-blur-sm border border-white/20",
+            "absolute top-3 right-3 p-2 rounded-full backdrop-blur-sm border border-white/20",
+            "z-10",
             isFavorite 
               ? "bg-red-500 text-white" 
               : "bg-white/20 text-white hover:bg-white/30"
@@ -233,7 +257,7 @@ export function ProductRevealCard({
           animate={{ opacity: 1, scale: 1, x: 0 }}
           transition={{ delay: 0.2 }}
           className={cn(
-            "absolute top-4 left-4 text-white px-3 py-1 rounded-full text-xs font-bold",
+            "absolute top-3 left-3 text-white px-2 py-1 rounded-full text-xs font-bold",
             getAvailabilityColor()
           )}
         >
@@ -246,15 +270,25 @@ export function ProductRevealCard({
             initial={{ opacity: 0, scale: 0.8, x: 20 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ delay: 0.3 }}
-            className="absolute top-12 left-4 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-bold"
+            className="absolute top-10 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold"
           >
             {Math.round(((parseFloat(originalPrice.replace('₹', '')) - parseFloat(price.replace('₹', ''))) / parseFloat(originalPrice.replace('₹', ''))) * 100)}% OFF
           </motion.div>
         )}
+
+        {/* Mobile Details Toggle Button */}
+        {isMobile && (
+          <button
+            onClick={handleToggleDetails}
+            className="absolute bottom-3 right-3 bg-white/90 text-gray-800 px-3 py-1 rounded-full text-xs font-medium"
+          >
+            {showDetails ? 'Hide' : 'Details'}
+          </button>
+        )}
       </div>
 
       {/* Content */}
-      <div className="p-6 space-y-3">
+      <div className="p-4 space-y-3">
         {/* Rating */}
         <div className="flex items-center gap-2">
           <div className="flex">
@@ -262,7 +296,7 @@ export function ProductRevealCard({
               <Star
                 key={i}
                 className={cn(
-                  "w-4 h-4",
+                  "w-3 h-3 sm:w-4 sm:h-4",
                   i < Math.floor(rating) 
                     ? "text-yellow-400 fill-current" 
                     : "text-muted-foreground"
@@ -270,15 +304,15 @@ export function ProductRevealCard({
               />
             ))}
           </div>
-          <span className="text-sm text-muted-foreground">
-            {rating} ({reviewCount} reviews)
+          <span className="text-xs sm:text-sm text-muted-foreground">
+            {rating} ({reviewCount})
           </span>
         </div>
 
         {/* Product Info */}
         <div className="space-y-1">
           <motion.h3 
-            className="text-xl font-bold leading-tight tracking-tight"
+            className="text-lg sm:text-xl font-bold leading-tight tracking-tight line-clamp-2"
             initial={{ opacity: 0.9 }}
             whileHover={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
@@ -288,24 +322,52 @@ export function ProductRevealCard({
           
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-2xl font-bold text-primary">{price}</span>
+              <span className="text-xl sm:text-2xl font-bold text-primary">{price}</span>
               {originalPrice && (
-                <span className="text-lg text-muted-foreground line-through">
+                <span className="text-sm sm:text-lg text-muted-foreground line-through">
                   {originalPrice}
                 </span>
               )}
             </div>
-            <span className="text-sm text-blue-600 font-medium">{category}</span>
+            <span className="text-xs sm:text-sm text-blue-600 font-medium">{category}</span>
           </div>
         </div>
+
+        {/* Mobile Action Buttons - Always Visible */}
+        {isMobile && (
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={handleAddToCart}
+              disabled={availability === 'out_of_stock'}
+              className={cn(
+                "flex-1 h-10 px-3 rounded-lg font-medium text-sm",
+                "bg-primary text-primary-foreground",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                "flex items-center justify-center gap-2"
+              )}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              {availability === 'out_of_stock' ? 'Out of Stock' : 'Add'}
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                onViewDetails?.()
+              }}
+              className="px-4 h-10 rounded-lg border border-input bg-background hover:bg-accent text-sm font-medium"
+            >
+              View
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Reveal Overlay */}
+      {/* Reveal Overlay - Desktop Hover / Mobile Toggle */}
       <motion.div
         variants={overlayVariants}
         className="absolute inset-0 bg-background/96 backdrop-blur-xl flex flex-col justify-end"
       >
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4">
           {/* Product Description */}
           <motion.div variants={contentVariants}>
             <h4 className="font-semibold mb-2">Product Details</h4>
@@ -326,42 +388,47 @@ export function ProductRevealCard({
             </div>
           </motion.div>
 
-          {/* Action Buttons */}
-          <motion.div variants={contentVariants} className="space-y-3">
-            <motion.button
-              onClick={onAdd}
-              variants={buttonVariants_motion}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
-              disabled={availability === 'out_of_stock'}
-              className={cn(
-                buttonVariants({ variant: "default" }), 
-                "w-full h-12 font-medium",
-                "bg-gradient-to-r from-primary to-primary/90",
-                "hover:from-primary/90 hover:to-primary",
-                "shadow-lg shadow-primary/25",
-                availability === 'out_of_stock' && "opacity-50 cursor-not-allowed"
-              )}
-            >
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              {availability === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
-            </motion.button>
-            
-            <motion.button
-              onClick={onViewDetails}
-              variants={buttonVariants_motion}
-              initial="rest"
-              whileHover="hover"
-              whileTap="tap"
-              className={cn(
-                buttonVariants({ variant: "outline" }), 
-                "w-full h-10 font-medium"
-              )}
-            >
-              View Details
-            </motion.button>
-          </motion.div>
+          {/* Action Buttons - Desktop */}
+          {!isMobile && (
+            <motion.div variants={contentVariants} className="space-y-3">
+              <motion.button
+                onClick={handleAddToCart}
+                variants={buttonVariants_motion}
+                initial="rest"
+                whileHover="hover"
+                whileTap="tap"
+                disabled={availability === 'out_of_stock'}
+                className={cn(
+                  buttonVariants({ variant: "default" }), 
+                  "w-full h-12 font-medium",
+                  "bg-gradient-to-r from-primary to-primary/90",
+                  "hover:from-primary/90 hover:to-primary",
+                  "shadow-lg shadow-primary/25",
+                  availability === 'out_of_stock' && "opacity-50 cursor-not-allowed"
+                )}
+              >
+                <ShoppingCart className="w-4 h-4 mr-2" />
+                {availability === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
+              </motion.button>
+              
+              <motion.button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onViewDetails?.()
+                }}
+                variants={buttonVariants_motion}
+                initial="rest"
+                whileHover="hover"
+                whileTap="tap"
+                className={cn(
+                  buttonVariants({ variant: "outline" }), 
+                  "w-full h-10 font-medium"
+                )}
+              >
+                View Details
+              </motion.button>
+            </motion.div>
+          )}
         </div>
       </motion.div>
     </motion.div>
