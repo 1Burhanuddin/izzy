@@ -20,12 +20,17 @@ type CategoryData = {
   created_at: string;
 };
 
-// Enhanced category images with high-quality relevant images
+// Enhanced category images with high-quality relevant images for all categories
 const categoryImages = {
   'mirror': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=800&auto=format&fit=crop',
+  'mirrors': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?q=80&w=800&auto=format&fit=crop',
   'glass': 'https://images.unsplash.com/photo-1518281361980-b26bfd556770?q=80&w=800&auto=format&fit=crop',
   'hardware': 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?q=80&w=800&auto=format&fit=crop',
   'aluminum': 'https://images.unsplash.com/photo-1535382651921-5e1fa3e3a084?q=80&w=800&auto=format&fit=crop',
+  'doors': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?q=80&w=800&auto=format&fit=crop',
+  'windows': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?q=80&w=800&auto=format&fit=crop',
+  'railings': 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=800&auto=format&fit=crop',
+  'shower-enclosures': 'https://images.unsplash.com/photo-1620626011761-996317b8d101?q=80&w=800&auto=format&fit=crop',
   // Adding fallback image for any missing categories
   'default': 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?q=80&w=800&auto=format&fit=crop',
 };
