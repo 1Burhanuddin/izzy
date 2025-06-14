@@ -50,31 +50,42 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First get the favorite product IDs
+      const { data: favoriteIds, error: favError } = await supabase
         .from('favorites')
-        .select(`
-          product_id,
-          products (
-            id,
-            name,
-            price,
-            image,
-            category,
-            availability
-          )
-        `)
+        .select('product_id')
         .eq('user_id', user.id);
 
-      if (error) {
-        console.error('Error fetching favorites:', error);
+      if (favError) {
+        console.error('Error fetching favorite IDs:', favError);
         return;
       }
 
-      const favoriteProducts = data
-        ?.map(item => item.products)
-        .filter(product => product !== null) as Product[];
+      if (!favoriteIds || favoriteIds.length === 0) {
+        setFavorites([]);
+        return;
+      }
 
-      setFavorites(favoriteProducts || []);
+      // Then get the full product details
+      const productIds = favoriteIds.map(fav => fav.product_id);
+      const { data: products, error: prodError } = await supabase
+        .from('products')
+        .select('id, name, price, image, category, availability')
+        .in('id', productIds);
+
+      if (prodError) {
+        console.error('Error fetching products:', prodError);
+        return;
+      }
+
+      // Type assertion to ensure proper typing
+      const typedProducts = (products || []).map(product => ({
+        ...product,
+        availability: product.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
+      }));
+
+      setFavorites(typedProducts);
     } catch (error) {
       console.error('Error fetching favorites:', error);
     } finally {
@@ -115,7 +126,12 @@ export const FavoritesProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         throw productError;
       }
 
-      setFavorites(prev => [...prev, productData]);
+      const typedProduct = {
+        ...productData,
+        availability: productData.availability as 'in_stock' | 'low_stock' | 'out_of_stock'
+      };
+
+      setFavorites(prev => [...prev, typedProduct]);
       toast.success('Added to favorites');
     } catch (error: any) {
       console.error('Error adding to favorites:', error);
