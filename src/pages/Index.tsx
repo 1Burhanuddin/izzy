@@ -8,7 +8,7 @@ import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
 import BestSellers from '@/components/product/BestSellers';
-import { LampDemo } from '@/components/ui/lamp-demo';
+import { BackgroundPaths } from '@/components/ui/background-paths';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Index = () => {
@@ -18,9 +18,9 @@ const Index = () => {
     <Layout>
       <CartDrawer open={isCartOpen} onClose={closeCart} />
       
-      {/* Lamp Demo Section as Hero */}
+      {/* Background Paths as Hero Section */}
       <div className="w-full overflow-hidden">
-        <LampDemo />
+        <BackgroundPaths title="Build Your Space The Right Way" />
       </div>
       
       <NewArrivals />
