@@ -1,4 +1,3 @@
-
 "use client"
 
 import { motion, useReducedMotion } from "framer-motion"
@@ -16,6 +15,7 @@ interface ProductRevealCardProps {
   description?: string
   rating?: number
   reviewCount?: number
+  isFavorite?: boolean
   onAdd?: () => void
   onFavorite?: () => void
   onViewDetails?: () => void
@@ -33,6 +33,7 @@ export function ProductRevealCard({
   description = "High-quality toughened glass panel perfect for modern architectural applications. Durable, safe, and aesthetically pleasing.",
   rating = 4.8,
   reviewCount = 124,
+  isFavorite = false,
   onAdd,
   onFavorite,
   onViewDetails,
@@ -41,7 +42,6 @@ export function ProductRevealCard({
   category = "Glass",
   availability = "in_stock",
 }: ProductRevealCardProps) {
-  const [isFavorite, setIsFavorite] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
   const shouldReduceMotion = useReducedMotion()
   const shouldAnimate = enableAnimations && !shouldReduceMotion
@@ -49,7 +49,6 @@ export function ProductRevealCard({
 
   const handleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setIsFavorite(!isFavorite)
     onFavorite?.()
   }
 

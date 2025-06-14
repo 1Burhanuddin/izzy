@@ -1,16 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Menu } from 'lucide-react';
+import { ShoppingCart, User, LogOut, Menu, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Header: React.FC = () => {
   const { user, isAdmin, signOut } = useAuth();
   const { cartCount } = useCart();
+  const { favorites } = useFavorites();
   const [isScrolled, setIsScrolled] = useState(false);
   const { toggleSidebar } = useSidebar();
   const isMobile = useIsMobile();
@@ -59,6 +61,23 @@ const Header: React.FC = () => {
         
         {/* Action Buttons */}
         <div className="flex items-center space-x-2 md:space-x-4">
+          {user && (
+            <Link to="/favorites" className="relative">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full hover:bg-gray-100 h-8 w-8 md:h-10 md:w-10"
+              >
+                <Heart className="h-4 w-4 md:h-5 md:w-5" />
+                {favorites.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] md:text-xs rounded-full h-4 w-4 md:h-5 md:w-5 flex items-center justify-center">
+                    {favorites.length}
+                  </span>
+                )}
+              </Button>
+            </Link>
+          )}
+          
           <Link to="/cart" className="relative">
             <Button 
               variant="ghost" 

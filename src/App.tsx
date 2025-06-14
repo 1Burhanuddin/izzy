@@ -7,6 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
+import { FavoritesProvider } from "@/contexts/FavoritesContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -22,6 +23,7 @@ import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import UserProfile from "./pages/UserProfile";
+import Favorites from "./pages/Favorites";
 
 // Create a QueryClient instance outside the component
 // This ensures it's only created once and not on every render
@@ -36,35 +38,38 @@ const App = () => {
         <BrowserRouter>
           <AuthProvider>
             <CartProvider>
-              <Routes>
-                {/* Public Routes */}
-                <Route path="/" element={<Index />} />
-                <Route path="/products" element={<ProductsPage />} />
-                <Route path="/products/:category" element={<ProductsPage />} />
-                <Route path="/product/:id" element={<ProductDetail />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                
-                {/* Protected Routes for all authenticated users */}
-                <Route element={<ProtectedRoute />}>
-                  <Route path="/profile" element={<UserProfile />} />
-                  <Route path="/account" element={<UserProfile />} />
-                  <Route path="/cart" element={<Cart />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/order-confirmation" element={<OrderConfirmation />} />
-                </Route>
-                
-                {/* Admin Routes */}
-                <Route element={<ProtectedRoute requireAdmin />}>
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/products" element={<ProductManagement />} />
-                  <Route path="/admin/orders" element={<OrderManagement />} />
-                  <Route path="/admin/users" element={<UserManagement />} />
-                </Route>
-                
-                {/* 404 Route */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+              <FavoritesProvider>
+                <Routes>
+                  {/* Public Routes */}
+                  <Route path="/" element={<Index />} />
+                  <Route path="/products" element={<ProductsPage />} />
+                  <Route path="/products/:category" element={<ProductsPage />} />
+                  <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  
+                  {/* Protected Routes for all authenticated users */}
+                  <Route element={<ProtectedRoute />}>
+                    <Route path="/profile" element={<UserProfile />} />
+                    <Route path="/account" element={<UserProfile />} />
+                    <Route path="/cart" element={<Cart />} />
+                    <Route path="/favorites" element={<Favorites />} />
+                    <Route path="/checkout" element={<Checkout />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                  </Route>
+                  
+                  {/* Admin Routes */}
+                  <Route element={<ProtectedRoute requireAdmin />}>
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/products" element={<ProductManagement />} />
+                    <Route path="/admin/orders" element={<OrderManagement />} />
+                    <Route path="/admin/users" element={<UserManagement />} />
+                  </Route>
+                  
+                  {/* 404 Route */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </FavoritesProvider>
             </CartProvider>
           </AuthProvider>
         </BrowserRouter>

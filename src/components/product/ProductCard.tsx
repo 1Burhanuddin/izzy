@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { useCart } from '@/contexts/CartContext';
+import { useFavorites } from '@/contexts/FavoritesContext';
 import { ProductRevealCard } from '@/components/ui/product-reveal-card';
 
 interface ProductCardProps {
@@ -22,6 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { addToFavorites, removeFromFavorites, isFavorite } = useFavorites();
 
   const handleAddToCart = () => {
     if (!user) {
@@ -39,7 +41,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       toast.error('Please sign in to add items to favorites');
       return;
     }
-    toast.success(`${name} added to favorites`);
+
+    if (isFavorite(id)) {
+      removeFromFavorites(id);
+    } else {
+      addToFavorites(id);
+    }
   };
 
   const handleViewDetails = () => {
@@ -83,6 +90,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       availability={availability}
       rating={getRating()}
       reviewCount={getReviewCount()}
+      isFavorite={isFavorite(id)}
       onAdd={handleAddToCart}
       onFavorite={handleFavorite}
       onViewDetails={handleViewDetails}
