@@ -17,6 +17,7 @@ interface ProductRevealCardProps {
   reviewCount?: number
   onAdd?: () => void
   onFavorite?: () => void
+  onViewDetails?: () => void
   enableAnimations?: boolean
   className?: string
   category?: string
@@ -33,6 +34,7 @@ export function ProductRevealCard({
   reviewCount = 124,
   onAdd,
   onFavorite,
+  onViewDetails,
   enableAnimations = true,
   className,
   category = "Glass",
@@ -347,6 +349,7 @@ export function ProductRevealCard({
             </motion.button>
             
             <motion.button
+              onClick={onViewDetails}
               variants={buttonVariants_motion}
               initial="rest"
               whileHover="hover"
