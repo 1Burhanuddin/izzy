@@ -11,7 +11,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  CreditCard, 
   Landmark, 
   Phone, 
   ShieldCheck,
@@ -30,12 +29,10 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const canceled = searchParams.get('canceled');
   
-  const [paymentMethod, setPaymentMethod] = useState('stripe');
+  const [paymentMethod, setPaymentMethod] = useState('upi');
   const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [errorCode, setErrorCode] = useState<string | null>(null);
-  const [isTestMode, setIsTestMode] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -104,7 +101,6 @@ const Checkout = () => {
     }
 
     setError(null);
-    setErrorCode(null);
     try {
       setLoading(true);
 
@@ -118,73 +114,7 @@ const Checkout = () => {
         pincode: formData.pincode
       };
 
-      if (paymentMethod === 'stripe') {
-        console.log("Starting Stripe checkout process...");
-        
-        // Check if session exists and is valid
-        if (!session?.access_token) {
-          // Session missing or expired
-          setError("Authentication session not found. Please try logging in again.");
-          toast.error("Authentication error. Please try logging in again.");
-          setLoading(false);
-          navigate('/login', { state: { returnTo: '/checkout' } });
-          return;
-        }
-        
-        console.log("Session token available:", !!session?.access_token);
-        
-        try {
-          const response = await supabase.functions.invoke('create-checkout', {
-            body: {
-              cartItems: cartItems,
-              shippingAddress: shippingAddress,
-              paymentMethod: paymentMethod
-            },
-            headers: {
-              Authorization: `Bearer ${session?.access_token}`
-            }
-          });
-          
-          if (response.error) {
-            console.error('Error creating checkout session:', response.error);
-            throw new Error(`Failed to create checkout session: ${response.error.message || 'Unknown error'}`);
-          }
-          
-          const data = response.data;
-  
-          if (data?.error) {
-            console.error('Checkout error response:', data.error);
-            setError(data.error);
-            setErrorCode(data.code || null);
-            toast.error(data.error);
-            setLoading(false);
-            return;
-          }
-
-          // Check if we're in test mode
-          if (data?.isTestMode) {
-            setIsTestMode(true);
-            console.log("Stripe is in test mode");
-          }
-  
-          if (data?.url) {
-            console.log("Redirecting to Stripe checkout URL:", data.url);
-            // Save order ID to local storage before redirecting to Stripe
-            if (data.orderId) {
-              localStorage.setItem('pendingOrderId', data.orderId);
-            }
-            window.location.href = data.url;
-            return;
-          } else {
-            console.error("Invalid checkout response:", data);
-            throw new Error('Invalid checkout URL received from server');
-          }
-        } catch (apiError: any) {
-          console.error('API error:', apiError);
-          setError(`Checkout error: ${apiError.message}`);
-          toast.error(`Checkout failed: ${apiError.message}`);
-        }
-      } else if (paymentMethod === 'upi') {
+      if (paymentMethod === 'upi') {
         // Handle UPI payment method
         try {
           // Create a direct order in the database
@@ -259,30 +189,6 @@ const Checkout = () => {
           <Alert variant="destructive" className="mb-6">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {errorCode === 'amount_too_small' && (
-          <Alert variant="default" className="mb-6 bg-yellow-50 border-yellow-200">
-            <AlertTriangle className="h-4 w-4 text-yellow-500" />
-            <AlertDescription className="text-yellow-700">
-              The total amount is too low for online payment. Please add more items to your cart or choose a different payment method.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {paymentMethod === 'stripe' && (
-          <Alert variant="default" className="mb-6 bg-blue-50 border-blue-200">
-            <Info className="h-4 w-4 text-blue-500" />
-            <AlertDescription className="text-blue-700">
-              <strong>Test Mode:</strong> Please use these Stripe test cards:
-              <ul className="list-disc ml-6 mt-2">
-                <li>Success: <code className="bg-gray-100 px-1 py-0.5 rounded">4242 4242 4242 4242</code></li>
-                <li>Requires Authentication: <code className="bg-gray-100 px-1 py-0.5 rounded">4000 0025 0000 3155</code></li>
-                <li>Decline: <code className="bg-gray-100 px-1 py-0.5 rounded">4000 0000 0000 0002</code></li>
-                <li>Any future date, any 3 digits for CVC, any name</li>
-              </ul>
-            </AlertDescription>
           </Alert>
         )}
 
@@ -388,14 +294,6 @@ const Checkout = () => {
                   className="space-y-3"
                 >
                   <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="stripe" id="stripe" />
-                    <Label htmlFor="stripe" className="flex items-center cursor-pointer">
-                      <CreditCard className="mr-2 h-5 w-5 text-blue-500" />
-                      <span>Credit/Debit Card (Stripe)</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="upi" id="upi" />
                     <Label htmlFor="upi" className="flex items-center cursor-pointer">
                       <Phone className="mr-2 h-5 w-5 text-green-500" />
@@ -418,17 +316,9 @@ const Checkout = () => {
                   </div>
                 )}
 
-                {paymentMethod !== 'upi' && paymentMethod !== 'stripe' && (
+                {paymentMethod !== 'upi' && (
                   <div className="mt-4 p-4 bg-gray-100 rounded-md text-center">
                     <p className="text-gray-500">This payment method is currently unavailable</p>
-                  </div>
-                )}
-                
-                {paymentMethod === 'stripe' && (
-                  <div className="mt-4 p-4 bg-blue-50 rounded-md">
-                    <p className="text-blue-700 text-sm">
-                      You'll be redirected to Stripe's secure payment page to complete your purchase.
-                    </p>
                   </div>
                 )}
               </div>
@@ -444,7 +334,7 @@ const Checkout = () => {
                     Processing...
                   </>
                 ) : (
-                  paymentMethod === 'stripe' ? 'Proceed to Payment' : 'Place Order'
+                  'Place Order'
                 )}
               </Button>
             </form>
@@ -480,12 +370,6 @@ const Checkout = () => {
                     <span>Total</span>
                     <span>₹{cartTotal.toFixed(2)}</span>
                   </div>
-                  
-                  {cartTotal < 50 && paymentMethod === 'stripe' && (
-                    <div className="mt-2 text-sm text-red-500">
-                      * Stripe requires a minimum order of ₹50 for online payments
-                    </div>
-                  )}
                 </div>
               </div>
 
