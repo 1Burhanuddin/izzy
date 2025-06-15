@@ -1,11 +1,8 @@
 
 import React, { useState, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { QrCode, Copy, CheckCircle2, Share2, Smartphone } from 'lucide-react';
+import { Copy, CheckCircle2, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UPIPaymentProps {
   upiId: string;
@@ -17,12 +14,6 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
   const [copied, setCopied] = useState(false);
   const merchantUpiId = "111burhanuddin@okicici";
   
-  const validateUpiId = (id: string) => {
-    // Basic UPI ID validation (username@provider)
-    const upiRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9]+$/;
-    return upiRegex.test(id);
-  };
-
   useEffect(() => {
     if (copied) {
       const timeout = setTimeout(() => {
@@ -72,32 +63,8 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
     }
   };
 
-  const manualPaymentInstructions = () => {
-    toast.info('Manual Steps: 1) Open any UPI app (GPay/PhonePe/Paytm) 2) Tap "Send Money" or "Pay" 3) Enter UPI ID: ' + merchantUpiId + ' 4) Enter amount: ₹' + amount.toFixed(2) + ' 5) Complete payment', {
-      duration: 10000
-    });
-  };
-
   return (
     <div>
-      <div className="mb-4">
-        <Label htmlFor="upi-id">Your UPI ID (Optional)</Label>
-        <div className="flex mt-1">
-          <Input
-            id="upi-id"
-            placeholder="yourname@upi"
-            value={upiId}
-            onChange={(e) => setUpiId(e.target.value)}
-            className="flex-grow"
-          />
-        </div>
-        {upiId && !validateUpiId(upiId) && (
-          <p className="text-sm text-red-500 mt-1">
-            Please enter a valid UPI ID (e.g., yourname@ybl)
-          </p>
-        )}
-      </div>
-
       <div className="flex flex-col items-center justify-center mt-6 border rounded-lg p-6 bg-gray-50">
         <div className="text-center w-full">
           <p className="font-semibold text-gray-800 mb-2">Pay to: {merchantUpiId}</p>
@@ -121,15 +88,6 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
             >
               {copied ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
               {copied ? 'Copied!' : 'Copy UPI ID'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={manualPaymentInstructions}
-            >
-              <Smartphone className="h-4 w-4" />
-              Manual Steps
             </Button>
             <Button
               variant="outline"
