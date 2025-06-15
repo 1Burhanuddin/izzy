@@ -23,12 +23,13 @@ interface ProductRevealCardProps {
   className?: string
   category?: string
   availability?: 'in_stock' | 'low_stock' | 'out_of_stock'
+  discountPercentage?: number
 }
 
 export function ProductRevealCard({
   name = "Premium Glass Panel",
   price = "₹199",
-  originalPrice = "₹299",
+  originalPrice,
   image = "https://images.unsplash.com/photo-1496307653780-42ee777d4833?w=800&h=600&fit=crop",
   description = "High-quality toughened glass panel perfect for modern architectural applications. Durable, safe, and aesthetically pleasing.",
   rating = 4.8,
@@ -41,6 +42,7 @@ export function ProductRevealCard({
   className,
   category = "Glass",
   availability = "in_stock",
+  discountPercentage,
 }: ProductRevealCardProps) {
   const [showDetails, setShowDetails] = useState(false)
   const shouldReduceMotion = useReducedMotion()
@@ -67,6 +69,19 @@ export function ProductRevealCard({
     e.stopPropagation()
     setShowDetails(!showDetails)
   }
+
+  // Calculate original price from discount percentage if not provided
+  const getOriginalPrice = () => {
+    if (originalPrice) return originalPrice;
+    if (discountPercentage && discountPercentage > 0) {
+      const currentPrice = parseFloat(price.replace('₹', ''));
+      const calculatedOriginalPrice = currentPrice / (1 - discountPercentage / 100);
+      return `₹${calculatedOriginalPrice.toFixed(2)}`;
+    }
+    return null;
+  }
+
+  const calculatedOriginalPrice = getOriginalPrice();
 
   const containerVariants = {
     rest: { 
@@ -264,14 +279,15 @@ export function ProductRevealCard({
         </motion.div>
 
         {/* Discount Badge */}
-        {originalPrice && (
+        {(calculatedOriginalPrice || discountPercentage) && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, x: 20 }}
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ delay: 0.3 }}
             className="absolute top-10 left-3 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold"
           >
-            {Math.round(((parseFloat(originalPrice.replace('₹', '')) - parseFloat(price.replace('₹', ''))) / parseFloat(originalPrice.replace('₹', ''))) * 100)}% OFF
+            {discountPercentage ? `${Math.round(discountPercentage)}% OFF` : 
+             calculatedOriginalPrice ? `${Math.round(((parseFloat(calculatedOriginalPrice.replace('₹', '')) - parseFloat(price.replace('₹', ''))) / parseFloat(calculatedOriginalPrice.replace('₹', ''))) * 100)}% OFF` : ''}
           </motion.div>
         )}
 
@@ -322,9 +338,9 @@ export function ProductRevealCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xl sm:text-2xl font-bold text-primary">{price}</span>
-              {originalPrice && (
+              {calculatedOriginalPrice && (
                 <span className="text-sm sm:text-lg text-muted-foreground line-through">
-                  {originalPrice}
+                  {calculatedOriginalPrice}
                 </span>
               )}
             </div>
