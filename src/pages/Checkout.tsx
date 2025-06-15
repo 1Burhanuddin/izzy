@@ -144,6 +144,28 @@ const Checkout = () => {
     setCheckingPayment(false);
   };
 
+  const handleCancelOrder = async () => {
+    // Cancel the pending order and reset state
+    if (pendingOrderId) {
+      try {
+        await supabase
+          .from('orders')
+          .update({ status: 'cancelled', payment_status: 'failed' })
+          .eq('id', pendingOrderId);
+          
+        toast.success('Order has been cancelled successfully.');
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+        toast.error('Error cancelling order. Please try again.');
+      }
+    }
+    
+    setPaymentInitiated(false);
+    setOrderCreated(false);
+    setPendingOrderId(null);
+    setCheckingPayment(false);
+  };
+
   const createPendingOrder = async () => {
     if (!user) {
       toast.error('You must be logged in to checkout');
@@ -400,6 +422,7 @@ const Checkout = () => {
                   amount={cartTotal}
                   onPaymentInitiated={handlePaymentInitiated}
                   onPaymentTimeout={handlePaymentTimeout}
+                  onCancel={handleCancelOrder}
                   orderId={pendingOrderId || undefined}
                 />
               </div>

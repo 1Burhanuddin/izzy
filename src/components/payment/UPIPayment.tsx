@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, CheckCircle2, Share2, Clock, AlertCircle } from 'lucide-react';
+import { Copy, CheckCircle2, Share2, Clock, AlertCircle, X } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UPIPaymentProps {
@@ -11,6 +11,7 @@ interface UPIPaymentProps {
   onPaymentInitiated?: () => void;
   onPaymentTimeout?: () => void;
   orderId?: string;
+  onCancel?: () => void;
 }
 
 const UPIPayment: React.FC<UPIPaymentProps> = ({ 
@@ -19,11 +20,12 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
   amount = 0, 
   onPaymentInitiated,
   onPaymentTimeout,
-  orderId
+  orderId,
+  onCancel
 }) => {
   const [copied, setCopied] = useState(false);
   const [paymentInitiated, setPaymentInitiated] = useState(false);
-  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes
+  const [timeRemaining, setTimeRemaining] = useState(180); // 3 minutes = 180 seconds
   const merchantUpiId = "111burhanuddin@okicici";
   
   useEffect(() => {
@@ -67,6 +69,15 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
     toast.success('UPI ID copied to clipboard');
   };
 
+  const handleCancelOrder = () => {
+    if (onCancel) {
+      onCancel();
+    }
+    setPaymentInitiated(false);
+    setTimeRemaining(180); // Reset timer
+    toast.info('Order has been cancelled');
+  };
+
   const openUPIApp = (app: string) => {
     const merchantName = "Payment";
     
@@ -89,7 +100,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
         onPaymentInitiated();
       }
       
-      toast.success(`Opening ${app}... Complete payment within 5 minutes`);
+      toast.success(`Opening ${app}... Complete payment within 3 minutes`);
     } catch (error) {
       console.error('Error opening UPI app:', error);
       toast.error('Could not open payment app. Please copy the UPI ID and pay manually.');
@@ -126,15 +137,24 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
           
           {paymentInitiated && timeRemaining > 0 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
-              <div className="flex items-center justify-center text-yellow-700">
+              <div className="flex items-center justify-center text-yellow-700 mb-2">
                 <Clock className="h-4 w-4 mr-2" />
                 <span className="text-sm font-medium">
                   Time remaining: {formatTime(timeRemaining)}
                 </span>
               </div>
-              <p className="text-xs text-yellow-600 mt-1">
+              <p className="text-xs text-yellow-600 mb-3">
                 Complete your payment within this time. We are automatically checking for payment confirmation.
               </p>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleCancelOrder}
+                className="w-full flex items-center justify-center gap-2"
+              >
+                <X className="h-4 w-4" />
+                Cancel Order
+              </Button>
             </div>
           )}
 
