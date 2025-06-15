@@ -8,7 +8,7 @@ import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
 import BestSellers from '@/components/product/BestSellers';
-import HeroSection from '@/components/home/HeroSection';
+import { DemoBackgroundPaths } from '@/components/ui/background-paths-demo';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 const Index = () => {
@@ -18,8 +18,8 @@ const Index = () => {
     <Layout>
       <CartDrawer open={isCartOpen} onClose={closeCart} />
       
-      {/* Hero Section with Background */}
-      <HeroSection />
+      {/* Background Paths Hero Section */}
+      <DemoBackgroundPaths />
       
       {/* Features Section - Early placement for impact */}
       <FeaturesSection />
