@@ -8,7 +8,6 @@ import CategoriesSection from '@/components/home/CategoriesSection';
 import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
 import BestSellers from '@/components/product/BestSellers';
-import { LampDemo } from '@/components/ui/lamp-demo';
 import HeroSection from '@/components/home/HeroSection';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
@@ -21,11 +20,6 @@ const Index = () => {
       
       {/* Hero Section with Background */}
       <HeroSection />
-      
-      {/* Lamp Demo Section */}
-      <div className="relative min-h-screen bg-black overflow-hidden">
-        <LampDemo />
-      </div>
       
       {/* Features Section - Early placement for impact */}
       <FeaturesSection />
