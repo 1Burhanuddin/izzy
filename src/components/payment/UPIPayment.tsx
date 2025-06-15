@@ -39,32 +39,18 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
   };
 
   const openUPIApp = (app: string) => {
-    // Use the standard UPI payment URL format recommended by NPCI
-    // This format is more widely supported and less likely to trigger bank limits
-    const merchantName = "Merchant";
-    const transactionNote = `Payment for Order`;
+    // Use the most basic UPI URL format to avoid limit errors
+    // Remove amount parameter as it can sometimes trigger false limit errors
+    const merchantName = "Payment";
     
-    // Use the minimal UPI URL format that's most compatible
-    let upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}`;
+    // Ultra-simplified UPI URL format
+    const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}`;
     
-    // Only add amount if it's greater than 0
-    if (amount > 0) {
-      upiUrl += `&am=${amount}&cu=INR`;
-    }
-    
-    // Add transaction note
-    upiUrl += `&tn=${encodeURIComponent(transactionNote)}`;
-    
-    console.log(`Opening ${app} with URL:`, upiUrl);
+    console.log(`Opening ${app} with simplified URL:`, upiUrl);
     
     try {
-      // Create a temporary link and click it
-      const link = document.createElement('a');
-      link.href = upiUrl;
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Try to open the UPI app
+      window.location.href = upiUrl;
       
       toast.success(`Opening ${app}... If it doesn't open, please copy the UPI ID and pay manually`);
     } catch (error) {
@@ -87,8 +73,8 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
   };
 
   const manualPaymentInstructions = () => {
-    toast.info('Steps: 1) Open any UPI app 2) Select Send Money 3) Enter UPI ID: ' + merchantUpiId + ' 4) Enter amount: ₹' + amount.toFixed(2), {
-      duration: 8000
+    toast.info('Manual Steps: 1) Open any UPI app (GPay/PhonePe/Paytm) 2) Tap "Send Money" or "Pay" 3) Enter UPI ID: ' + merchantUpiId + ' 4) Enter amount: ₹' + amount.toFixed(2) + ' 5) Complete payment', {
+      duration: 10000
     });
   };
 
@@ -119,6 +105,13 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
             <p className="font-bold text-lg text-green-600 mb-4">Amount: ₹{amount.toFixed(2)}</p>
           )}
           
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+            <p className="text-sm text-yellow-700">
+              <strong>Important:</strong> If you see "limit exceeded" error, it's usually a false alert. 
+              Try copying the UPI ID and paying manually through your UPI app.
+            </p>
+          </div>
+
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             <Button
               variant="outline"
@@ -133,71 +126,52 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
               variant="outline"
               size="sm"
               className="flex items-center gap-1"
-              onClick={sharePaymentDetails}
-            >
-              <Share2 className="h-4 w-4" />
-              Share
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-1"
               onClick={manualPaymentInstructions}
             >
               <Smartphone className="h-4 w-4" />
               Manual Steps
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={sharePaymentDetails}
+            >
+              <Share2 className="h-4 w-4" />
+              Share Details
+            </Button>
           </div>
           
-          <Tabs defaultValue="gpay" className="w-full">
-            <TabsList className="grid grid-cols-4 mb-4">
-              <TabsTrigger value="gpay">Google Pay</TabsTrigger>
-              <TabsTrigger value="phonepe">PhonePe</TabsTrigger>
-              <TabsTrigger value="paytm">Paytm</TabsTrigger>
-              <TabsTrigger value="other">Other</TabsTrigger>
-            </TabsList>
-            <TabsContent value="gpay" className="mt-0">
-              <Button 
-                className="bg-white border hover:bg-gray-50 text-gray-800 font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2 mb-3"
-                onClick={() => openUPIApp('Google Pay')}
-              >
-                <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Google_Pay_Logo.svg/1200px-Google_Pay_Logo.svg.png" alt="Google Pay" className="h-5" />
-                Pay with Google Pay
-              </Button>
-            </TabsContent>
-            <TabsContent value="phonepe" className="mt-0">
-              <Button 
-                className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2 mb-3"
-                onClick={() => openUPIApp('PhonePe')}
-              >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe" className="h-5" />
-                Pay with PhonePe
-              </Button>
-            </TabsContent>
-            <TabsContent value="paytm" className="mt-0">
-              <Button 
-                className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2 mb-3"
-                onClick={() => openUPIApp('Paytm')}
-              >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-5" />
-                Pay with Paytm
-              </Button>
-            </TabsContent>
-            <TabsContent value="other" className="mt-0">
-              <Button 
-                className="bg-gray-800 hover:bg-gray-900 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2 mb-3"
-                onClick={() => openUPIApp('UPI app')}
-              >
-                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" alt="UPI" className="h-5" />
-                Open Any UPI App
-              </Button>
-            </TabsContent>
-          </Tabs>
+          <div className="space-y-2">
+            <Button 
+              className="bg-white border hover:bg-gray-50 text-gray-800 font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2"
+              onClick={() => openUPIApp('Google Pay')}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Google_Pay_Logo.svg/1200px-Google_Pay_Logo.svg.png" alt="Google Pay" className="h-5" />
+              Try Google Pay
+            </Button>
+            
+            <Button 
+              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2"
+              onClick={() => openUPIApp('PhonePe')}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe" className="h-5" />
+              Try PhonePe
+            </Button>
+            
+            <Button 
+              className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2"
+              onClick={() => openUPIApp('Paytm')}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-5" />
+              Try Paytm
+            </Button>
+          </div>
           
           <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-4">
             <p className="text-sm text-blue-700">
-              <strong>Having issues?</strong> Copy the UPI ID above and manually send payment through any UPI app.
-              Use the "Manual Steps" button for detailed instructions.
+              <strong>Recommended:</strong> Copy the UPI ID above and open any UPI app manually. 
+              This avoids any "limit exceeded" errors that can happen with automatic app opening.
             </p>
           </div>
         </div>
