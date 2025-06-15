@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -16,7 +15,8 @@ import {
   ShieldCheck,
   AlertCircle,
   Loader2,
-  CheckCircle2
+  CheckCircle2,
+  Clock
 } from 'lucide-react';
 import UPIPayment from '@/components/payment/UPIPayment';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -29,12 +29,12 @@ const Checkout = () => {
   const canceled = searchParams.get('canceled');
   
   const [paymentMethod, setPaymentMethod] = useState('upi');
-  const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [orderCreated, setOrderCreated] = useState(false);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [checkingPayment, setCheckingPayment] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -69,6 +69,54 @@ const Checkout = () => {
     }
   }, [canceled, user, cartItems, navigate]);
 
+  // Auto-check payment status when payment is initiated
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (paymentInitiated && pendingOrderId) {
+      setCheckingPayment(true);
+      console.log('Starting payment verification for order:', pendingOrderId);
+      
+      interval = setInterval(async () => {
+        try {
+          const { data: order, error } = await supabase
+            .from('orders')
+            .select('payment_status, status')
+            .eq('id', pendingOrderId)
+            .single();
+            
+          if (error) {
+            console.error('Error checking payment status:', error);
+            return;
+          }
+          
+          console.log('Payment status check:', order);
+          
+          // In a real implementation, you would check with your payment gateway
+          // For demo purposes, we'll simulate a successful payment after some time
+          // You would replace this with actual payment gateway verification
+          
+          if (order && order.payment_status === 'completed') {
+            clearInterval(interval);
+            setCheckingPayment(false);
+            await clearCart();
+            localStorage.setItem('pendingOrderId', pendingOrderId);
+            toast.success('Payment confirmed! Your order has been placed successfully.');
+            navigate('/order-confirmation');
+          }
+        } catch (error) {
+          console.error('Error in payment verification:', error);
+        }
+      }, 3000); // Check every 3 seconds
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [paymentInitiated, pendingOrderId, clearCart, navigate]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -76,7 +124,28 @@ const Checkout = () => {
 
   const handlePaymentInitiated = () => {
     setPaymentInitiated(true);
-    toast.info('Payment app opened. Complete the payment and return to confirm your order.');
+    toast.info('Payment initiated. We are automatically checking for confirmation...');
+  };
+
+  const handlePaymentTimeout = async () => {
+    // Cancel the pending order and reset state
+    if (pendingOrderId) {
+      try {
+        await supabase
+          .from('orders')
+          .update({ status: 'cancelled', payment_status: 'failed' })
+          .eq('id', pendingOrderId);
+          
+        toast.error('Payment timeout. Order has been cancelled. Please try again.');
+      } catch (error) {
+        console.error('Error cancelling order:', error);
+      }
+    }
+    
+    setPaymentInitiated(false);
+    setOrderCreated(false);
+    setPendingOrderId(null);
+    setCheckingPayment(false);
   };
 
   const createPendingOrder = async () => {
@@ -151,49 +220,12 @@ const Checkout = () => {
       
       setPendingOrderId(order.id);
       setOrderCreated(true);
-      toast.success('Order created! Please complete the payment to confirm your order.');
+      toast.success('Order created! Please complete the payment using UPI.');
       
     } catch (error: any) {
       console.error('Error creating order:', error);
       setError(`Failed to create order: ${error.message}`);
       toast.error(`Failed to create order: ${error.message}`);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const confirmPayment = async () => {
-    if (!pendingOrderId) {
-      toast.error('No pending order found');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      
-      // Update order status to confirmed
-      const { error: updateError } = await supabase
-        .from('orders')
-        .update({
-          status: 'confirmed',
-          payment_status: 'completed',
-          transaction_id: `UPI_COMPLETED_${Date.now()}`
-        })
-        .eq('id', pendingOrderId);
-      
-      if (updateError) {
-        throw new Error(`Failed to confirm payment: ${updateError.message}`);
-      }
-      
-      // Clear cart and redirect
-      await clearCart();
-      localStorage.setItem('pendingOrderId', pendingOrderId);
-      toast.success('Payment confirmed! Your order has been placed successfully.');
-      navigate('/order-confirmation');
-      
-    } catch (error: any) {
-      console.error('Error confirming payment:', error);
-      toast.error(`Failed to confirm payment: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -237,7 +269,19 @@ const Checkout = () => {
           <Alert className="mb-6 bg-green-50 border-green-200">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800">
-              Order created successfully! Please complete the payment using the UPI options below, then click "Confirm Payment" to finalize your order.
+              Order created successfully! Please complete the payment using the UPI options below. We will automatically detect when your payment is confirmed.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {checkingPayment && (
+          <Alert className="mb-6 bg-blue-50 border-blue-200">
+            <Clock className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              <div className="flex items-center">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Checking payment status... Please wait while we verify your payment.
+              </div>
             </AlertDescription>
           </Alert>
         )}
@@ -362,33 +406,13 @@ const Checkout = () => {
                 {paymentMethod === 'upi' && orderCreated && (
                   <div className="mt-4">
                     <UPIPayment 
-                      upiId={upiId} 
-                      setUpiId={setUpiId} 
+                      upiId=""
+                      setUpiId={() => {}}
                       amount={cartTotal}
                       onPaymentInitiated={handlePaymentInitiated}
+                      onPaymentTimeout={handlePaymentTimeout}
+                      orderId={pendingOrderId || undefined}
                     />
-                    
-                    {paymentInitiated && (
-                      <div className="mt-4">
-                        <Button
-                          onClick={confirmPayment}
-                          disabled={loading}
-                          className="w-full bg-green-600 hover:bg-green-700"
-                        >
-                          {loading ? (
-                            <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              Confirming...
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle2 className="mr-2 h-4 w-4" />
-                              Confirm Payment Completed
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    )}
                   </div>
                 )}
 

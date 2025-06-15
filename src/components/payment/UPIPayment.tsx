@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Copy, CheckCircle2, Share2 } from 'lucide-react';
+import { Copy, CheckCircle2, Share2, Clock, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface UPIPaymentProps {
@@ -9,10 +9,21 @@ interface UPIPaymentProps {
   setUpiId: (value: string) => void;
   amount?: number;
   onPaymentInitiated?: () => void;
+  onPaymentTimeout?: () => void;
+  orderId?: string;
 }
 
-const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, onPaymentInitiated }) => {
+const UPIPayment: React.FC<UPIPaymentProps> = ({ 
+  upiId, 
+  setUpiId, 
+  amount = 0, 
+  onPaymentInitiated,
+  onPaymentTimeout,
+  orderId
+}) => {
   const [copied, setCopied] = useState(false);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(300); // 5 minutes
   const merchantUpiId = "111burhanuddin@okicici";
   
   useEffect(() => {
@@ -24,6 +35,32 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
     }
   }, [copied]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (paymentInitiated && timeRemaining > 0) {
+      interval = setInterval(() => {
+        setTimeRemaining((prev) => {
+          if (prev <= 1) {
+            // Time expired
+            if (onPaymentTimeout) {
+              onPaymentTimeout();
+            }
+            toast.error('Payment time expired. Please try again.');
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [paymentInitiated, timeRemaining, onPaymentTimeout]);
+
   const copyUpiId = () => {
     navigator.clipboard.writeText(merchantUpiId);
     setCopied(true);
@@ -34,7 +71,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
     const merchantName = "Payment";
     
     // Include amount in UPI URL for proper payment processing
-    const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&cu=INR`;
+    const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&cu=INR&tr=${orderId || Date.now()}`;
     
     console.log(`Opening ${app} with URL:`, upiUrl);
     
@@ -44,12 +81,15 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
       link.href = upiUrl;
       link.click();
       
+      // Mark payment as initiated
+      setPaymentInitiated(true);
+      
       // Call the callback to indicate payment was initiated
       if (onPaymentInitiated) {
         onPaymentInitiated();
       }
       
-      toast.success(`Opening ${app}... Please complete the payment and return to confirm`);
+      toast.success(`Opening ${app}... Complete payment within 5 minutes`);
     } catch (error) {
       console.error('Error opening UPI app:', error);
       toast.error('Could not open payment app. Please copy the UPI ID and pay manually.');
@@ -69,6 +109,12 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
     }
   };
 
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
     <div>
       <div className="flex flex-col items-center justify-center mt-6 border rounded-lg p-6 bg-gray-50">
@@ -78,12 +124,40 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
             <p className="font-bold text-lg text-green-600 mb-4">Amount: ₹{amount.toFixed(2)}</p>
           )}
           
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
-            <p className="text-sm text-blue-700">
-              <strong>Instructions:</strong> Click on your preferred UPI app below to make the payment. 
-              After completing the payment, return here to confirm your order.
-            </p>
-          </div>
+          {paymentInitiated && timeRemaining > 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
+              <div className="flex items-center justify-center text-yellow-700">
+                <Clock className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">
+                  Time remaining: {formatTime(timeRemaining)}
+                </span>
+              </div>
+              <p className="text-xs text-yellow-600 mt-1">
+                Complete your payment within this time. We are automatically checking for payment confirmation.
+              </p>
+            </div>
+          )}
+
+          {timeRemaining === 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-3 mb-4">
+              <div className="flex items-center justify-center text-red-700">
+                <AlertCircle className="h-4 w-4 mr-2" />
+                <span className="text-sm font-medium">Payment time expired</span>
+              </div>
+              <p className="text-xs text-red-600 mt-1">
+                Please refresh the page and try again.
+              </p>
+            </div>
+          )}
+
+          {!paymentInitiated && (
+            <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+              <p className="text-sm text-blue-700">
+                <strong>Instructions:</strong> Click on your preferred UPI app below to make the payment. 
+                We will automatically detect when your payment is completed.
+              </p>
+            </div>
+          )}
 
           <div className="flex flex-wrap justify-center gap-2 mb-4">
             <Button
@@ -91,6 +165,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
               size="sm"
               className="flex items-center gap-1"
               onClick={copyUpiId}
+              disabled={timeRemaining === 0}
             >
               {copied ? <CheckCircle2 className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
               {copied ? 'Copied!' : 'Copy UPI ID'}
@@ -100,6 +175,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
               size="sm"
               className="flex items-center gap-1"
               onClick={sharePaymentDetails}
+              disabled={timeRemaining === 0}
             >
               <Share2 className="h-4 w-4" />
               Share Details
@@ -110,6 +186,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
             <Button 
               className="bg-white border hover:bg-gray-50 text-gray-800 font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2"
               onClick={() => openUPIApp('Google Pay')}
+              disabled={paymentInitiated || timeRemaining === 0}
             >
               <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Google_Pay_Logo.svg/1200px-Google_Pay_Logo.svg.png" alt="Google Pay" className="h-5" />
               Pay with Google Pay
@@ -118,6 +195,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
             <Button 
               className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2"
               onClick={() => openUPIApp('PhonePe')}
+              disabled={paymentInitiated || timeRemaining === 0}
             >
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe" className="h-5" />
               Pay with PhonePe
@@ -126,6 +204,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, on
             <Button 
               className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-md w-full flex items-center justify-center gap-2"
               onClick={() => openUPIApp('Paytm')}
+              disabled={paymentInitiated || timeRemaining === 0}
             >
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-5" />
               Pay with Paytm
