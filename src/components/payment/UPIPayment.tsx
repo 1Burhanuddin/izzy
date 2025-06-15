@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { QrCode, Copy, CheckCircle2, Share2 } from 'lucide-react';
+import { QrCode, Copy, CheckCircle2, Share2, Smartphone } from 'lucide-react';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UPIPaymentProps {
   upiId: string;
   setUpiId: (value: string) => void;
-  amount?: number; // Add amount as optional prop
+  amount?: number;
 }
 
 const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) => {
@@ -24,7 +24,6 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
   };
 
   useEffect(() => {
-    // Set a timeout to reset the copied state after 2 seconds
     if (copied) {
       const timeout = setTimeout(() => {
         setCopied(false);
@@ -40,19 +39,34 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
   };
 
   const openUPIApp = (app: string) => {
-    // Improved UPI URL format with better compatibility
-    // Using a simpler format that is more widely supported
-    const amountStr = amount > 0 ? `&am=${amount.toFixed(2)}` : '';
-    const merchantName = encodeURIComponent("Merchant");
+    // Use the standard UPI payment URL format recommended by NPCI
+    // This format is more widely supported and less likely to trigger bank limits
+    const merchantName = "Merchant";
+    const transactionNote = `Payment for Order`;
     
-    // Standard UPI payment URL with minimal parameters
-    const upiUrl = `upi://pay?pa=${encodeURIComponent(merchantUpiId)}&pn=${merchantName}&cu=INR${amountStr}`;
+    // Use the minimal UPI URL format that's most compatible
+    let upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}`;
+    
+    // Only add amount if it's greater than 0
+    if (amount > 0) {
+      upiUrl += `&am=${amount}&cu=INR`;
+    }
+    
+    // Add transaction note
+    upiUrl += `&tn=${encodeURIComponent(transactionNote)}`;
     
     console.log(`Opening ${app} with URL:`, upiUrl);
     
     try {
-      window.location.href = upiUrl;
-      toast.info(`Redirecting to ${app}. If it doesn't open automatically, use the UPI ID to manually pay`);
+      // Create a temporary link and click it
+      const link = document.createElement('a');
+      link.href = upiUrl;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Opening ${app}... If it doesn't open, please copy the UPI ID and pay manually`);
     } catch (error) {
       console.error('Error opening UPI app:', error);
       toast.error('Could not open payment app. Please use the UPI ID manually.');
@@ -70,6 +84,12 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
     } else {
       copyUpiId();
     }
+  };
+
+  const manualPaymentInstructions = () => {
+    toast.info('Steps: 1) Open any UPI app 2) Select Send Money 3) Enter UPI ID: ' + merchantUpiId + ' 4) Enter amount: ₹' + amount.toFixed(2), {
+      duration: 8000
+    });
   };
 
   return (
@@ -94,14 +114,12 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
 
       <div className="flex flex-col items-center justify-center mt-6 border rounded-lg p-6 bg-gray-50">
         <div className="text-center w-full">
-{/*           <div className="bg-white p-3 rounded-lg inline-block mb-3">
-            <QrCode className="h-24 w-24 text-gray-800" />
-          </div> */}
           <p className="font-semibold text-gray-800 mb-2">Pay to: {merchantUpiId}</p>
           {amount > 0 && (
-            <p className="font-bold text-lg text-green-600 mb-2">Amount: ₹{amount.toFixed(2)}</p>
+            <p className="font-bold text-lg text-green-600 mb-4">Amount: ₹{amount.toFixed(2)}</p>
           )}
-          <div className="flex justify-center mb-4">
+          
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
             <Button
               variant="outline"
               size="sm"
@@ -114,11 +132,20 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
             <Button
               variant="outline"
               size="sm"
-              className="flex items-center gap-1 ml-2"
+              className="flex items-center gap-1"
               onClick={sharePaymentDetails}
             >
               <Share2 className="h-4 w-4" />
               Share
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-1"
+              onClick={manualPaymentInstructions}
+            >
+              <Smartphone className="h-4 w-4" />
+              Manual Steps
             </Button>
           </div>
           
@@ -167,9 +194,12 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
             </TabsContent>
           </Tabs>
           
-          <p className="text-sm text-gray-600 mt-2">
-            Click any button above to pay with your preferred UPI app
-          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-4">
+            <p className="text-sm text-blue-700">
+              <strong>Having issues?</strong> Copy the UPI ID above and manually send payment through any UPI app.
+              Use the "Manual Steps" button for detailed instructions.
+            </p>
+          </div>
         </div>
       </div>
 
