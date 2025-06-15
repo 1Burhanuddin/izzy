@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -92,11 +91,6 @@ const Checkout = () => {
     
     if (missingFields.length > 0) {
       toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
-      return;
-    }
-
-    if (paymentMethod === 'upi' && !upiId) {
-      toast.error('Please enter a valid UPI ID');
       return;
     }
 

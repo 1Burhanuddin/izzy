@@ -31,22 +31,23 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
 
   const openUPIApp = (app: string) => {
     // Use the most basic UPI URL format to avoid limit errors
-    // Remove amount parameter as it can sometimes trigger false limit errors
     const merchantName = "Payment";
     
-    // Ultra-simplified UPI URL format
+    // Ultra-simplified UPI URL format without amount to avoid errors
     const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}`;
     
-    console.log(`Opening ${app} with simplified URL:`, upiUrl);
+    console.log(`Opening ${app} with URL:`, upiUrl);
     
     try {
-      // Try to open the UPI app
-      window.location.href = upiUrl;
+      // Create a temporary link element and click it
+      const link = document.createElement('a');
+      link.href = upiUrl;
+      link.click();
       
-      toast.success(`Opening ${app}... If it doesn't open, please copy the UPI ID and pay manually`);
+      toast.success(`Attempting to open ${app}... If it doesn't open, please copy the UPI ID and pay manually`);
     } catch (error) {
       console.error('Error opening UPI app:', error);
-      toast.error('Could not open payment app. Please use the UPI ID manually.');
+      toast.error('Could not open payment app. Please copy the UPI ID and pay manually.');
     }
   };
 
