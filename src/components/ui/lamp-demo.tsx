@@ -28,14 +28,6 @@ export function LampDemo() {
         >
           build your space
         </TextShimmer>
-        <TextShimmer
-          as="h2" 
-          className="text-center text-2xl md:text-4xl lg:text-6xl font-semibold [--base-color:#ffffff] [--base-gradient-color:#a3a3a3]"
-          duration={3}
-          spread={4}
-        >
-          the right way
-        </TextShimmer>
       </motion.div>
     </LampContainer>
   );
