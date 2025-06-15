@@ -6,12 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  Landmark, 
-  Phone, 
   ShieldCheck,
   AlertCircle,
   Loader2,
@@ -28,7 +25,6 @@ const Checkout = () => {
   const [searchParams] = useSearchParams();
   const canceled = searchParams.get('canceled');
   
-  const [paymentMethod, setPaymentMethod] = useState('upi');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orderCreated, setOrderCreated] = useState(false);
@@ -377,52 +373,6 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-                
-                <RadioGroup
-                  value={paymentMethod}
-                  onValueChange={setPaymentMethod}
-                  className="space-y-3"
-                  disabled={orderCreated}
-                >
-                  <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="upi" id="upi" />
-                    <Label htmlFor="upi" className="flex items-center cursor-pointer">
-                      <Phone className="mr-2 h-5 w-5 text-green-500" />
-                      <span>UPI</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value="banking" id="banking" />
-                    <Label htmlFor="banking" className="flex items-center cursor-pointer">
-                      <Landmark className="mr-2 h-5 w-5 text-purple-500" />
-                      <span>Net Banking</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-
-                {paymentMethod === 'upi' && orderCreated && (
-                  <div className="mt-4">
-                    <UPIPayment 
-                      upiId=""
-                      setUpiId={() => {}}
-                      amount={cartTotal}
-                      onPaymentInitiated={handlePaymentInitiated}
-                      onPaymentTimeout={handlePaymentTimeout}
-                      orderId={pendingOrderId || undefined}
-                    />
-                  </div>
-                )}
-
-                {paymentMethod !== 'upi' && (
-                  <div className="mt-4 p-4 bg-gray-100 rounded-md text-center">
-                    <p className="text-gray-500">This payment method is currently unavailable</p>
-                  </div>
-                )}
-              </div>
-
               {!orderCreated && (
                 <Button
                   type="submit"
@@ -440,6 +390,20 @@ const Checkout = () => {
                 </Button>
               )}
             </form>
+
+            {orderCreated && (
+              <div className="bg-white rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold mb-4">Complete Payment</h2>
+                <UPIPayment 
+                  upiId=""
+                  setUpiId={() => {}}
+                  amount={cartTotal}
+                  onPaymentInitiated={handlePaymentInitiated}
+                  onPaymentTimeout={handlePaymentTimeout}
+                  orderId={pendingOrderId || undefined}
+                />
+              </div>
+            )}
           </div>
 
           <div>
