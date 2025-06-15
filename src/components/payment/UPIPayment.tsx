@@ -8,9 +8,10 @@ interface UPIPaymentProps {
   upiId: string;
   setUpiId: (value: string) => void;
   amount?: number;
+  onPaymentInitiated?: () => void;
 }
 
-const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) => {
+const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0, onPaymentInitiated }) => {
   const [copied, setCopied] = useState(false);
   const merchantUpiId = "111burhanuddin@okicici";
   
@@ -30,11 +31,10 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
   };
 
   const openUPIApp = (app: string) => {
-    // Use the most basic UPI URL format to avoid limit errors
     const merchantName = "Payment";
     
-    // Ultra-simplified UPI URL format without amount to avoid errors
-    const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}`;
+    // Include amount in UPI URL for proper payment processing
+    const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&am=${amount.toFixed(2)}&cu=INR`;
     
     console.log(`Opening ${app} with URL:`, upiUrl);
     
@@ -44,7 +44,12 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
       link.href = upiUrl;
       link.click();
       
-      toast.success(`Attempting to open ${app}... If it doesn't open, please copy the UPI ID and pay manually`);
+      // Call the callback to indicate payment was initiated
+      if (onPaymentInitiated) {
+        onPaymentInitiated();
+      }
+      
+      toast.success(`Opening ${app}... Please complete the payment and return to confirm`);
     } catch (error) {
       console.error('Error opening UPI app:', error);
       toast.error('Could not open payment app. Please copy the UPI ID and pay manually.');
@@ -73,10 +78,10 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
             <p className="font-bold text-lg text-green-600 mb-4">Amount: ₹{amount.toFixed(2)}</p>
           )}
           
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3 mb-4">
-            <p className="text-sm text-yellow-700">
-              <strong>Important:</strong> If you see "limit exceeded" error, it's usually a false alert. 
-              Try copying the UPI ID and paying manually through your UPI app.
+          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4">
+            <p className="text-sm text-blue-700">
+              <strong>Instructions:</strong> Click on your preferred UPI app below to make the payment. 
+              After completing the payment, return here to confirm your order.
             </p>
           </div>
 
@@ -107,7 +112,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
               onClick={() => openUPIApp('Google Pay')}
             >
               <img src="https://upload.wikimedia.org/wikipedia/en/thumb/f/f2/Google_Pay_Logo.svg/1200px-Google_Pay_Logo.svg.png" alt="Google Pay" className="h-5" />
-              Try Google Pay
+              Pay with Google Pay
             </Button>
             
             <Button 
@@ -115,7 +120,7 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
               onClick={() => openUPIApp('PhonePe')}
             >
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/PhonePe_Logo.svg/1200px-PhonePe_Logo.svg.png" alt="PhonePe" className="h-5" />
-              Try PhonePe
+              Pay with PhonePe
             </Button>
             
             <Button 
@@ -123,15 +128,8 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({ upiId, setUpiId, amount = 0 }) 
               onClick={() => openUPIApp('Paytm')}
             >
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Paytm_Logo_%28standalone%29.svg/1200px-Paytm_Logo_%28standalone%29.svg.png" alt="Paytm" className="h-5" />
-              Try Paytm
+              Pay with Paytm
             </Button>
-          </div>
-          
-          <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-4">
-            <p className="text-sm text-blue-700">
-              <strong>Recommended:</strong> Copy the UPI ID above and open any UPI app manually. 
-              This avoids any "limit exceeded" errors that can happen with automatic app opening.
-            </p>
           </div>
         </div>
       </div>

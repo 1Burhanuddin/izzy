@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
@@ -15,8 +16,7 @@ import {
   ShieldCheck,
   AlertCircle,
   Loader2,
-  AlertTriangle,
-  Info
+  CheckCircle2
 } from 'lucide-react';
 import UPIPayment from '@/components/payment/UPIPayment';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -32,6 +32,9 @@ const Checkout = () => {
   const [upiId, setUpiId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [paymentInitiated, setPaymentInitiated] = useState(false);
+  const [orderCreated, setOrderCreated] = useState(false);
+  const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -71,9 +74,12 @@ const Checkout = () => {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handlePaymentInitiated = () => {
+    setPaymentInitiated(true);
+    toast.info('Payment app opened. Complete the payment and return to confirm your order.');
+  };
+
+  const createPendingOrder = async () => {
     if (!user) {
       toast.error('You must be logged in to checkout');
       navigate('/login');
@@ -108,64 +114,96 @@ const Checkout = () => {
         pincode: formData.pincode
       };
 
-      if (paymentMethod === 'upi') {
-        // Handle UPI payment method
-        try {
-          // Create a direct order in the database
-          const { data: order, error: orderError } = await supabase
-            .from('orders')
-            .insert({
-              user_id: user.id,
-              total_amount: cartTotal,
-              payment_method: 'upi',
-              shipping_address: shippingAddress,
-              status: 'pending',
-              payment_status: 'pending',
-              transaction_id: `UPI_${Date.now()}`
-            })
-            .select()
-            .single();
-          
-          if (orderError) {
-            throw new Error(`Failed to create order: ${orderError.message}`);
-          }
-          
-          // Create order items
-          const orderItems = cartItems.map(item => ({
-            order_id: order.id,
-            product_id: item.product_id,
-            quantity: item.quantity,
-            price: item.product.price
-          }));
-          
-          const { error: itemsError } = await supabase
-            .from('order_items')
-            .insert(orderItems);
-          
-          if (itemsError) {
-            throw new Error(`Failed to create order items: ${itemsError.message}`);
-          }
-          
-          // Save order ID and redirect to confirmation page
-          localStorage.setItem('pendingOrderId', order.id);
-          await clearCart();
-          toast.success('Order placed successfully!');
-          navigate('/order-confirmation');
-        } catch (error: any) {
-          console.error('Error creating UPI order:', error);
-          setError(`Failed to create order: ${error.message}`);
-          toast.error(`Failed to create order: ${error.message}`);
-        }
-      } else {
-        setError('This payment method is not implemented yet');
-        toast.error('This payment method is not implemented yet');
+      // Create a pending order in the database
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert({
+          user_id: user.id,
+          total_amount: cartTotal,
+          payment_method: 'upi',
+          shipping_address: shippingAddress,
+          status: 'pending',
+          payment_status: 'pending',
+          transaction_id: `UPI_PENDING_${Date.now()}`
+        })
+        .select()
+        .single();
+      
+      if (orderError) {
+        throw new Error(`Failed to create order: ${orderError.message}`);
       }
+      
+      // Create order items
+      const orderItems = cartItems.map(item => ({
+        order_id: order.id,
+        product_id: item.product_id,
+        quantity: item.quantity,
+        price: item.product.price
+      }));
+      
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+      
+      if (itemsError) {
+        throw new Error(`Failed to create order items: ${itemsError.message}`);
+      }
+      
+      setPendingOrderId(order.id);
+      setOrderCreated(true);
+      toast.success('Order created! Please complete the payment to confirm your order.');
+      
     } catch (error: any) {
-      console.error('Error processing order:', error);
-      setError(`Failed to process your order: ${error.message || 'Unknown error'}`);
-      toast.error('Failed to process your order. Please try again.');
+      console.error('Error creating order:', error);
+      setError(`Failed to create order: ${error.message}`);
+      toast.error(`Failed to create order: ${error.message}`);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const confirmPayment = async () => {
+    if (!pendingOrderId) {
+      toast.error('No pending order found');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Update order status to confirmed
+      const { error: updateError } = await supabase
+        .from('orders')
+        .update({
+          status: 'confirmed',
+          payment_status: 'completed',
+          transaction_id: `UPI_COMPLETED_${Date.now()}`
+        })
+        .eq('id', pendingOrderId);
+      
+      if (updateError) {
+        throw new Error(`Failed to confirm payment: ${updateError.message}`);
+      }
+      
+      // Clear cart and redirect
+      await clearCart();
+      localStorage.setItem('pendingOrderId', pendingOrderId);
+      toast.success('Payment confirmed! Your order has been placed successfully.');
+      navigate('/order-confirmation');
+      
+    } catch (error: any) {
+      console.error('Error confirming payment:', error);
+      toast.error(`Failed to confirm payment: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!orderCreated) {
+      await createPendingOrder();
     }
   };
 
@@ -195,6 +233,15 @@ const Checkout = () => {
           </Alert>
         )}
 
+        {orderCreated && (
+          <Alert className="mb-6 bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              Order created successfully! Please complete the payment using the UPI options below, then click "Confirm Payment" to finalize your order.
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
             <form onSubmit={handleSubmit}>
@@ -209,6 +256,7 @@ const Checkout = () => {
                       value={formData.name}
                       onChange={handleInputChange}
                       required
+                      disabled={orderCreated}
                     />
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -221,6 +269,7 @@ const Checkout = () => {
                         value={formData.email}
                         onChange={handleInputChange}
                         required
+                        disabled={orderCreated}
                       />
                     </div>
                     <div>
@@ -231,6 +280,7 @@ const Checkout = () => {
                         value={formData.phone}
                         onChange={handleInputChange}
                         required
+                        disabled={orderCreated}
                       />
                     </div>
                   </div>
@@ -242,6 +292,7 @@ const Checkout = () => {
                       value={formData.address}
                       onChange={handleInputChange}
                       required
+                      disabled={orderCreated}
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -253,6 +304,7 @@ const Checkout = () => {
                         value={formData.city}
                         onChange={handleInputChange}
                         required
+                        disabled={orderCreated}
                       />
                     </div>
                     <div>
@@ -263,6 +315,7 @@ const Checkout = () => {
                         value={formData.state}
                         onChange={handleInputChange}
                         required
+                        disabled={orderCreated}
                       />
                     </div>
                   </div>
@@ -274,6 +327,7 @@ const Checkout = () => {
                       value={formData.pincode}
                       onChange={handleInputChange}
                       required
+                      disabled={orderCreated}
                     />
                   </div>
                 </div>
@@ -286,6 +340,7 @@ const Checkout = () => {
                   value={paymentMethod}
                   onValueChange={setPaymentMethod}
                   className="space-y-3"
+                  disabled={orderCreated}
                 >
                   <div className="flex items-center space-x-2 border rounded-md p-3 cursor-pointer hover:bg-gray-50">
                     <RadioGroupItem value="upi" id="upi" />
@@ -304,9 +359,36 @@ const Checkout = () => {
                   </div>
                 </RadioGroup>
 
-                {paymentMethod === 'upi' && (
+                {paymentMethod === 'upi' && orderCreated && (
                   <div className="mt-4">
-                    <UPIPayment upiId={upiId} setUpiId={setUpiId} amount={cartTotal} />
+                    <UPIPayment 
+                      upiId={upiId} 
+                      setUpiId={setUpiId} 
+                      amount={cartTotal}
+                      onPaymentInitiated={handlePaymentInitiated}
+                    />
+                    
+                    {paymentInitiated && (
+                      <div className="mt-4">
+                        <Button
+                          onClick={confirmPayment}
+                          disabled={loading}
+                          className="w-full bg-green-600 hover:bg-green-700"
+                        >
+                          {loading ? (
+                            <>
+                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                              Confirming...
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="mr-2 h-4 w-4" />
+                              Confirm Payment Completed
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -317,20 +399,22 @@ const Checkout = () => {
                 )}
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={loading}
-              >
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  'Place Order'
-                )}
-              </Button>
+              {!orderCreated && (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating Order...
+                    </>
+                  ) : (
+                    'Create Order'
+                  )}
+                </Button>
+              )}
             </form>
           </div>
 
