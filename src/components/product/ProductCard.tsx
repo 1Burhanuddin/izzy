@@ -80,6 +80,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     return Math.floor(Math.random() * 200) + 50;
   };
 
+  // Generate realistic discount percentage based on product ID for consistency
+  const getDiscountPercentage = () => {
+    // Use product ID to generate consistent discount for each product
+    const hash = id.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    
+    // Generate realistic discount between 5% and 50%
+    const discount = Math.abs(hash) % 46 + 5; // 5% to 50%
+    return discount;
+  };
+
   return (
     <ProductRevealCard
       name={name}
@@ -90,6 +103,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       availability={availability}
       rating={getRating()}
       reviewCount={getReviewCount()}
+      discountPercentage={getDiscountPercentage()}
       isFavorite={isFavorite(id)}
       onAdd={handleAddToCart}
       onFavorite={handleFavorite}
