@@ -79,18 +79,25 @@ const UPIPayment: React.FC<UPIPaymentProps> = ({
   };
 
   const openUPIApp = (app: string) => {
-    const merchantName = "Payment";
+    // const merchantName = "Payment";
     
     // Format amount properly to avoid bank limit errors
     // UPI implementations can be sensitive to amount formatting
     // Using a clean number without trailing zeros to avoid parsing issues
-    const amountValue = Number(amount.toFixed(2));
+    // const amountValue = Number(amount.toFixed(2));
     
     // Use properly formatted amount in the URL
     // Some UPI apps have issues with large numbers or specific formats
     // Using a simple number format helps avoid "bank limit exceeded" errors
-    const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&am=${amountValue}&cu=INR&tr=${orderId || Date.now()}`;
+    // const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&am=${amountValue}&cu=INR&tr=${orderId || Date.now()}`;
     
+    const merchantName = "MUNDRAWALA BURHANUDDIN MURTAZABHAI"; // Actual payee name
+const transactionNote = "Order Payment";       // Required by some banks
+const amountValue = amount.toFixed(2);         // Always 2 decimals
+const transactionRef = orderId || `TXN${Date.now()}`;
+
+const upiUrl = `upi://pay?pa=${merchantUpiId}&pn=${encodeURIComponent(merchantName)}&tn=${encodeURIComponent(transactionNote)}&am=${amountValue}&cu=INR&tr=${transactionRef}`;
+
     console.log(`Opening ${app} with URL:`, upiUrl);
     
     try {
