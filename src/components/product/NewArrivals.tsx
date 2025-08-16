@@ -80,7 +80,7 @@ const NewArrivals: React.FC = () => {
             <div>
               <TextShimmer
                 as="h2"
-                className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 text-gradient-deep-blue"
+                className="text-2xl md:text-4xl font-bold mb-2 md:mb-3 text-black"
                 duration={2.5}
               >
                 Featured Collections

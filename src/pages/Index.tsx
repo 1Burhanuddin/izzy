@@ -5,7 +5,6 @@ import NewArrivals from '@/components/product/NewArrivals';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { useCart } from '@/contexts/CartContext';
 import CategoriesSection from '@/components/home/CategoriesSection';
-import FeaturesSection from '@/components/home/FeaturesSection';
 import ContactSection from '@/components/contact/ContactSection';
 import BestSellers from '@/components/product/BestSellers';
 import { DemoBackgroundPaths } from '@/components/ui/background-paths-demo';
@@ -20,9 +19,6 @@ const Index = () => {
       
       {/* Background Paths Hero Section */}
       <DemoBackgroundPaths />
-      
-      {/* Features Section - Early placement for impact */}
-      <FeaturesSection />
       
       {/* New Arrivals with enhanced styling */}
       <div className="relative">
