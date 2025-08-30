@@ -17,7 +17,7 @@ import {
   SidebarGroup,
   SidebarGroupContent
 } from '@/components/ui/sidebar';
-import { Home, ShoppingBag, Search, User, SquareStack, ShieldCheck, Heart, HelpCircle } from 'lucide-react';
+import { Home, ShoppingBag, Search, User, SquareStack, ShieldCheck, Heart, HelpCircle, Info, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -40,6 +40,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const menuItems = [
     { title: 'Home', icon: Home, url: '/' },
     { title: 'Products', icon: ShoppingBag, url: '/products' },
+    { title: 'About Us', icon: Info, url: '/about' },
+    { title: 'Careers', icon: Briefcase, url: '/careers' },
     { title: 'Favorites', icon: Heart, url: '/favorites' },
     { title: 'Support', icon: HelpCircle, url: '/support' },
   ];

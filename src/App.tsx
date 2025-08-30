@@ -24,6 +24,9 @@ import Checkout from "./pages/Checkout";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import UserProfile from "./pages/UserProfile";
 import Favorites from "./pages/Favorites";
+import AboutUs from "./pages/AboutUs";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Careers from "./pages/Careers";
 
 // Create a QueryClient instance outside the component
 // This ensures it's only created once and not on every render
@@ -45,6 +48,9 @@ const App = () => {
                   <Route path="/products" element={<ProductsPage />} />
                   <Route path="/products/:category" element={<ProductsPage />} />
                   <Route path="/product/:id" element={<ProductDetail />} />
+                  <Route path="/about" element={<AboutUs />} />
+                  <Route path="/privacy" element={<PrivacyPolicy />} />
+                  <Route path="/careers" element={<Careers />} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
                   
