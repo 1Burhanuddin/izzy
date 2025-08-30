@@ -6,16 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const PrivacyPolicy = () => {
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-16">
           {/* Hero Section */}
           <div className="text-center mb-16">
-            <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
-                <Shield className="h-10 w-10 text-blue-600" />
-              </div>
-            </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black">
               Privacy Policy
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -26,10 +21,10 @@ const PrivacyPolicy = () => {
 
           <div className="max-w-4xl mx-auto space-y-8">
             {/* Information We Collect */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <FileText className="h-6 w-6 text-blue-600" />
+                  <FileText className="h-6 w-6 text-black" />
                   Information We Collect
                 </CardTitle>
               </CardHeader>
@@ -55,33 +50,33 @@ const PrivacyPolicy = () => {
             </Card>
 
             {/* How We Use Information */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <UserCheck className="h-6 w-6 text-green-600" />
+                  <UserCheck className="h-6 w-6 text-black" />
                   How We Use Your Information
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 text-gray-600">
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>To provide glass and aluminum installation services</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>To communicate about your projects and service requests</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>To process payments and manage billing</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>To improve our services and customer experience</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-green-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>To send service updates and promotional offers (with your consent)</span>
                   </li>
                 </ul>
@@ -89,10 +84,10 @@ const PrivacyPolicy = () => {
             </Card>
 
             {/* Information Sharing */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <Eye className="h-6 w-6 text-purple-600" />
+                  <Eye className="h-6 w-6 text-black" />
                   Information Sharing
                 </CardTitle>
               </CardHeader>
@@ -102,15 +97,15 @@ const PrivacyPolicy = () => {
                 </p>
                 <ul className="space-y-2 text-gray-600">
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>With trusted service providers who assist in our operations (payment processors, delivery services)</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>When required by law or to protect our rights and safety</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>With your explicit consent for specific purposes</span>
                   </li>
                 </ul>
@@ -118,10 +113,10 @@ const PrivacyPolicy = () => {
             </Card>
 
             {/* Data Security */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <Lock className="h-6 w-6 text-red-600" />
+                  <Lock className="h-6 w-6 text-black" />
                   Data Security
                 </CardTitle>
               </CardHeader>
@@ -131,19 +126,19 @@ const PrivacyPolicy = () => {
                 </p>
                 <ul className="space-y-2 text-gray-600">
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Secure data transmission and storage</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Regular security assessments and updates</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Limited access to personal information on a need-to-know basis</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-red-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Secure payment processing through trusted providers</span>
                   </li>
                 </ul>
@@ -151,10 +146,10 @@ const PrivacyPolicy = () => {
             </Card>
 
             {/* Your Rights */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-3">
-                  <UserCheck className="h-6 w-6 text-orange-600" />
+                  <UserCheck className="h-6 w-6 text-black" />
                   Your Rights
                 </CardTitle>
               </CardHeader>
@@ -162,19 +157,19 @@ const PrivacyPolicy = () => {
                 <p className="text-gray-600 mb-4">You have the right to:</p>
                 <ul className="space-y-2 text-gray-600">
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Access and review your personal information</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Request corrections to inaccurate information</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Request deletion of your personal information</span>
                   </li>
                   <li className="flex items-start gap-3">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full mt-2"></div>
+                    <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                     <span>Opt out of marketing communications</span>
                   </li>
                 </ul>
@@ -182,7 +177,7 @@ const PrivacyPolicy = () => {
             </Card>
 
             {/* Contact Information */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle>Contact Us</CardTitle>
               </CardHeader>
@@ -199,7 +194,7 @@ const PrivacyPolicy = () => {
             </Card>
 
             {/* Policy Updates */}
-            <Card>
+            <Card className="border-2">
               <CardHeader>
                 <CardTitle>Policy Updates</CardTitle>
               </CardHeader>

@@ -86,16 +86,16 @@ const Careers = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="min-h-screen bg-white">
         <div className="container mx-auto px-4 py-16">
           {/* Hero Section */}
           <div className="text-center mb-16">
             <div className="flex justify-center mb-6">
-              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
-                <Users className="h-10 w-10 text-blue-600" />
+              <div className="w-20 h-20 bg-gray-100 border-2 border-black rounded-full flex items-center justify-center">
+                <Users className="h-10 w-10 text-black" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-black">
               Join Our Team
             </h1>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -108,10 +108,10 @@ const Careers = () => {
             <h2 className="text-3xl font-bold text-center mb-12">Why Work With Us?</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {benefits.map((benefit, index) => (
-                <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+                <Card key={index} className="text-center hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-2">
                   <CardHeader>
-                    <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <benefit.icon className="h-8 w-8 text-blue-600" />
+                    <div className="w-16 h-16 bg-gray-100 border-2 border-black rounded-full flex items-center justify-center mx-auto mb-4">
+                      <benefit.icon className="h-8 w-8 text-black" />
                     </div>
                     <CardTitle className="text-lg">{benefit.title}</CardTitle>
                   </CardHeader>
@@ -128,7 +128,7 @@ const Careers = () => {
             <h2 className="text-3xl font-bold text-center mb-12">Current Job Openings</h2>
             <div className="space-y-6">
               {jobOpenings.map((job, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300">
+                <Card key={index} className="hover:shadow-lg transition-all duration-300 border-2">
                   <CardHeader>
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div>
@@ -142,7 +142,7 @@ const Careers = () => {
                           </Badge>
                         </div>
                       </div>
-                      <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                      <Button className="bg-black hover:bg-gray-800 text-white">
                         Apply Now
                       </Button>
                     </div>
@@ -154,7 +154,7 @@ const Careers = () => {
                       <ul className="space-y-1">
                         {job.requirements.map((req, reqIndex) => (
                           <li key={reqIndex} className="flex items-start gap-2 text-gray-600">
-                            <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                            <div className="w-2 h-2 bg-black rounded-full mt-2"></div>
                             <span>{req}</span>
                           </li>
                         ))}
@@ -171,24 +171,24 @@ const Careers = () => {
             <h2 className="text-3xl font-bold text-center mb-12">How to Apply</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-blue-600">1</span>
+                <div className="w-16 h-16 bg-gray-100 border-2 border-black rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-black">1</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Submit Application</h3>
                 <p className="text-gray-600">Send your resume and contact details to our email or visit our office directly.</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-purple-600">2</span>
+                <div className="w-16 h-16 bg-gray-100 border-2 border-black rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-black">2</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Skill Assessment</h3>
                 <p className="text-gray-600">Demonstrate your skills through a practical assessment relevant to the position.</p>
               </div>
               
               <div className="text-center">
-                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl font-bold text-green-600">3</span>
+                <div className="w-16 h-16 bg-gray-100 border-2 border-black rounded-full flex items-center justify-center mx-auto mb-4">
+                  <span className="text-2xl font-bold text-black">3</span>
                 </div>
                 <h3 className="text-xl font-semibold mb-2">Join Our Team</h3>
                 <p className="text-gray-600">Start your career with comprehensive training and ongoing support.</p>
@@ -197,7 +197,7 @@ const Careers = () => {
           </div>
 
           {/* Contact for Applications */}
-          <div className="text-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl p-8">
+          <div className="text-center bg-black text-white rounded-2xl p-8">
             <div className="flex justify-center mb-6">
               <Wrench className="h-12 w-12" />
             </div>
